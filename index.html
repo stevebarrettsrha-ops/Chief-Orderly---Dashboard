@@ -1,0 +1,3375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Orderlies Management System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #6ee7b7 0%, #7dd3fc 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* LOGIN PAGE STYLES */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-title {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .login-subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .login-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .login-error {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+            border-left: 4px solid #c33;
+        }
+
+        .login-info {
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border-left: 4px solid #1565c0;
+            transition: all 0.3s ease;
+        }
+
+        .login-info.loading {
+            background: #fff3e0;
+            color: #e65100;
+            border-left-color: #e65100;
+        }
+
+        .login-info.ready {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left-color: #2e7d32;
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: #666;
+            font-size: 13px;
+        }
+
+        /* NAVIGATION */
+        .nav-header {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .nav-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-title h1 {
+            color: #1a202c;
+            font-size: 28px;
+        }
+
+        .main-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            background: #f7fafc;
+            padding: 6px;
+            border-radius: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            background: transparent;
+            color: #718096;
+        }
+
+        .nav-tab:hover {
+            color: #1a202c;
+            background: #e2e8f0;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 10px 20px;
+            border-radius: 25px;
+            white-space: nowrap;
+        }
+
+        .user-info span {
+            color: #1a202c;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+        }
+
+        .view-section {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* COMMON STYLES */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #0ea5e9;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0284c7;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            background: #fef5e7;
+            border-left: 4px solid #f39c12;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* MODAL STYLES */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 900px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #718096;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+        }
+
+        .modal-close:hover {
+            background: #e2e8f0;
+            color: #1a202c;
+        }
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 14px 14px 45px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0aec0;
+        }
+
+        .add-form {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .add-form.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 6px;
+        }
+
+        .form-group input, .form-group select {
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #0ea5e9;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .staff-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .staff-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .staff-card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-actions {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: #f7fafc;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+
+        .icon-btn:hover:not(:disabled) {
+            background: #e2e8f0;
+            transform: scale(1.1);
+        }
+
+        .icon-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .icon-btn.edit:hover:not(:disabled) {
+            background: #dbeafe;
+            color: #0ea5e9;
+        }
+
+        .icon-btn.delete:hover:not(:disabled) {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 16px;
+            padding-right: 70px;
+        }
+
+        .card-info h3 {
+            color: #1a202c;
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .card-info p {
+            color: #718096;
+            font-size: 13px;
+        }
+
+        .total-badge {
+            font-size: 28px;
+            font-weight: bold;
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        .status-green {
+            color: #38a169;
+            background: #f0fff4;
+        }
+
+        .status-yellow {
+            color: #d69e2e;
+            background: #fffff0;
+        }
+
+        .status-red {
+            color: #e53e3e;
+            background: #fff5f5;
+        }
+
+        .department {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #4a5568;
+            font-size: 14px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .details {
+            display: none;
+            padding-top: 16px;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .details.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+
+        .detail-label {
+            color: #718096;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 12px;
+            color: #a0aec0;
+        }
+
+        .footer-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .empty-state {
+            background: white;
+            border-radius: 12px;
+            padding: 60px 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: #edf2f7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: #cbd5e0;
+        }
+
+        .stats-bar {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-item-basic {
+            text-align: center;
+        }
+
+        .stat-value-basic {
+            font-size: 32px;
+            font-weight: bold;
+            color: #10b981;
+        }
+
+        .stat-label-basic {
+            font-size: 14px;
+            color: #718096;
+            margin-top: 4px;
+        }
+
+        /* ANALYTICS STYLES */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 18px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .metric-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .metric-icon.green {
+            background: #d1fae5;
+            color: #10b981;
+        }
+
+        .metric-icon.blue {
+            background: #dbeafe;
+            color: #0ea5e9;
+        }
+
+        .metric-icon.purple {
+            background: #e9d5ff;
+            color: #a855f7;
+        }
+
+        .metric-icon.orange {
+            background: #fed7aa;
+            color: #f97316;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 4px;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-card h3 {
+            color: #1a202c;
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .chart-container.tall {
+            height: 400px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .section-header {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .department-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .department-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .department-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .department-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .department-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .department-count {
+            background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .department-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .stat-item-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1a202c;
+        }
+
+        .stat-item-label {
+            font-size: 11px;
+            color: #718096;
+            margin-top: 4px;
+        }
+
+        /* SCHEDULE CALENDAR STYLES */
+        .schedule-controls {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .calendar-nav button {
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .calendar-nav button:hover {
+            background: #0284c7;
+        }
+
+        .calendar-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1a202c;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .dept-select {
+            padding: 10px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            min-width: 200px;
+        }
+
+        .calendar-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            background: #e2e8f0;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .calendar-header {
+            background: #10b981;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .calendar-day {
+            background: white;
+            min-height: 100px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .calendar-day:hover {
+            background: #f0f9ff;
+        }
+
+        .calendar-day.other-month {
+            background: #f7fafc;
+            opacity: 0.5;
+        }
+
+        .calendar-day.today {
+            background: #fef3c7;
+        }
+
+        .day-number {
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .day-assignments {
+            font-size: 11px;
+            color: #718096;
+            margin-top: 4px;
+        }
+
+        .assignment-badge {
+            background: #10b981;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 2px;
+            font-size: 10px;
+        }
+
+        .schedule-modal-content {
+            max-width: 600px;
+        }
+
+        .staff-assignment-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+
+        .staff-assignment-item {
+            background: #f7fafc;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+        }
+
+        .staff-assignment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .staff-assignment-name {
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        .remove-assignment {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .time-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .time-input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .time-input-group label {
+            font-size: 12px;
+            color: #718096;
+            margin-bottom: 4px;
+        }
+
+        .time-input-group input {
+            padding: 6px 8px;
+            border: 2px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .add-staff-section {
+            border-top: 2px solid #e2e8f0;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        .staff-selector {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        /* REPORTS STYLES */
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .report-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .report-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            border-color: #0ea5e9;
+        }
+
+        .report-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+        }
+
+        .report-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 8px;
+        }
+
+        .report-description {
+            font-size: 13px;
+            color: #718096;
+            line-height: 1.5;
+        }
+
+        .print-area {
+            display: none;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .print-area, .print-area * {
+                visibility: visible;
+            }
+            .print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                display: block !important;
+            }
+        }
+
+        .print-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #0ea5e9;
+        }
+
+        .print-header h1 {
+            color: #1a202c;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .print-header p {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .print-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .print-table th {
+            background: #f7fafc;
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #e2e8f0;
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        .print-table td {
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            color: #4a5568;
+        }
+
+        .print-table tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        .print-summary {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .print-summary-item {
+            text-align: center;
+        }
+
+        .print-summary-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #10b981;
+        }
+
+        .print-summary-label {
+            font-size: 14px;
+            color: #718096;
+            margin-top: 4px;
+        }
+
+        .staff-list {
+            margin-top: 20px;
+        }
+
+        .staff-list-item {
+            background: #f7fafc;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #0ea5e9;
+        }
+
+        .staff-list-item h4 {
+            color: #1a202c;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .staff-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .staff-detail-item {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            .header-top {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .nav-tabs {
+                width: 100%;
+                flex-direction: column;
+            }
+            .nav-tab {
+                width: 100%;
+                justify-content: center;
+            }
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+            .calendar-grid {
+                font-size: 12px;
+            }
+            .calendar-day {
+                min-height: 80px;
+                padding: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- LOGIN PAGE -->
+    <div class="login-container" id="loginPage">
+        <div class="login-box">
+            <div class="login-header">
+                <h1 class="login-title">🔒 Secure Access</h1>
+                <p class="login-subtitle">Hospital Orderlies Management System</p>
+            </div>
+            
+            <div id="loginInfo" class="login-info loading">
+                ⏳ Loading system credentials...
+            </div>
+            
+            <div id="loginError" class="login-error"></div>
+            
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" class="login-input" placeholder="Enter username" required autocomplete="username">
+                </div>
+                
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="login-input" placeholder="Enter password" required autocomplete="current-password">
+                </div>
+                
+                <button type="submit" class="login-btn">Sign In</button>
+            </form>
+            
+            <div class="login-footer">
+                <p>⚠️ Authorized Personnel Only</p>
+                <p style="margin-top: 10px; font-size: 12px;">💡 Admin/Manager roles can edit staff data</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD (Hidden until login) -->
+    <div class="container" id="dashboardContainer" style="display: none;">
+        <!-- Main Navigation Header -->
+        <div class="nav-header">
+            <div class="nav-top">
+                <div class="nav-title">
+                    <div class="main-icon">🏥</div>
+                    <div>
+                        <h1>Hospital Orderlies Management System</h1>
+                        <p style="color: #718096; font-size: 14px; margin-top: 4px;">Complete Staff Monitoring & Analytics</p>
+                    </div>
+                </div>
+                <div class="user-info" id="userInfo"></div>
+            </div>
+            
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-view="monitor">
+                    <span>👥</span>
+                    <span>Staff Monitor</span>
+                </button>
+                <button class="nav-tab" data-view="analytics">
+                    <span>📊</span>
+                    <span>Analytics</span>
+                </button>
+                <button class="nav-tab" data-view="schedule">
+                    <span>📅</span>
+                    <span>Schedule</span>
+                </button>
+                <button class="nav-tab" data-view="reports">
+                    <span>📄</span>
+                    <span>Reports</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Alert -->
+        <div id="alertBox" class="alert"></div>
+
+        <!-- Edit Staff Modal -->
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 style="color: #1a202c;">Edit Staff Member</h2>
+                    <button class="modal-close" onclick="closeEditModal()">×</button>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Name *</label>
+                        <input type="text" id="editStaffName">
+                    </div>
+                    <div class="form-group">
+                        <label>TRN *</label>
+                        <input type="text" id="editStaffTrn">
+                    </div>
+                    <div class="form-group">
+                        <label>Department *</label>
+                        <input type="text" id="editStaffDepartment">
+                    </div>
+                    <div class="form-group">
+                        <label>Days Off</label>
+                        <input type="number" id="editStaffDayOff" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Sick Leave</label>
+                        <input type="number" id="editStaffSickLeave" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Claims</label>
+                        <input type="number" id="editStaffClaims" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Departmental Leave</label>
+                        <input type="number" id="editStaffDeptLeave" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Over-Time</label>
+                        <input type="number" id="editStaffOverTime" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Late</label>
+                        <input type="number" id="editStaffLate" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Vacation Leave</label>
+                        <input type="number" id="editStaffVacation" min="0">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                    <button class="btn btn-success" onclick="saveEditStaff()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Department Detail Modal -->
+        <div id="departmentModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="departmentModalTitle" style="color: #1a202c;">Department Details</h2>
+                    <button class="modal-close" onclick="closeDepartmentModal()">×</button>
+                </div>
+                <div id="departmentModalContent"></div>
+            </div>
+        </div>
+
+        <!-- Schedule Day Modal -->
+        <div id="scheduleDayModal" class="modal">
+            <div class="modal-content schedule-modal-content">
+                <div class="modal-header">
+                    <h2 id="scheduleDayTitle" style="color: #1a202c;">Schedule for Date</h2>
+                    <button class="modal-close" onclick="closeScheduleDayModal()">×</button>
+                </div>
+                <div id="scheduleDayContent">
+                    <div class="staff-assignment-list" id="assignmentsList"></div>
+                    <div class="add-staff-section">
+                        <h3 style="margin-bottom: 10px;">Add Staff to This Day</h3>
+                        <select class="staff-selector" id="staffToAdd">
+                            <option value="">Select Staff Member...</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="addStaffToDay()" style="width: 100%; justify-content: center;">Add Staff</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff Selection Modal (for reports) -->
+        <div id="staffSelectionModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 style="color: #1a202c;">Select Staff Member</h2>
+                    <button class="modal-close" onclick="closeStaffSelectionModal()">×</button>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <input 
+                        type="text" 
+                        id="staffSearchInput" 
+                        placeholder="Search staff by name or TRN..." 
+                        style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;"
+                        oninput="filterStaffSelection()"
+                    >
+                </div>
+                <div id="staffSelectionList" style="max-height: 400px; overflow-y: auto;"></div>
+            </div>
+        </div>
+
+        <!-- STAFF MONITOR VIEW -->
+        <div id="monitorView" class="view-section active">
+            <div class="header">
+                <div class="header-top">
+                    <h2 style="color: #1a202c; font-size: 22px;">Staff Directory</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-secondary" onclick="refreshData()">
+                            <span>🔄</span>
+                            <span>Refresh</span>
+                        </button>
+                        <button class="btn btn-primary" onclick="toggleAddForm()" id="addStaffBtn">
+                            <span>➕</span>
+                            <span>Add Staff</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="Search by name, TRN, or department..." 
+                        oninput="filterStaff()"
+                    >
+                </div>
+            </div>
+
+            <div id="addForm" class="add-form">
+                <h2 style="margin-bottom: 20px; color: #1a202c;">Add New Staff Member</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Name *</label>
+                        <input type="text" id="staffName">
+                    </div>
+                    <div class="form-group">
+                        <label>TRN *</label>
+                        <input type="text" id="staffTrn">
+                    </div>
+                    <div class="form-group">
+                        <label>Department *</label>
+                        <input type="text" id="staffDepartment">
+                    </div>
+                    <div class="form-group">
+                        <label>Days Off</label>
+                        <input type="number" id="staffDayOff" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Sick Leave</label>
+                        <input type="number" id="staffSickLeave" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Claims</label>
+                        <input type="number" id="staffClaims" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Departmental Leave</label>
+                        <input type="number" id="staffDeptLeave" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Over-Time</label>
+                        <input type="number" id="staffOverTime" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Late</label>
+                        <input type="number" id="staffLate" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Vacation Leave</label>
+                        <input type="number" id="staffVacation" value="0" min="0">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="toggleAddForm()">Cancel</button>
+                    <button class="btn btn-primary" onclick="addStaff()">Add Staff</button>
+                </div>
+            </div>
+
+            <div class="stats-bar">
+                <div class="stat-item-basic">
+                    <div class="stat-value-basic" id="monitorTotalStaff">0</div>
+                    <div class="stat-label-basic">Total Staff</div>
+                </div>
+                <div class="stat-item-basic">
+                    <div class="stat-value-basic" id="monitorTotalAbsences">0</div>
+                    <div class="stat-label-basic">Total Absences</div>
+                </div>
+                <div class="stat-item-basic">
+                    <div class="stat-value-basic" id="monitorAvgAbsences">0</div>
+                    <div class="stat-label-basic">Avg per Staff</div>
+                </div>
+            </div>
+
+            <div id="staffGrid" class="staff-grid"></div>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-state-icon">😔</div>
+                <h3 style="color: #2d3748; margin-bottom: 8px;">No staff members found</h3>
+                <p style="color: #718096;">Try adjusting your search or add a new staff member.</p>
+            </div>
+        </div>
+
+        <!-- ANALYTICS VIEW -->
+        <div id="analyticsView" class="view-section">
+            <div id="loading" class="loading">Loading analytics data...</div>
+
+            <div id="metricsSection" class="metrics-grid" style="display: none;">
+                <div class="metric-card">
+                    <div class="metric-icon green">👥</div>
+                    <div class="metric-value" id="totalStaff">0</div>
+                    <div class="metric-label">Total Staff</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon blue">🏥</div>
+                    <div class="metric-value" id="totalDepartments">0</div>
+                    <div class="metric-label">Departments</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon purple">📅</div>
+                    <div class="metric-value" id="totalAbsences">0</div>
+                    <div class="metric-label">Total Absences</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon orange">⏰</div>
+                    <div class="metric-value" id="totalOvertime">0</div>
+                    <div class="metric-label">Total Overtime Hours</div>
+                </div>
+            </div>
+
+            <div id="chartsSection" class="charts-grid" style="display: none;">
+                <div class="chart-card">
+                    <h3>📊 Staff Distribution by Department</h3>
+                    <div class="chart-container">
+                        <canvas id="departmentPieChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>📈 Absences by Department</h3>
+                    <div class="chart-container">
+                        <canvas id="absencesBarChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>⏰ Overtime by Department</h3>
+                    <div class="chart-container">
+                        <canvas id="overtimeBarChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>⏱️ Late Arrivals by Department</h3>
+                    <div class="chart-container">
+                        <canvas id="lateBarChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card full-width">
+                    <h3>📋 Comprehensive Leave Analysis</h3>
+                    <div class="chart-container tall">
+                        <canvas id="comprehensiveChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div id="departmentsSection" style="display: none;">
+                <h2 class="section-header">Department Performance Overview (Click to View Details)</h2>
+                <div id="departmentGrid" class="department-grid"></div>
+            </div>
+        </div>
+
+        <!-- SCHEDULE VIEW -->
+        <div id="scheduleView" class="view-section">
+            <div class="schedule-controls">
+                <div class="calendar-nav">
+                    <button onclick="previousMonth()">◀ Previous</button>
+                    <div class="calendar-title" id="calendarTitle">Loading...</div>
+                    <button onclick="nextMonth()">Next ▶</button>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <select class="dept-select" id="scheduleDeptSelect" onchange="renderCalendar()">
+                        <option value="">All Departments</option>
+                    </select>
+                    <button class="btn btn-success" onclick="syncScheduleNow()" title="Sync with Google Sheets">
+                        <span>🔄</span>
+                        <span>Sync</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="calendar-container">
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Calendar will be rendered here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- REPORTS VIEW -->
+        <div id="reportsView" class="view-section">
+            <div class="header">
+                <h2 style="color: #1a202c; font-size: 24px; margin-bottom: 8px;">Reports & Tools</h2>
+                <p style="color: #718096; font-size: 14px;">Generate and print comprehensive reports for analysis</p>
+            </div>
+
+            <div class="reports-grid">
+                <div class="report-card" onclick="showIndividualStaffReport()">
+                    <div class="report-icon">👤</div>
+                    <div class="report-title">Individual Staff Report</div>
+                    <div class="report-description">Generate detailed report for a specific staff member</div>
+                </div>
+
+                <div class="report-card" onclick="generateTotalStaffReport()">
+                    <div class="report-icon">📋</div>
+                    <div class="report-title">Total Staff Report</div>
+                    <div class="report-description">Complete overview of all staff members</div>
+                </div>
+
+                <div class="report-card" onclick="generateDepartmentalReport()">
+                    <div class="report-icon">🏥</div>
+                    <div class="report-title">Departmental Report</div>
+                    <div class="report-description">Performance metrics by department</div>
+                </div>
+
+                <div class="report-card" onclick="generateSickLeaveReport()">
+                    <div class="report-icon">🤒</div>
+                    <div class="report-title">Sick Leave Report</div>
+                    <div class="report-description">Analysis of sick leave patterns</div>
+                </div>
+
+                <div class="report-card" onclick="generateVacationReport()">
+                    <div class="report-icon">🏖️</div>
+                    <div class="report-title">Vacation Leave Report</div>
+                    <div class="report-description">Overview of vacation leave usage</div>
+                </div>
+
+                <div class="report-card" onclick="generateOvertimeReport()">
+                    <div class="report-icon">⏰</div>
+                    <div class="report-title">Overtime Report</div>
+                    <div class="report-description">Overtime hours tracking and analysis</div>
+                </div>
+
+                <div class="report-card" onclick="generateLateReport()">
+                    <div class="report-icon">⏱️</div>
+                    <div class="report-title">Late Arrivals Report</div>
+                    <div class="report-description">Track late arrival incidents</div>
+                </div>
+
+                <div class="report-card" onclick="generateClaimsReport()">
+                    <div class="report-icon">💰</div>
+                    <div class="report-title">Claims Report</div>
+                    <div class="report-description">Summary of all staff claims</div>
+                </div>
+
+                <div class="report-card" onclick="generateDayOffReport()">
+                    <div class="report-icon">📅</div>
+                    <div class="report-title">Day Off Report</div>
+                    <div class="report-description">Analysis of day off patterns</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="printArea" class="print-area"></div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURATION & GLOBAL VARIABLES
+        // ============================================
+        
+        const CREDENTIALS_SHEET_ID = '1FFLLw_xoKqhyFVOAzcKGKcI-9UloOOuu';
+        
+        const CONFIG = {
+            SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzWoFoWo5m_fXAF0t6X8HJGDMNGcLgd1pqFW7sv_5vGmV0a9EHtKVsCx2NukA1yDV5x/exec',
+            USE_GOOGLE_SHEETS: true,
+            SYNC_SCHEDULES_TO_SHEETS: true, // Set to false to use localStorage only
+            USE_FALLBACK_CREDENTIALS: true // Set to false to only use Google Sheets credentials
+        };
+
+        // Fallback credentials if Google Sheets fails to load
+        const FALLBACK_CREDENTIALS = {
+            'admin': {
+                password: 'admin123',
+                displayName: 'Admin User',
+                role: 'Admin',
+                email: 'admin@hospital.com'
+            },
+            'manager': {
+                password: 'manager123',
+                displayName: 'Manager User',
+                role: 'Manager',
+                email: 'manager@hospital.com'
+            },
+            'user': {
+                password: 'user123',
+                displayName: 'Regular User',
+                role: 'User',
+                email: 'user@hospital.com'
+            }
+        };
+
+        let currentUser = null;
+        let credentialsData = null;
+        let credentialsPromise = null;
+        let staffData = [];
+        let scheduleData = {}; // Format: { "2025-01-15": { "dept": [{ staffId, timeIn, timeOut }] } }
+        let charts = {};
+        let currentView = 'monitor';
+        let editingIndex = -1;
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let selectedDate = null;
+        let selectedDept = '';
+
+        // ============================================
+        // PERMISSION SYSTEM
+        // ============================================
+
+        function hasExportPrivileges() {
+            if (!currentUser) return false;
+            const role = currentUser.role.toLowerCase();
+            return role === 'admin' || role === 'manager';
+        }
+
+        function checkEditPermission() {
+            if (!hasExportPrivileges()) {
+                showAlert('⚠️ You do not have permission to edit staff data. Only Admin and Manager roles can edit.');
+                return false;
+            }
+            return true;
+        }
+
+        // ============================================
+        // LOGIN SYSTEM
+        // ============================================
+        
+        async function loadCredentials() {
+            const cached = sessionStorage.getItem('credentialsCache');
+            if (cached) {
+                try {
+                    credentialsData = JSON.parse(cached);
+                    console.log('Credentials loaded from cache');
+                    return true;
+                } catch (e) {
+                    sessionStorage.removeItem('credentialsCache');
+                }
+            }
+
+            // Try loading from Google Sheets
+            try {
+                const url = `https://docs.google.com/spreadsheets/d/${CREDENTIALS_SHEET_ID}/export?format=xlsx`;
+                
+                // Add timeout to prevent hanging
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+                
+                const response = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`, {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) throw new Error('Failed to load credentials sheet');
+                
+                const blob = await response.blob();
+                const arrayBuffer = await blob.arrayBuffer();
+                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const data = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+                
+                credentialsData = {};
+                for (let i = 1; i < data.length; i++) {
+                    const row = data[i];
+                    if (row[0]) {
+                        credentialsData[row[0].toString().toLowerCase()] = {
+                            password: row[1] ? row[1].toString() : '',
+                            displayName: row[2] ? row[2].toString() : row[0].toString(),
+                            role: row[3] ? row[3].toString() : 'User',
+                            email: row[4] ? row[4].toString() : ''
+                        };
+                    }
+                }
+                
+                sessionStorage.setItem('credentialsCache', JSON.stringify(credentialsData));
+                console.log('Credentials loaded from Google Sheets');
+                return true;
+            } catch (error) {
+                console.error('Error loading credentials from Google Sheets:', error);
+                
+                // Use fallback credentials if enabled
+                if (CONFIG.USE_FALLBACK_CREDENTIALS) {
+                    console.log('Using fallback credentials');
+                    credentialsData = FALLBACK_CREDENTIALS;
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const loginInfo = document.getElementById('loginInfo');
+            
+            credentialsPromise = loadCredentials().then(success => {
+                if (success) {
+                    loginInfo.className = 'login-info ready';
+                    loginInfo.textContent = '✅ System ready - Please sign in';
+                } else {
+                    loginInfo.className = 'login-info';
+                    loginInfo.style.background = '#ffebee';
+                    loginInfo.style.color = '#c62828';
+                    loginInfo.style.borderLeftColor = '#c62828';
+                    loginInfo.textContent = '❌ Failed to load credentials - Please refresh the page';
+                }
+                return success;
+            });
+
+            // Setup navigation event listeners with proper event delegation
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const view = this.getAttribute('data-view');
+                    switchView(view);
+                });
+            });
+
+            // Load schedule data from Google Sheets or localStorage
+            loadScheduleData();
+        });
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            const loginBtn = event.target.querySelector('.login-btn');
+            const originalText = loginBtn.textContent;
+            loginBtn.textContent = 'Loading...';
+            loginBtn.disabled = true;
+            
+            if (!credentialsData) {
+                errorDiv.textContent = '⏳ Loading credentials...';
+                errorDiv.style.display = 'block';
+                errorDiv.style.background = '#e3f2fd';
+                errorDiv.style.color = '#1565c0';
+                errorDiv.style.borderLeft = '4px solid #1565c0';
+                
+                await credentialsPromise;
+                
+                if (!credentialsData) {
+                    errorDiv.textContent = '❌ Failed to load credentials. Please refresh the page.';
+                    errorDiv.style.background = '#fee';
+                    errorDiv.style.color = '#c33';
+                    errorDiv.style.borderLeft = '4px solid #c33';
+                    loginBtn.textContent = originalText;
+                    loginBtn.disabled = false;
+                    return;
+                }
+            }
+            
+            const user = credentialsData[username];
+            
+            if (user && user.password === password) {
+                currentUser = { username, ...user };
+                
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('dashboardContainer').style.display = 'block';
+                updateUserInterface();
+                
+                if (CONFIG.USE_GOOGLE_SHEETS) {
+                    fetchFromSheets().catch(error => {
+                        console.error('Background data load failed:', error);
+                        showAlert('⚠️ Failed to load staff data. Please refresh.');
+                    });
+                } else {
+                    renderStaff();
+                    updateMonitorStats();
+                }
+            } else {
+                errorDiv.textContent = '❌ Invalid username or password';
+                errorDiv.style.display = 'block';
+                errorDiv.style.background = '#fee';
+                errorDiv.style.color = '#c33';
+                errorDiv.style.borderLeft = '4px solid #c33';
+                document.getElementById('password').value = '';
+                loginBtn.textContent = originalText;
+                loginBtn.disabled = false;
+            }
+        }
+
+        function updateUserInterface() {
+            const roleColor = hasExportPrivileges() ? '#10b981' : '#718096';
+            const userHTML = `
+                <span>👤 ${currentUser.displayName}</span>
+                <span style="opacity: 0.8; color: ${roleColor};">(${currentUser.role})</span>
+                <button class="logout-btn" onclick="handleLogout()">Logout</button>
+            `;
+            
+            const userInfo = document.getElementById('userInfo');
+            if (userInfo) userInfo.innerHTML = userHTML;
+
+            // Enable/disable add staff button based on permissions
+            const addStaffBtn = document.getElementById('addStaffBtn');
+            if (addStaffBtn) {
+                if (!hasExportPrivileges()) {
+                    addStaffBtn.disabled = true;
+                    addStaffBtn.title = 'Only Admin/Manager can add staff';
+                }
+            }
+        }
+
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                currentUser = null;
+                
+                sessionStorage.removeItem('staffDataCache');
+                sessionStorage.removeItem('staffDataCacheTime');
+                
+                document.getElementById('dashboardContainer').style.display = 'none';
+                document.getElementById('loginPage').style.display = 'flex';
+                document.getElementById('loginForm').reset();
+                document.getElementById('loginError').style.display = 'none';
+                
+                const loginInfo = document.getElementById('loginInfo');
+                loginInfo.className = 'login-info ready';
+                loginInfo.textContent = '✅ System ready - Please sign in';
+            }
+        }
+
+        function refreshData() {
+            sessionStorage.removeItem('staffDataCache');
+            sessionStorage.removeItem('staffDataCacheTime');
+            
+            if (CONFIG.USE_GOOGLE_SHEETS) {
+                fetchFromSheetsActual();
+            }
+        }
+
+        // ============================================
+        // DATA MANAGEMENT
+        // ============================================
+
+        function switchView(view) {
+            currentView = view;
+            
+            // Update active tab
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                if (tab.getAttribute('data-view') === view) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            // Hide all views
+            document.querySelectorAll('.view-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected view
+            if (view === 'monitor') {
+                document.getElementById('monitorView').classList.add('active');
+                renderStaff();
+                updateMonitorStats();
+            } else if (view === 'analytics') {
+                document.getElementById('analyticsView').classList.add('active');
+                loadAnalytics();
+            } else if (view === 'schedule') {
+                document.getElementById('scheduleView').classList.add('active');
+                initializeSchedule();
+            } else if (view === 'reports') {
+                document.getElementById('reportsView').classList.add('active');
+            }
+        }
+
+        async function fetchFromSheets() {
+            const cacheKey = 'staffDataCache';
+            const cacheTimeKey = 'staffDataCacheTime';
+            const cached = sessionStorage.getItem(cacheKey);
+            const cacheTime = sessionStorage.getItem(cacheTimeKey);
+            
+            if (cached && cacheTime) {
+                const age = Date.now() - parseInt(cacheTime);
+                if (age < 5 * 60 * 1000) {
+                    try {
+                        staffData = JSON.parse(cached);
+                        renderStaff();
+                        updateMonitorStats();
+                        showAlert(`✅ Loaded ${staffData.length} staff members (cached)`);
+                        fetchFromSheetsActual().catch(console.error);
+                        return;
+                    } catch (e) {
+                        sessionStorage.removeItem(cacheKey);
+                        sessionStorage.removeItem(cacheTimeKey);
+                    }
+                }
+            }
+            
+            await fetchFromSheetsActual();
+        }
+
+        async function fetchFromSheetsActual() {
+            try {
+                showAlert('📥 Fetching latest data...');
+                const response = await fetch(CONFIG.SCRIPT_URL);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                const result = await response.json();
+                if (result.status === 'success' && result.data && result.data.length > 1) {
+                    staffData = result.data.slice(1).map(row => ({
+                        name: row[0] || '',
+                        trn: row[1] || '',
+                        department: row[2] || '',
+                        dayOff: parseInt(row[3]) || 0,
+                        sickLeave: parseInt(row[4]) || 0,
+                        claims: parseInt(row[5]) || 0,
+                        departmentalLeave: parseInt(row[6]) || 0,
+                        overTime: parseInt(row[7]) || 0,
+                        late: parseInt(row[8]) || 0,
+                        vacationLeave: parseInt(row[9]) || 0
+                    }));
+                    
+                    sessionStorage.setItem('staffDataCache', JSON.stringify(staffData));
+                    sessionStorage.setItem('staffDataCacheTime', Date.now().toString());
+                    
+                    renderStaff();
+                    updateMonitorStats();
+                    showAlert(`✅ Successfully loaded ${staffData.length} staff members!`);
+                } else {
+                    throw new Error(result.message || 'No data found');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('❌ Failed to fetch data: ' + error.message);
+            }
+        }
+
+        async function addToSheets(staff) {
+            const response = await fetch(CONFIG.SCRIPT_URL, {
+                method: 'POST',
+                headers: {'Content-Type': 'text/plain'},
+                body: JSON.stringify({
+                    action: 'addRow',
+                    data: [staff.name, staff.trn, staff.department, staff.dayOff, staff.sickLeave, staff.claims, staff.departmentalLeave, staff.overTime, staff.late, staff.vacationLeave]
+                })
+            });
+            const result = await response.json();
+            if (result.status !== 'success') throw new Error(result.message || 'Failed to add data');
+        }
+
+        async function updateInSheets(index, staff) {
+            const response = await fetch(CONFIG.SCRIPT_URL, {
+                method: 'POST',
+                headers: {'Content-Type': 'text/plain'},
+                body: JSON.stringify({
+                    action: 'updateRow',
+                    rowIndex: index + 2,
+                    data: [staff.name, staff.trn, staff.department, staff.dayOff, staff.sickLeave, staff.claims, staff.departmentalLeave, staff.overTime, staff.late, staff.vacationLeave]
+                })
+            });
+            const result = await response.json();
+            if (result.status !== 'success') throw new Error(result.message || 'Failed to update');
+        }
+
+        async function deleteFromSheets(index) {
+            const response = await fetch(CONFIG.SCRIPT_URL, {
+                method: 'POST',
+                headers: {'Content-Type': 'text/plain'},
+                body: JSON.stringify({action: 'deleteRow', rowIndex: index + 2})
+            });
+            const result = await response.json();
+            if (result.status !== 'success') throw new Error(result.message || 'Failed to delete');
+        }
+
+        function toggleAddForm() {
+            if (!checkEditPermission()) return;
+            const form = document.getElementById('addForm');
+            form.classList.toggle('active');
+            if (!form.classList.contains('active')) clearForm();
+        }
+
+        function clearForm() {
+            ['staffName', 'staffTrn', 'staffDepartment'].forEach(id => document.getElementById(id).value = '');
+            ['staffDayOff', 'staffSickLeave', 'staffClaims', 'staffDeptLeave', 'staffOverTime', 'staffLate', 'staffVacation'].forEach(id => document.getElementById(id).value = '0');
+        }
+
+        async function addStaff() {
+            if (!checkEditPermission()) return;
+            
+            const name = document.getElementById('staffName').value.trim();
+            const trn = document.getElementById('staffTrn').value.trim();
+            const department = document.getElementById('staffDepartment').value.trim();
+
+            if (!name || !trn || !department) {
+                showAlert('⚠️ Please fill in all required fields');
+                return;
+            }
+
+            const newStaff = {
+                name, trn, department,
+                dayOff: parseInt(document.getElementById('staffDayOff').value) || 0,
+                sickLeave: parseInt(document.getElementById('staffSickLeave').value) || 0,
+                claims: parseInt(document.getElementById('staffClaims').value) || 0,
+                departmentalLeave: parseInt(document.getElementById('staffDeptLeave').value) || 0,
+                overTime: parseInt(document.getElementById('staffOverTime').value) || 0,
+                late: parseInt(document.getElementById('staffLate').value) || 0,
+                vacationLeave: parseInt(document.getElementById('staffVacation').value) || 0
+            };
+
+            try {
+                if (CONFIG.USE_GOOGLE_SHEETS) {
+                    showAlert('💾 Saving...');
+                    await addToSheets(newStaff);
+                    sessionStorage.removeItem('staffDataCache');
+                    sessionStorage.removeItem('staffDataCacheTime');
+                }
+                staffData.push(newStaff);
+                renderStaff();
+                updateMonitorStats();
+                toggleAddForm();
+                showAlert('✅ Staff member added successfully!');
+            } catch (error) {
+                showAlert('❌ Failed to add: ' + error.message);
+            }
+        }
+
+        function openEditModal(index) {
+            if (!checkEditPermission()) return;
+            
+            editingIndex = index;
+            const staff = staffData[index];
+            
+            document.getElementById('editStaffName').value = staff.name;
+            document.getElementById('editStaffTrn').value = staff.trn;
+            document.getElementById('editStaffDepartment').value = staff.department;
+            document.getElementById('editStaffDayOff').value = staff.dayOff;
+            document.getElementById('editStaffSickLeave').value = staff.sickLeave;
+            document.getElementById('editStaffClaims').value = staff.claims;
+            document.getElementById('editStaffDeptLeave').value = staff.departmentalLeave;
+            document.getElementById('editStaffOverTime').value = staff.overTime;
+            document.getElementById('editStaffLate').value = staff.late;
+            document.getElementById('editStaffVacation').value = staff.vacationLeave;
+            
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            editingIndex = -1;
+        }
+
+        async function saveEditStaff() {
+            if (editingIndex === -1 || !checkEditPermission()) return;
+            
+            const name = document.getElementById('editStaffName').value.trim();
+            const trn = document.getElementById('editStaffTrn').value.trim();
+            const department = document.getElementById('editStaffDepartment').value.trim();
+
+            if (!name || !trn || !department) {
+                showAlert('⚠️ Please fill in all required fields');
+                return;
+            }
+
+            const updatedStaff = {
+                name, trn, department,
+                dayOff: parseInt(document.getElementById('editStaffDayOff').value) || 0,
+                sickLeave: parseInt(document.getElementById('editStaffSickLeave').value) || 0,
+                claims: parseInt(document.getElementById('editStaffClaims').value) || 0,
+                departmentalLeave: parseInt(document.getElementById('editStaffDeptLeave').value) || 0,
+                overTime: parseInt(document.getElementById('editStaffOverTime').value) || 0,
+                late: parseInt(document.getElementById('editStaffLate').value) || 0,
+                vacationLeave: parseInt(document.getElementById('editStaffVacation').value) || 0
+            };
+
+            try {
+                if (CONFIG.USE_GOOGLE_SHEETS) {
+                    showAlert('💾 Updating...');
+                    await updateInSheets(editingIndex, updatedStaff);
+                    sessionStorage.removeItem('staffDataCache');
+                    sessionStorage.removeItem('staffDataCacheTime');
+                }
+                staffData[editingIndex] = updatedStaff;
+                renderStaff();
+                updateMonitorStats();
+                closeEditModal();
+                showAlert('✅ Updated successfully!');
+            } catch (error) {
+                showAlert('❌ Failed to update: ' + error.message);
+            }
+        }
+
+        async function deleteStaff(index) {
+            if (!checkEditPermission()) return;
+            if (!confirm('Are you sure you want to delete this staff member?')) return;
+            
+            try {
+                if (CONFIG.USE_GOOGLE_SHEETS) {
+                    showAlert('🗑️ Deleting...');
+                    await deleteFromSheets(index);
+                    sessionStorage.removeItem('staffDataCache');
+                    sessionStorage.removeItem('staffDataCacheTime');
+                }
+                staffData.splice(index, 1);
+                renderStaff();
+                updateMonitorStats();
+                showAlert('✅ Deleted successfully!');
+            } catch (error) {
+                showAlert('❌ Failed to delete: ' + error.message);
+            }
+        }
+
+        function calculateTotalDays(staff) {
+            return staff.dayOff + staff.sickLeave + staff.departmentalLeave + staff.vacationLeave;
+        }
+
+        function getStatusClass(days) {
+            if (days > 50) return 'status-red';
+            if (days > 30) return 'status-yellow';
+            return 'status-green';
+        }
+
+        function toggleDetails(index) {
+            document.getElementById(`details-${index}`).classList.toggle('active');
+        }
+
+        function renderStaff() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredData = staffData.filter(staff => 
+                staff.name.toLowerCase().includes(searchTerm) ||
+                staff.department.toLowerCase().includes(searchTerm) ||
+                staff.trn.toString().includes(searchTerm)
+            );
+
+            const grid = document.getElementById('staffGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            if (filteredData.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            const canEdit = hasExportPrivileges();
+
+            grid.innerHTML = filteredData.map((staff, index) => {
+                const actualIndex = staffData.indexOf(staff);
+                const totalDays = calculateTotalDays(staff);
+                const statusClass = getStatusClass(totalDays);
+                
+                return `
+                    <div class="staff-card">
+                        <div class="card-actions">
+                            <button class="icon-btn edit" onclick="openEditModal(${actualIndex})" ${!canEdit ? 'disabled title="Only Admin/Manager can edit"' : ''}>✏️</button>
+                            <button class="icon-btn delete" onclick="deleteStaff(${actualIndex})" ${!canEdit ? 'disabled title="Only Admin/Manager can delete"' : ''}>🗑️</button>
+                        </div>
+                        <div class="card-header" onclick="toggleDetails(${actualIndex})">
+                            <div class="card-info">
+                                <h3>${staff.name}</h3>
+                                <p>TRN: ${staff.trn}</p>
+                            </div>
+                            <div class="total-badge ${statusClass}">${totalDays}</div>
+                        </div>
+                        <div class="department" onclick="toggleDetails(${actualIndex})">
+                            <span>📋</span>
+                            <span>${staff.department}</span>
+                        </div>
+                        <div id="details-${actualIndex}" class="details">
+                            <div class="detail-row"><span class="detail-label">Day Off:</span><span class="detail-value">${staff.dayOff}</span></div>
+                            <div class="detail-row"><span class="detail-label">Sick Leave:</span><span class="detail-value">${staff.sickLeave}</span></div>
+                            <div class="detail-row"><span class="detail-label">Claims:</span><span class="detail-value">${staff.claims}</span></div>
+                            <div class="detail-row"><span class="detail-label">Dept. Leave:</span><span class="detail-value">${staff.departmentalLeave}</span></div>
+                            <div class="detail-row"><span class="detail-label">Over-Time:</span><span class="detail-value">${staff.overTime}</span></div>
+                            <div class="detail-row"><span class="detail-label">Late:</span><span class="detail-value">${staff.late}</span></div>
+                            <div class="detail-row"><span class="detail-label">Vacation:</span><span class="detail-value">${staff.vacationLeave}</span></div>
+                        </div>
+                        <div class="card-footer" onclick="toggleDetails(${actualIndex})">
+                            <div class="footer-item"><span>📅</span><span>Total: ${totalDays}</span></div>
+                            <div class="footer-item"><span>⏰</span><span>OT: ${staff.overTime}</span></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterStaff() {
+            renderStaff();
+        }
+
+        function updateMonitorStats() {
+            const totalStaff = staffData.length;
+            const totalAbsences = staffData.reduce((sum, staff) => sum + calculateTotalDays(staff), 0);
+            const avgAbsences = totalStaff > 0 ? Math.round(totalAbsences / totalStaff) : 0;
+            document.getElementById('monitorTotalStaff').textContent = totalStaff;
+            document.getElementById('monitorTotalAbsences').textContent = totalAbsences;
+            document.getElementById('monitorAvgAbsences').textContent = avgAbsences;
+        }
+
+        // ============================================
+        // ANALYTICS FUNCTIONS
+        // ============================================
+
+        function loadAnalytics() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('metricsSection').style.display = 'none';
+            document.getElementById('chartsSection').style.display = 'none';
+            document.getElementById('departmentsSection').style.display = 'none';
+            
+            setTimeout(() => processAnalyticsData(), 800);
+        }
+
+        function processAnalyticsData() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('metricsSection').style.display = 'grid';
+            document.getElementById('chartsSection').style.display = 'grid';
+            document.getElementById('departmentsSection').style.display = 'block';
+
+            updateAnalyticsMetrics();
+            createCharts();
+            renderDepartments();
+        }
+
+        function updateAnalyticsMetrics() {
+            const totalStaff = staffData.length;
+            const departments = [...new Set(staffData.map(s => s.department))];
+            const totalAbsences = staffData.reduce((sum, s) => 
+                sum + s.dayOff + s.sickLeave + s.departmentalLeave + s.vacationLeave, 0);
+            const totalOvertime = staffData.reduce((sum, s) => sum + s.overTime, 0);
+
+            document.getElementById('totalStaff').textContent = totalStaff;
+            document.getElementById('totalDepartments').textContent = departments.length;
+            document.getElementById('totalAbsences').textContent = totalAbsences;
+            document.getElementById('totalOvertime').textContent = totalOvertime;
+        }
+
+        function createCharts() {
+            createDepartmentPieChart();
+            createAbsencesBarChart();
+            createOvertimeBarChart();
+            createLateBarChart();
+            createComprehensiveChart();
+        }
+
+        function createDepartmentPieChart() {
+            const deptCounts = {};
+            staffData.forEach(s => {
+                deptCounts[s.department] = (deptCounts[s.department] || 0) + 1;
+            });
+
+            const ctx = document.getElementById('departmentPieChart').getContext('2d');
+            if (charts.departmentPie) charts.departmentPie.destroy();
+
+            charts.departmentPie = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(deptCounts),
+                    datasets: [{
+                        data: Object.values(deptCounts),
+                        backgroundColor: ['#10b981', '#0ea5e9', '#a855f7', '#f97316', '#ef4444', '#f59e0b', '#06b6d4', '#8b5cf6', '#ec4899', '#14b8a6'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { padding: 15, font: { size: 12 } } } }
+                }
+            });
+        }
+
+        function createAbsencesBarChart() {
+            const deptAbsences = {};
+            staffData.forEach(s => {
+                const total = s.dayOff + s.sickLeave + s.departmentalLeave + s.vacationLeave;
+                deptAbsences[s.department] = (deptAbsences[s.department] || 0) + total;
+            });
+
+            const ctx = document.getElementById('absencesBarChart').getContext('2d');
+            if (charts.absencesBar) charts.absencesBar.destroy();
+
+            charts.absencesBar = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(deptAbsences),
+                    datasets: [{
+                        label: 'Total Absences',
+                        data: Object.values(deptAbsences),
+                        backgroundColor: '#10b981',
+                        borderColor: '#059669',
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#e2e8f0' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function createOvertimeBarChart() {
+            const deptOvertime = {};
+            staffData.forEach(s => {
+                deptOvertime[s.department] = (deptOvertime[s.department] || 0) + s.overTime;
+            });
+
+            const ctx = document.getElementById('overtimeBarChart').getContext('2d');
+            if (charts.overtimeBar) charts.overtimeBar.destroy();
+
+            charts.overtimeBar = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(deptOvertime),
+                    datasets: [{
+                        label: 'Overtime Hours',
+                        data: Object.values(deptOvertime),
+                        backgroundColor: '#0ea5e9',
+                        borderColor: '#0284c7',
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#e2e8f0' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function createLateBarChart() {
+            const deptLate = {};
+            staffData.forEach(s => {
+                deptLate[s.department] = (deptLate[s.department] || 0) + s.late;
+            });
+
+            const ctx = document.getElementById('lateBarChart').getContext('2d');
+            if (charts.lateBar) charts.lateBar.destroy();
+
+            charts.lateBar = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(deptLate),
+                    datasets: [{
+                        label: 'Late Arrivals',
+                        data: Object.values(deptLate),
+                        backgroundColor: '#f97316',
+                        borderColor: '#ea580c',
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#e2e8f0' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function createComprehensiveChart() {
+            const departments = [...new Set(staffData.map(s => s.department))];
+            const datasets = [
+                {
+                    label: 'Days Off',
+                    data: departments.map(dept => staffData.filter(s => s.department === dept).reduce((sum, s) => sum + s.dayOff, 0)),
+                    backgroundColor: '#10b981',
+                    borderColor: '#059669',
+                    borderWidth: 2
+                },
+                {
+                    label: 'Sick Leave',
+                    data: departments.map(dept => staffData.filter(s => s.department === dept).reduce((sum, s) => sum + s.sickLeave, 0)),
+                    backgroundColor: '#ef4444',
+                    borderColor: '#dc2626',
+                    borderWidth: 2
+                },
+                {
+                    label: 'Dept. Leave',
+                    data: departments.map(dept => staffData.filter(s => s.department === dept).reduce((sum, s) => sum + s.departmentalLeave, 0)),
+                    backgroundColor: '#0ea5e9',
+                    borderColor: '#0284c7',
+                    borderWidth: 2
+                },
+                {
+                    label: 'Vacation',
+                    data: departments.map(dept => staffData.filter(s => s.department === dept).reduce((sum, s) => sum + s.vacationLeave, 0)),
+                    backgroundColor: '#a855f7',
+                    borderColor: '#9333ea',
+                    borderWidth: 2
+                }
+            ];
+
+            const ctx = document.getElementById('comprehensiveChart').getContext('2d');
+            if (charts.comprehensive) charts.comprehensive.destroy();
+
+            charts.comprehensive = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: departments, datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { padding: 15, font: { size: 12 } } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, stacked: true, grid: { color: '#e2e8f0' } },
+                        x: { stacked: true, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function renderDepartments() {
+            const departments = [...new Set(staffData.map(s => s.department))];
+            const grid = document.getElementById('departmentGrid');
+
+            grid.innerHTML = departments.map(dept => {
+                const deptStaff = staffData.filter(s => s.department === dept);
+                const totalAbsences = deptStaff.reduce((sum, s) => sum + s.dayOff + s.sickLeave + s.departmentalLeave + s.vacationLeave, 0);
+                const totalOvertime = deptStaff.reduce((sum, s) => sum + s.overTime, 0);
+                const totalLate = deptStaff.reduce((sum, s) => sum + s.late, 0);
+                const avgAbsences = Math.round(totalAbsences / deptStaff.length);
+
+                return `
+                    <div class="department-card" onclick="openDepartmentModal('${dept}')">
+                        <div class="department-header">
+                            <div class="department-name">${dept}</div>
+                            <div class="department-count">${deptStaff.length} Staff</div>
+                        </div>
+                        <div class="department-stats">
+                            <div class="stat-item">
+                                <div class="stat-item-value">${totalAbsences}</div>
+                                <div class="stat-item-label">Total Absences</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-item-value">${avgAbsences}</div>
+                                <div class="stat-item-label">Avg per Staff</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-item-value">${totalOvertime}</div>
+                                <div class="stat-item-label">Overtime Hours</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-item-value">${totalLate}</div>
+                                <div class="stat-item-label">Late Arrivals</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openDepartmentModal(departmentName) {
+            const deptStaff = staffData.filter(s => s.department === departmentName);
+            const totalAbsences = deptStaff.reduce((sum, s) => sum + s.dayOff + s.sickLeave + s.departmentalLeave + s.vacationLeave, 0);
+            const totalOvertime = deptStaff.reduce((sum, s) => sum + s.overTime, 0);
+            const totalLate = deptStaff.reduce((sum, s) => sum + s.late, 0);
+            const avgAbsences = Math.round(totalAbsences / deptStaff.length);
+
+            document.getElementById('departmentModalTitle').textContent = `${departmentName} - Detailed Overview`;
+            
+            let content = `
+                <div style="background: #f7fafc; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 28px; font-weight: bold; color: #10b981;">${deptStaff.length}</div>
+                            <div style="font-size: 13px; color: #718096; margin-top: 4px;">Total Staff</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 28px; font-weight: bold; color: #ef4444;">${totalAbsences}</div>
+                            <div style="font-size: 13px; color: #718096; margin-top: 4px;">Total Absences</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 28px; font-weight: bold; color: #0ea5e9;">${avgAbsences}</div>
+                            <div style="font-size: 13px; color: #718096; margin-top: 4px;">Avg Absences</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 28px; font-weight: bold; color: #a855f7;">${totalOvertime}</div>
+                            <div style="font-size: 13px; color: #718096; margin-top: 4px;">Total Overtime</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 28px; font-weight: bold; color: #f97316;">${totalLate}</div>
+                            <div style="font-size: 13px; color: #718096; margin-top: 4px;">Late Arrivals</div>
+                        </div>
+                    </div>
+                </div>
+                <h3 style="color: #1a202c; margin-bottom: 16px; font-size: 18px;">Staff Members (${deptStaff.length})</h3>
+                <div class="staff-list">
+            `;
+
+            deptStaff.forEach(staff => {
+                const totalDays = staff.dayOff + staff.sickLeave + staff.departmentalLeave + staff.vacationLeave;
+                content += `
+                    <div class="staff-list-item">
+                        <h4>${staff.name} - TRN: ${staff.trn}</h4>
+                        <div class="staff-detail-grid">
+                            <div class="staff-detail-item"><span style="color: #718096;">Day Off:</span><span style="font-weight: 600;">${staff.dayOff}</span></div>
+                            <div class="staff-detail-item"><span style="color: #718096;">Sick Leave:</span><span style="font-weight: 600;">${staff.sickLeave}</span></div>
+                            <div class="staff-detail-item"><span style="color: #718096;">Claims:</span><span style="font-weight: 600;">${staff.claims}</span></div>
+                            <div class="staff-detail-item"><span style="color: #718096;">Dept Leave:</span><span style="font-weight: 600;">${staff.departmentalLeave}</span></div>
+                            <div class="staff-detail-item"><span style="color: #718096;">Overtime:</span><span style="font-weight: 600;">${staff.overTime}</span></div>
+                            <div class="staff-detail-item"><span style="color: #718096;">Late:</span><span style="font-weight: 600;">${staff.late}</span></div>
+                            <div class="staff-detail-item"><span style="color: #718096;">Vacation:</span><span style="font-weight: 600;">${staff.vacationLeave}</span></div>
+                            <div class="staff-detail-item"><span style="color: #718096;">Total Days:</span><span style="font-weight: bold; color: ${totalDays > 50 ? '#ef4444' : totalDays > 30 ? '#f59e0b' : '#10b981'};">${totalDays}</span></div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            content += '</div>';
+            document.getElementById('departmentModalContent').innerHTML = content;
+            document.getElementById('departmentModal').classList.add('active');
+        }
+
+        function closeDepartmentModal() {
+            document.getElementById('departmentModal').classList.remove('active');
+        }
+
+        // ============================================
+        // SCHEDULING/CALENDAR SYSTEM WITH GOOGLE SHEETS SYNC
+        // ============================================
+
+        function initializeSchedule() {
+            updateDepartmentSelect();
+            loadScheduleData(); // This will fetch from sheets if enabled
+            renderCalendar();
+        }
+
+        function updateDepartmentSelect() {
+            const departments = [...new Set(staffData.map(s => s.department))];
+            const select = document.getElementById('scheduleDeptSelect');
+            select.innerHTML = '<option value="">All Departments</option>' + 
+                departments.map(dept => `<option value="${dept}">${dept}</option>`).join('');
+        }
+
+        function previousMonth() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            document.getElementById('calendarTitle').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+            selectedDept = document.getElementById('scheduleDeptSelect').value;
+
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const today = new Date();
+
+            let html = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => 
+                `<div class="calendar-header">${day}</div>`
+            ).join('');
+
+            // Previous month days
+            const prevMonthDays = new Date(currentYear, currentMonth, 0).getDate();
+            for (let i = firstDay - 1; i >= 0; i--) {
+                html += `<div class="calendar-day other-month"><div class="day-number">${prevMonthDays - i}</div></div>`;
+            }
+
+            // Current month days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isToday = today.getDate() === day && today.getMonth() === currentMonth && today.getFullYear() === currentYear;
+                
+                const assignments = getAssignmentsForDate(dateStr);
+                const assignmentHTML = assignments.length > 0 ? 
+                    `<div class="day-assignments">${assignments.slice(0, 3).map(a => `<span class="assignment-badge">${a.staffName.split(' ')[0]}</span>`).join('')}${assignments.length > 3 ? `<span class="assignment-badge">+${assignments.length - 3}</span>` : ''}</div>` : '';
+
+                html += `
+                    <div class="calendar-day ${isToday ? 'today' : ''}" data-date="${dateStr}">
+                        <div class="day-number">${day}</div>
+                        ${assignmentHTML}
+                    </div>
+                `;
+            }
+
+            // Next month days to fill grid
+            const totalCells = (html.match(/calendar-day/g) || []).length;
+            const remainingCells = 42 - totalCells;
+            for (let day = 1; day <= remainingCells; day++) {
+                html += `<div class="calendar-day other-month"><div class="day-number">${day}</div></div>`;
+            }
+
+            document.getElementById('calendarGrid').innerHTML = html;
+
+            // Add event listeners to calendar days
+            document.querySelectorAll('.calendar-day[data-date]').forEach(dayEl => {
+                dayEl.addEventListener('click', function() {
+                    const dateStr = this.getAttribute('data-date');
+                    openScheduleDayModal(dateStr);
+                });
+            });
+        }
+
+        function getAssignmentsForDate(dateStr) {
+            if (!scheduleData[dateStr]) return [];
+            
+            let assignments = [];
+            for (let dept in scheduleData[dateStr]) {
+                if (selectedDept === '' || dept === selectedDept) {
+                    scheduleData[dateStr][dept].forEach(assignment => {
+                        const staff = staffData.find(s => s.trn === assignment.staffId);
+                        if (staff) {
+                            assignments.push({
+                                ...assignment,
+                                staffName: staff.name,
+                                department: dept
+                            });
+                        }
+                    });
+                }
+            }
+            return assignments;
+        }
+
+        function openScheduleDayModal(dateStr) {
+            selectedDate = dateStr;
+            const date = new Date(dateStr + 'T12:00:00');
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('scheduleDayTitle').textContent = `Schedule for ${date.toLocaleDateString('en-US', options)}`;
+
+            updateStaffSelector();
+            renderDayAssignments();
+            document.getElementById('scheduleDayModal').classList.add('active');
+        }
+
+        function closeScheduleDayModal() {
+            document.getElementById('scheduleDayModal').classList.remove('active');
+            selectedDate = null;
+        }
+
+        function updateStaffSelector() {
+            const select = document.getElementById('staffToAdd');
+            const dept = selectedDept || '';
+            const availableStaff = dept ? staffData.filter(s => s.department === dept) : staffData;
+            
+            select.innerHTML = '<option value="">Select Staff Member...</option>' + 
+                availableStaff.map(staff => 
+                    `<option value="${staff.trn}">${staff.name} (${staff.department})</option>`
+                ).join('');
+        }
+
+        function renderDayAssignments() {
+            const assignments = getAssignmentsForDate(selectedDate);
+            const container = document.getElementById('assignmentsList');
+
+            if (assignments.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #718096; padding: 20px;">No staff assigned for this day</p>';
+                return;
+            }
+
+            container.innerHTML = assignments.map((assignment, index) => `
+                <div class="staff-assignment-item">
+                    <div class="staff-assignment-header">
+                        <span class="staff-assignment-name">${assignment.staffName} - ${assignment.department}</span>
+                        <button class="remove-assignment" onclick="removeAssignment('${assignment.staffId}', '${assignment.department}')">Remove</button>
+                    </div>
+                    <div class="time-inputs">
+                        <div class="time-input-group">
+                            <label>Time In</label>
+                            <input type="time" value="${assignment.timeIn || ''}" onchange="updateAssignmentTime('${assignment.staffId}', '${assignment.department}', 'timeIn', this.value)">
+                        </div>
+                        <div class="time-input-group">
+                            <label>Time Out</label>
+                            <input type="time" value="${assignment.timeOut || ''}" onchange="updateAssignmentTime('${assignment.staffId}', '${assignment.department}', 'timeOut', this.value)">
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addStaffToDay() {
+            const staffId = document.getElementById('staffToAdd').value;
+            if (!staffId) {
+                showAlert('⚠️ Please select a staff member');
+                return;
+            }
+
+            const staff = staffData.find(s => s.trn === staffId);
+            if (!staff) return;
+
+            if (!scheduleData[selectedDate]) {
+                scheduleData[selectedDate] = {};
+            }
+            if (!scheduleData[selectedDate][staff.department]) {
+                scheduleData[selectedDate][staff.department] = [];
+            }
+
+            // Check if already assigned
+            if (scheduleData[selectedDate][staff.department].find(a => a.staffId === staffId)) {
+                showAlert('⚠️ Staff member already assigned to this day');
+                return;
+            }
+
+            scheduleData[selectedDate][staff.department].push({
+                staffId: staffId,
+                timeIn: '08:00',
+                timeOut: '16:00'
+            });
+
+            saveScheduleData();
+            renderDayAssignments();
+            renderCalendar();
+            document.getElementById('staffToAdd').value = '';
+            showAlert('✅ Staff member added to schedule');
+        }
+
+        function removeAssignment(staffId, dept) {
+            if (!scheduleData[selectedDate] || !scheduleData[selectedDate][dept]) return;
+
+            scheduleData[selectedDate][dept] = scheduleData[selectedDate][dept].filter(a => a.staffId !== staffId);
+            
+            if (scheduleData[selectedDate][dept].length === 0) {
+                delete scheduleData[selectedDate][dept];
+            }
+            if (Object.keys(scheduleData[selectedDate]).length === 0) {
+                delete scheduleData[selectedDate];
+            }
+
+            saveScheduleData();
+            renderDayAssignments();
+            renderCalendar();
+            showAlert('✅ Assignment removed');
+        }
+
+        function updateAssignmentTime(staffId, dept, field, value) {
+            if (!scheduleData[selectedDate] || !scheduleData[selectedDate][dept]) return;
+
+            const assignment = scheduleData[selectedDate][dept].find(a => a.staffId === staffId);
+            if (assignment) {
+                assignment[field] = value;
+                saveScheduleData();
+                showAlert('✅ Time updated');
+            }
+        }
+
+        function saveScheduleData() {
+            try {
+                // Always save to localStorage as cache
+                localStorage.setItem('hospitalScheduleData', JSON.stringify(scheduleData));
+                console.log('Schedule data saved to localStorage');
+                
+                // Sync to Google Sheets if enabled
+                if (CONFIG.SYNC_SCHEDULES_TO_SHEETS) {
+                    saveScheduleToSheets();
+                }
+            } catch (error) {
+                console.error('Error saving schedule data:', error);
+                showAlert('⚠️ Failed to save schedule data');
+            }
+        }
+
+        async function saveScheduleToSheets() {
+            try {
+                const response = await fetch(CONFIG.SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'text/plain'},
+                    body: JSON.stringify({
+                        action: 'saveSchedule',
+                        scheduleData: scheduleData
+                    })
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    console.log('Schedule synced to Google Sheets');
+                } else {
+                    console.warn('Failed to sync schedule to sheets:', result.message);
+                }
+            } catch (error) {
+                console.error('Error syncing schedule to sheets:', error);
+                // Don't show error to user - localStorage backup still works
+            }
+        }
+
+        async function loadScheduleData() {
+            // Try loading from Google Sheets first if enabled
+            if (CONFIG.SYNC_SCHEDULES_TO_SHEETS) {
+                try {
+                    const response = await fetch(CONFIG.SCRIPT_URL + '?action=getSchedule');
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.status === 'success' && result.scheduleData) {
+                            scheduleData = result.scheduleData;
+                            // Update localStorage cache
+                            localStorage.setItem('hospitalScheduleData', JSON.stringify(scheduleData));
+                            console.log('Schedule data loaded from Google Sheets');
+                            if (currentView === 'schedule') {
+                                renderCalendar();
+                            }
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Failed to load from sheets, using localStorage:', error);
+                }
+            }
+            
+            // Fallback to localStorage
+            const saved = localStorage.getItem('hospitalScheduleData');
+            if (saved) {
+                try {
+                    scheduleData = JSON.parse(saved);
+                    console.log('Schedule data loaded from localStorage');
+                } catch (e) {
+                    console.error('Error loading schedule data from localStorage:', e);
+                    scheduleData = {};
+                }
+            }
+            
+            if (currentView === 'schedule') {
+                renderCalendar();
+            }
+        }
+
+        async function syncScheduleNow() {
+            if (!CONFIG.SYNC_SCHEDULES_TO_SHEETS) {
+                showAlert('⚠️ Google Sheets sync is disabled');
+                return;
+            }
+            
+            showAlert('🔄 Syncing schedule with Google Sheets...');
+            
+            try {
+                // First, save current data to sheets
+                await saveScheduleToSheets();
+                
+                // Then, load from sheets to ensure we have latest
+                const response = await fetch(CONFIG.SCRIPT_URL + '?action=getSchedule');
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.status === 'success' && result.scheduleData) {
+                        scheduleData = result.scheduleData;
+                        localStorage.setItem('hospitalScheduleData', JSON.stringify(scheduleData));
+                        renderCalendar();
+                        showAlert('✅ Schedule synced successfully!');
+                        return;
+                    }
+                }
+                throw new Error('Failed to fetch updated schedule');
+            } catch (error) {
+                console.error('Sync error:', error);
+                showAlert('❌ Failed to sync schedule. Using local data.');
+            }
+        }
+
+        // ============================================
+        // REPORT GENERATION
+        // ============================================
+
+        function showAlert(message) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = message;
+            alertBox.className = 'alert show';
+            setTimeout(() => alertBox.classList.remove('show'), 4000);
+        }
+
+        function showIndividualStaffReport() {
+            if (staffData.length === 0) {
+                showAlert('⚠️ No staff data available');
+                return;
+            }
+            const modal = document.getElementById('staffSelectionModal');
+            const listContainer = document.getElementById('staffSelectionList');
+            listContainer.innerHTML = staffData.map((staff, index) => `
+                <div style="padding: 12px; margin-bottom: 8px; background: #f7fafc; border-radius: 8px; cursor: pointer;" onclick="generateIndividualStaffReport(${index})">
+                    <div style="font-weight: 600;">${staff.name}</div>
+                    <div style="font-size: 13px; color: #718096;">TRN: ${staff.trn} • ${staff.department}</div>
+                </div>
+            `).join('');
+            modal.classList.add('active');
+        }
+
+        function closeStaffSelectionModal() {
+            document.getElementById('staffSelectionModal').classList.remove('active');
+        }
+
+        function filterStaffSelection() {
+            const searchTerm = document.getElementById('staffSearchInput').value.toLowerCase();
+            const filtered = staffData.filter(staff => staff.name.toLowerCase().includes(searchTerm) || staff.trn.toString().includes(searchTerm));
+            const listContainer = document.getElementById('staffSelectionList');
+            listContainer.innerHTML = filtered.map((staff) => {
+                const actualIndex = staffData.indexOf(staff);
+                return `
+                    <div style="padding: 12px; margin-bottom: 8px; background: #f7fafc; border-radius: 8px; cursor: pointer;" onclick="generateIndividualStaffReport(${actualIndex})">
+                        <div style="font-weight: 600;">${staff.name}</div>
+                        <div style="font-size: 13px; color: #718096;">TRN: ${staff.trn} • ${staff.department}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function generateIndividualStaffReport(index) {
+            closeStaffSelectionModal();
+            const staff = staffData[index];
+            const totalDays = calculateTotalDays(staff);
+            document.getElementById('printArea').innerHTML = `
+                <div class="print-header">
+                    <h1>🏥 Individual Staff Report</h1>
+                    <p>Generated on ${new Date().toLocaleDateString()}</p>
+                </div>
+                <h2>${staff.name}</h2>
+                <p><strong>TRN:</strong> ${staff.trn} | <strong>Department:</strong> ${staff.department}</p>
+                <table class="print-table">
+                    <tr><th>Metric</th><th>Value</th></tr>
+                    <tr><td>Days Off</td><td>${staff.dayOff}</td></tr>
+                    <tr><td>Sick Leave</td><td>${staff.sickLeave}</td></tr>
+                    <tr><td>Claims</td><td>${staff.claims}</td></tr>
+                    <tr><td>Departmental Leave</td><td>${staff.departmentalLeave}</td></tr>
+                    <tr><td>Overtime</td><td>${staff.overTime}</td></tr>
+                    <tr><td>Late</td><td>${staff.late}</td></tr>
+                    <tr><td>Vacation</td><td>${staff.vacationLeave}</td></tr>
+                    <tr><td><strong>Total Absence Days</strong></td><td><strong>${totalDays}</strong></td></tr>
+                </table>
+            `;
+            window.print();
+        }
+
+        function generateTotalStaffReport() {
+            if (staffData.length === 0) {
+                showAlert('⚠️ No staff data available');
+                return;
+            }
+            const totalAbsences = staffData.reduce((sum, s) => sum + calculateTotalDays(s), 0);
+            document.getElementById('printArea').innerHTML = `
+                <div class="print-header">
+                    <h1>📋 Total Staff Report</h1>
+                    <p>Generated on ${new Date().toLocaleDateString()}</p>
+                </div>
+                <p><strong>Total Staff:</strong> ${staffData.length} | <strong>Total Absences:</strong> ${totalAbsences}</p>
+                <table class="print-table">
+                    <thead><tr><th>Name</th><th>TRN</th><th>Department</th><th>Total Days</th></tr></thead>
+                    <tbody>
+                        ${staffData.map(staff => `<tr><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${calculateTotalDays(staff)}</td></tr>`).join('')}
+                    </tbody>
+                </table>
+            `;
+            window.print();
+        }
+
+        function generateDepartmentalReport() {
+            if (staffData.length === 0) {
+                showAlert('⚠️ No staff data available');
+                return;
+            }
+            
+            const departments = [...new Set(staffData.map(s => s.department))];
+            let reportContent = `
+                <div class="print-header">
+                    <h1>🏥 Departmental Performance Report</h1>
+                    <p>Generated on ${new Date().toLocaleDateString()}</p>
+                </div>
+            `;
+
+            departments.forEach(dept => {
+                const deptStaff = staffData.filter(s => s.department === dept);
+                const totalAbsences = deptStaff.reduce((sum, s) => sum + calculateTotalDays(s), 0);
+                const totalOvertime = deptStaff.reduce((sum, s) => sum + s.overTime, 0);
+                const totalLate = deptStaff.reduce((sum, s) => sum + s.late, 0);
+                const avgAbsences = Math.round(totalAbsences / deptStaff.length);
+
+                reportContent += `
+                    <div style="margin-bottom: 30px; page-break-inside: avoid;">
+                        <h2 style="color: #1a202c; border-bottom: 3px solid #10b981; padding-bottom: 10px; margin-bottom: 15px;">
+                            ${dept} Department
+                        </h2>
+                        <div style="background: #f7fafc; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; text-align: center;">
+                                <div><div style="font-size: 24px; font-weight: bold; color: #10b981;">${deptStaff.length}</div><div style="font-size: 12px; color: #718096;">Total Staff</div></div>
+                                <div><div style="font-size: 24px; font-weight: bold; color: #ef4444;">${totalAbsences}</div><div style="font-size: 12px; color: #718096;">Total Absences</div></div>
+                                <div><div style="font-size: 24px; font-weight: bold; color: #0ea5e9;">${avgAbsences}</div><div style="font-size: 12px; color: #718096;">Avg Absences</div></div>
+                                <div><div style="font-size: 24px; font-weight: bold; color: #a855f7;">${totalOvertime}</div><div style="font-size: 12px; color: #718096;">Overtime Hrs</div></div>
+                                <div><div style="font-size: 24px; font-weight: bold; color: #f97316;">${totalLate}</div><div style="font-size: 12px; color: #718096;">Late Arrivals</div></div>
+                            </div>
+                        </div>
+                        <table class="print-table">
+                            <thead><tr><th>Name</th><th>TRN</th><th>Total Absences</th><th>Overtime</th><th>Late</th></tr></thead>
+                            <tbody>
+                                ${deptStaff.map(staff => `<tr><td>${staff.name}</td><td>${staff.trn}</td><td>${calculateTotalDays(staff)}</td><td>${staff.overTime}</td><td>${staff.late}</td></tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            });
+
+            document.getElementById('printArea').innerHTML = reportContent;
+            window.print();
+        }
+
+        function generateSickLeaveReport() {
+            if (staffData.length === 0) {
+                showAlert('⚠️ No staff data available');
+                return;
+            }
+
+            const staffWithSickLeave = staffData.filter(s => s.sickLeave > 0);
+            const totalSickLeave = staffData.reduce((sum, s) => sum + s.sickLeave, 0);
+            const avgSickLeave = Math.round(totalSickLeave / staffData.length);
+
+            document.getElementById('printArea').innerHTML = `
+                <div class="print-header"><h1>🤒 Sick Leave Analysis Report</h1><p>Generated on ${new Date().toLocaleDateString()}</p></div>
+                <div class="print-summary">
+                    <div class="print-summary-item"><div class="print-summary-value">${staffData.length}</div><div class="print-summary-label">Total Staff</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${staffWithSickLeave.length}</div><div class="print-summary-label">Staff with Sick Leave</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${totalSickLeave}</div><div class="print-summary-label">Total Sick Days</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${avgSickLeave}</div><div class="print-summary-label">Average per Staff</div></div>
+                </div>
+                <table class="print-table">
+                    <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Sick Leave Days</th></tr></thead>
+                    <tbody>${staffData.sort((a, b) => b.sickLeave - a.sickLeave).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td style="font-weight: bold; color: ${staff.sickLeave > 10 ? '#ef4444' : '#10b981'};">${staff.sickLeave}</td></tr>`).join('')}</tbody>
+                </table>
+            `;
+            window.print();
+        }
+
+        function generateVacationReport() {
+            if (staffData.length === 0) {
+                showAlert('⚠️ No staff data available');
+                return;
+            }
+
+            const staffWithVacation = staffData.filter(s => s.vacationLeave > 0);
+            const totalVacation = staffData.reduce((sum, s) => sum + s.vacationLeave, 0);
+            const avgVacation = Math.round(totalVacation / staffData.length);
+
+            document.getElementById('printArea').innerHTML = `
+                <div class="print-header"><h1>🏖️ Vacation Leave Report</h1><p>Generated on ${new Date().toLocaleDateString()}</p></div>
+                <div class="print-summary">
+                    <div class="print-summary-item"><div class="print-summary-value">${staffData.length}</div><div class="print-summary-label">Total Staff</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${staffWithVacation.length}</div><div class="print-summary-label">Staff on Vacation</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${totalVacation}</div><div class="print-summary-label">Total Vacation Days</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${avgVacation}</div><div class="print-summary-label">Average per Staff</div></div>
+                </div>
+                <table class="print-table">
+                    <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Vacation Days</th></tr></thead>
+                    <tbody>${staffData.sort((a, b) => b.vacationLeave - a.vacationLeave).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td style="font-weight: bold; color: #0ea5e9;">${staff.vacationLeave}</td></tr>`).join('')}</tbody>
+                </table>
+            `;
+            window.print();
+        }
+
+        function generateOvertimeReport() {
+            if (staffData.length === 0) {
+                showAlert('⚠️ No staff data available');
+                return;
+            }
+
+            const staffWithOT = staffData.filter(s => s.overTime > 0);
+            const totalOT = staffData.reduce((sum, s) => sum + s.overTime, 0);
+            const avgOT = Math.round(totalOT / staffData.length);
+
+            document.getElementById('printArea').innerHTML = `
+                <div class="print-header"><h1>⏰ Overtime Hours Report</h1><p>Generated on ${new Date().toLocaleDateString()}</p></div>
+                <div class="print-summary">
+                    <div class="print-summary-item"><div class="print-summary-value">${staffData.length}</div><div class="print-summary-label">Total Staff</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${staffWithOT.length}</div><div class="print-summary-label">Staff with OT</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${totalOT}</div><div class="print-summary-label">Total OT Hours</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${avgOT}</div><div class="print-summary-label">Average per Staff</div></div>
+                </div>
+                <table class="print-table">
+                    <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Overtime Hours</th></tr></thead>
+                    <tbody>${staffData.sort((a, b) => b.overTime - a.overTime).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td style="font-weight: bold; color: ${staff.overTime > 20 ? '#ef4444' : '#10b981'};">${staff.overTime}</td></tr>`).join('')}</tbody>
+                </table>
+            `;
+            window.print();
+        }
+
+        function generateLateReport() {
+            if (staffData.length === 0) {
+                showAlert('⚠️ No staff data available');
+                return;
+            }
+
+            const staffWithLate = staffData.filter(s => s.late > 0);
+            const totalLate = staffData.reduce((sum, s) => sum + s.late, 0);
+            const avgLate = Math.round(totalLate / staffData.length);
+
+            document.getElementById('printArea').innerHTML = `
+                <div class="print-header"><h1>⏱️ Late Arrivals Report</h1><p>Generated on ${new Date().toLocaleDateString()}</p></div>
+                <div class="print-summary">
+                    <div class="print-summary-item"><div class="print-summary-value">${staffData.length}</div><div class="print-summary-label">Total Staff</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${staffWithLate.length}</div><div class="print-summary-label">Staff with Late Arrivals</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${totalLate}</div><div class="print-summary-label">Total Late Incidents</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${avgLate}</div><div class="print-summary-label">Average per Staff</div></div>
+                </div>
+                <table class="print-table">
+                    <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Late Incidents</th></tr></thead>
+                    <tbody>${staffData.sort((a, b) => b.late - a.late).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td style="font-weight: bold; color: ${staff.late > 5 ? '#ef4444' : '#10b981'};">${staff.late}</td></tr>`).join('')}</tbody>
+                </table>
+            `;
+            window.print();
+        }
+
+        function generateClaimsReport() {
+            if (staffData.length === 0) {
+                showAlert('⚠️ No staff data available');
+                return;
+            }
+
+            const staffWithClaims = staffData.filter(s => s.claims > 0);
+            const totalClaims = staffData.reduce((sum, s) => sum + s.claims, 0);
+            const avgClaims = Math.round(totalClaims / staffData.length);
+
+            document.getElementById('printArea').innerHTML = `
+                <div class="print-header"><h1>💰 Staff Claims Report</h1><p>Generated on ${new Date().toLocaleDateString()}</p></div>
+                <div class="print-summary">
+                    <div class="print-summary-item"><div class="print-summary-value">${staffData.length}</div><div class="print-summary-label">Total Staff</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${staffWithClaims.length}</div><div class="print-summary-label">Staff with Claims</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${totalClaims}</div><div class="print-summary-label">Total Claims</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${avgClaims}</div><div class="print-summary-label">Average per Staff</div></div>
+                </div>
+                <table class="print-table">
+                    <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Claims</th></tr></thead>
+                    <tbody>${staffData.sort((a, b) => b.claims - a.claims).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td style="font-weight: bold; color: #a855f7;">${staff.claims}</td></tr>`).join('')}</tbody>
+                </table>
+            `;
+            window.print();
+        }
+
+        function generateDayOffReport() {
+            if (staffData.length === 0) {
+                showAlert('⚠️ No staff data available');
+                return;
+            }
+
+            const staffWithDayOff = staffData.filter(s => s.dayOff > 0);
+            const totalDayOff = staffData.reduce((sum, s) => sum + s.dayOff, 0);
+            const avgDayOff = Math.round(totalDayOff / staffData.length);
+
+            document.getElementById('printArea').innerHTML = `
+                <div class="print-header"><h1>📅 Day Off Report</h1><p>Generated on ${new Date().toLocaleDateString()}</p></div>
+                <div class="print-summary">
+                    <div class="print-summary-item"><div class="print-summary-value">${staffData.length}</div><div class="print-summary-label">Total Staff</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${staffWithDayOff.length}</div><div class="print-summary-label">Staff with Days Off</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${totalDayOff}</div><div class="print-summary-label">Total Days Off</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${avgDayOff}</div><div class="print-summary-label">Average per Staff</div></div>
+                </div>
+                <table class="print-table">
+                    <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Days Off</th></tr></thead>
+                    <tbody>${staffData.sort((a, b) => b.dayOff - a.dayOff).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td style="font-weight: bold; color: #f97316;">${staff.dayOff}</td></tr>`).join('')}</tbody>
+                </table>
+            `;
+            window.print();
+        }
+    </script>
+</body>
+</html>
