@@ -273,6 +273,114 @@
             background: #c82333;
         }
 
+        /* NOTIFICATION BELL */
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+            padding: 10px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .notification-bell:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .notification-bell-icon {
+            font-size: 24px;
+            color: #718096;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ef4444;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .notification-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 400px;
+            max-height: 500px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .notification-dropdown.active {
+            display: block;
+        }
+
+        .notification-header {
+            padding: 15px 20px;
+            border-bottom: 2px solid #e2e8f0;
+            font-weight: 600;
+            color: #1a202c;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .notification-item:hover {
+            background: #f7fafc;
+        }
+
+        .notification-item.urgent {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .notification-item.warning {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 4px;
+        }
+
+        .notification-message {
+            font-size: 13px;
+            color: #718096;
+            margin-bottom: 4px;
+        }
+
+        .notification-time {
+            font-size: 11px;
+            color: #a0aec0;
+        }
+
+        .notification-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: #718096;
+        }
+
         .view-section {
             display: none;
             animation: fadeIn 0.4s ease;
@@ -502,7 +610,7 @@
             margin-bottom: 6px;
         }
 
-        .form-group input, .form-group select {
+        .form-group input, .form-group select, .form-group textarea {
             padding: 10px 12px;
             border: 2px solid #e2e8f0;
             border-radius: 6px;
@@ -510,7 +618,13 @@
             transition: all 0.3s;
         }
 
-        .form-group input:focus, .form-group select:focus {
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
             border-color: #0ea5e9;
         }
@@ -635,6 +749,16 @@
             border-bottom: 1px solid #e2e8f0;
         }
 
+        .role-badge {
+            background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: auto;
+        }
+
         .details {
             display: none;
             padding-top: 16px;
@@ -726,6 +850,157 @@
             font-size: 14px;
             color: #718096;
             margin-top: 4px;
+        }
+
+        /* LEAVE MANAGEMENT STYLES */
+        .leave-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #0ea5e9;
+            transition: all 0.3s;
+        }
+
+        .leave-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateX(5px);
+        }
+
+        .leave-card.sick {
+            border-left-color: #ef4444;
+        }
+
+        .leave-card.vacation {
+            border-left-color: #a855f7;
+        }
+
+        .leave-card.dayoff {
+            border-left-color: #f59e0b;
+        }
+
+        .leave-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .leave-staff-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .leave-type-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .leave-type-badge.sick {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .leave-type-badge.vacation {
+            background: #f3e8ff;
+            color: #a855f7;
+        }
+
+        .leave-type-badge.dayoff {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .leave-type-badge.dept {
+            background: #dbeafe;
+            color: #0ea5e9;
+        }
+
+        .leave-dates {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #718096;
+        }
+
+        .leave-dates span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .leave-reason {
+            font-size: 13px;
+            color: #4a5568;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .leave-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .leave-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .leave-status.active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .leave-status.upcoming {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .leave-status.completed {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .leave-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .leave-calendar-view {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .upcoming-leaves {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .upcoming-leaves h3 {
+            color: #1a202c;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         /* ANALYTICS STYLES */
@@ -1014,11 +1289,62 @@
             background: #fef3c7;
         }
 
+        .calendar-day.has-leave {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .calendar-day.has-leave.sick {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+        }
+
+        .calendar-day.has-leave.vacation {
+            background: #f3e8ff;
+            border-left: 4px solid #a855f7;
+        }
+
+        .calendar-day.has-leave.multiple {
+            background: linear-gradient(135deg, #fee2e2 0%, #fef3c7 50%, #f3e8ff 100%);
+            border-left: 4px solid #10b981;
+        }
+
         .day-number {
             font-weight: bold;
             color: #1a202c;
             margin-bottom: 4px;
             font-size: 14px;
+        }
+
+        .day-leaves {
+            font-size: 10px;
+            margin-top: 4px;
+        }
+
+        .leave-indicator {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin: 2px;
+            font-size: 9px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .leave-indicator.sick {
+            background: #ef4444;
+        }
+
+        .leave-indicator.vacation {
+            background: #a855f7;
+        }
+
+        .leave-indicator.dayoff {
+            background: #f59e0b;
+        }
+
+        .leave-indicator.dept {
+            background: #0ea5e9;
         }
 
         .day-assignments {
@@ -1113,6 +1439,14 @@
             border: 2px solid #e2e8f0;
             border-radius: 6px;
             margin-bottom: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .staff-selector:focus {
+            outline: none;
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
         }
 
         /* REPORTS STYLES */
@@ -1310,6 +1644,10 @@
                 min-height: 80px;
                 padding: 4px;
             }
+            .notification-dropdown {
+                width: 95%;
+                right: 2.5%;
+            }
         }
     </style>
 </head>
@@ -1361,13 +1699,23 @@
                         <p style="color: #718096; font-size: 14px; margin-top: 4px;">Complete Staff Monitoring & Analytics</p>
                     </div>
                 </div>
-                <div class="user-info" id="userInfo"></div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div class="notification-bell" onclick="toggleNotifications()">
+                        <div class="notification-bell-icon">🔔</div>
+                        <div class="notification-badge" id="notificationBadge" style="display: none;">0</div>
+                    </div>
+                    <div class="user-info" id="userInfo"></div>
+                </div>
             </div>
             
             <div class="nav-tabs">
                 <button class="nav-tab active" data-view="monitor">
                     <span>👥</span>
                     <span>Staff Monitor</span>
+                </button>
+                <button class="nav-tab" data-view="leaves">
+                    <span>📋</span>
+                    <span>Leave Management</span>
                 </button>
                 <button class="nav-tab" data-view="analytics">
                     <span>📊</span>
@@ -1382,6 +1730,15 @@
                     <span>Reports</span>
                 </button>
             </div>
+        </div>
+
+        <!-- Notification Dropdown -->
+        <div class="notification-dropdown" id="notificationDropdown">
+            <div class="notification-header">
+                <span>Notifications</span>
+                <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;" onclick="clearAllNotifications()">Clear All</button>
+            </div>
+            <div id="notificationList"></div>
         </div>
 
         <!-- Alert -->
@@ -1406,6 +1763,15 @@
                     <div class="form-group">
                         <label>Department *</label>
                         <input type="text" id="editStaffDepartment">
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="editStaffRole">
+                            <option value="Staff">Staff</option>
+                            <option value="Senior Staff">Senior Staff</option>
+                            <option value="Supervisor">Supervisor</option>
+                            <option value="Team Lead">Team Lead</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Days Off</label>
@@ -1474,6 +1840,97 @@
             </div>
         </div>
 
+        <!-- Leave Day Modal -->
+        <div id="leaveDayModal" class="modal">
+            <div class="modal-content schedule-modal-content">
+                <div class="modal-header">
+                    <h2 id="leaveDayTitle" style="color: #1a202c;">Leaves for Date</h2>
+                    <button class="modal-close" onclick="closeLeaveDayModal()">×</button>
+                </div>
+                <div id="leaveDayContent">
+                    <div class="staff-assignment-list" id="leaveDayList"></div>
+                    <div class="add-staff-section">
+                        <h3 style="margin-bottom: 10px;">Add New Leave</h3>
+                        <div class="form-group" style="margin-bottom: 12px;">
+                            <label>Staff Member *</label>
+                            <select class="staff-selector" id="leaveModalStaffSelect">
+                                <option value="">Select Staff Member...</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 12px;">
+                            <label>Leave Type *</label>
+                            <select class="staff-selector" id="leaveModalType">
+                                <option value="">Select Leave Type...</option>
+                                <option value="sick">Sick Leave</option>
+                                <option value="vacation">Vacation Leave</option>
+                                <option value="dayoff">Day Off</option>
+                                <option value="dept">Departmental Leave</option>
+                            </select>
+                        </div>
+                        <div class="form-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 12px;">
+                            <div class="form-group">
+                                <label>Start Date *</label>
+                                <input type="date" id="leaveModalStartDate" class="staff-selector" style="padding: 8px;">
+                            </div>
+                            <div class="form-group">
+                                <label>End Date *</label>
+                                <input type="date" id="leaveModalEndDate" class="staff-selector" style="padding: 8px;">
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 12px;">
+                            <label>Reason / Notes</label>
+                            <textarea id="leaveModalReason" class="staff-selector" style="min-height: 60px;" placeholder="Optional..."></textarea>
+                        </div>
+                        <button class="btn btn-success" onclick="addLeaveFromCalendar()" style="width: 100%; justify-content: center;">Add Leave</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Leave Modal -->
+        <div id="editLeaveModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 style="color: #1a202c;">Edit Leave Record</h2>
+                    <button class="modal-close" onclick="closeEditLeaveModal()">×</button>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Staff Member *</label>
+                        <select id="editLeaveStaffSelect" required>
+                            <option value="">Select Staff Member...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Leave Type *</label>
+                        <select id="editLeaveType" required>
+                            <option value="">Select Leave Type...</option>
+                            <option value="sick">Sick Leave</option>
+                            <option value="vacation">Vacation Leave</option>
+                            <option value="dayoff">Day Off</option>
+                            <option value="dept">Departmental Leave</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Start Date *</label>
+                        <input type="date" id="editLeaveStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>End Date *</label>
+                        <input type="date" id="editLeaveEndDate" required>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>Reason / Notes</label>
+                        <textarea id="editLeaveReason" placeholder="Optional: Enter reason or additional notes..."></textarea>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="closeEditLeaveModal()">Cancel</button>
+                    <button class="btn btn-success" onclick="saveEditLeave()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Staff Selection Modal (for reports) -->
         <div id="staffSelectionModal" class="modal">
             <div class="modal-content">
@@ -1516,7 +1973,7 @@
                     <input 
                         type="text" 
                         id="searchInput" 
-                        placeholder="Search by name, TRN, or department..." 
+                        placeholder="Search by name, TRN, department, or role..." 
                         oninput="filterStaff()"
                     >
                 </div>
@@ -1536,6 +1993,15 @@
                     <div class="form-group">
                         <label>Department *</label>
                         <input type="text" id="staffDepartment">
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="staffRole">
+                            <option value="Staff">Staff</option>
+                            <option value="Senior Staff">Senior Staff</option>
+                            <option value="Supervisor">Supervisor</option>
+                            <option value="Team Lead">Team Lead</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Days Off</label>
@@ -1590,9 +2056,148 @@
             <div id="staffGrid" class="staff-grid"></div>
 
             <div id="emptyState" class="empty-state" style="display: none;">
-                <div class="empty-state-icon">😔</div>
+                <div class="empty-state-icon">😕</div>
                 <h3 style="color: #2d3748; margin-bottom: 8px;">No staff members found</h3>
                 <p style="color: #718096;">Try adjusting your search or add a new staff member.</p>
+            </div>
+        </div>
+
+        <!-- LEAVE MANAGEMENT VIEW -->
+        <div id="leavesView" class="view-section">
+            <div class="header">
+                <div class="header-top">
+                    <h2 style="color: #1a202c; font-size: 22px;">Leave Management</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-secondary" onclick="toggleLeaveView()">
+                            <span id="leaveViewIcon">📅</span>
+                            <span id="leaveViewText">Calendar View</span>
+                        </button>
+                        <button class="btn btn-success" onclick="syncLeavesNow()" title="Sync with Google Sheets">
+                            <span>🔄</span>
+                            <span>Sync</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leave Calendar View -->
+            <div id="leaveCalendarView" style="display: none;">
+                <div class="schedule-controls">
+                    <div class="calendar-nav">
+                        <button onclick="previousLeaveMonth()">◀ Previous</button>
+                        <div class="calendar-title" id="leaveCalendarTitle">Loading...</div>
+                        <button onclick="nextLeaveMonth()">Next ▶</button>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <select class="dept-select" id="leaveDeptFilter" onchange="renderLeaveCalendar()">
+                            <option value="">All Departments</option>
+                        </select>
+                        <select class="dept-select" id="leaveTypeFilter" onchange="renderLeaveCalendar()">
+                            <option value="">All Leave Types</option>
+                            <option value="sick">Sick Leave</option>
+                            <option value="vacation">Vacation</option>
+                            <option value="dayoff">Day Off</option>
+                            <option value="dept">Departmental</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="calendar-container">
+                    <div class="calendar-grid" id="leaveCalendarGrid">
+                        <!-- Calendar will be rendered here -->
+                    </div>
+                </div>
+
+                <div class="upcoming-leaves" style="margin-top: 20px;">
+                    <h3>🔔 Upcoming Leave Endings (Next 7 Days)</h3>
+                    <div id="upcomingLeavesListCalendar"></div>
+                </div>
+            </div>
+
+            <!-- Leave List View -->
+            <div id="leaveListView">
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+                    <button class="btn btn-primary" onclick="toggleLeaveForm()">
+                        <span>➕</span>
+                        <span>Add Leave Record</span>
+                    </button>
+                </div>
+
+                <div id="leaveForm" class="add-form">
+                    <h2 style="margin-bottom: 20px; color: #1a202c;">Add New Leave Record</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Staff Member *</label>
+                            <select id="leaveStaffSelect" required>
+                                <option value="">Select Staff Member...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Leave Type *</label>
+                            <select id="leaveType" required>
+                                <option value="">Select Leave Type...</option>
+                                <option value="sick">Sick Leave</option>
+                                <option value="vacation">Vacation Leave</option>
+                                <option value="dayoff">Day Off</option>
+                                <option value="dept">Departmental Leave</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Start Date *</label>
+                            <input type="date" id="leaveStartDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>End Date *</label>
+                            <input type="date" id="leaveEndDate" required>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Reason / Notes</label>
+                            <textarea id="leaveReason" placeholder="Optional: Enter reason or additional notes..."></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="toggleLeaveForm()">Cancel</button>
+                        <button class="btn btn-success" onclick="addLeaveRecord()">Add Leave</button>
+                    </div>
+                </div>
+
+                <div class="upcoming-leaves">
+                    <h3>🔔 Upcoming Leave Endings (Next 7 Days)</h3>
+                    <div id="upcomingLeavesList"></div>
+                </div>
+
+                <div class="stats-bar">
+                    <div class="stat-item-basic">
+                        <div class="stat-value-basic" id="activeLeavesCount">0</div>
+                        <div class="stat-label-basic">Active Leaves</div>
+                    </div>
+                    <div class="stat-item-basic">
+                        <div class="stat-value-basic" id="upcomingLeavesCount">0</div>
+                        <div class="stat-label-basic">Upcoming This Week</div>
+                    </div>
+                    <div class="stat-item-basic">
+                        <div class="stat-value-basic" id="totalLeavesCount">0</div>
+                        <div class="stat-label-basic">Total Records</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <input 
+                        type="text" 
+                        id="leaveSearchInput" 
+                        placeholder="Search leaves by staff name, type, or status..." 
+                        style="width: 100%; padding: 14px 14px 14px 45px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 15px;"
+                        oninput="filterLeaves()"
+                    >
+                </div>
+
+                <div id="leaveGrid" class="leave-grid"></div>
+
+                <div id="emptyLeaveState" class="empty-state" style="display: none;">
+                    <div class="empty-state-icon">📋</div>
+                    <h3 style="color: #2d3748; margin-bottom: 8px;">No leave records found</h3>
+                    <p style="color: #718096;">Add a new leave record to get started.</p>
+                </div>
             </div>
         </div>
 
@@ -1756,6 +2361,12 @@
                     <div class="report-title">Day Off Report</div>
                     <div class="report-description">Analysis of day off patterns</div>
                 </div>
+
+                <div class="report-card" onclick="generateLeaveReport()">
+                    <div class="report-icon">📊</div>
+                    <div class="report-title">Leave Records Report</div>
+                    <div class="report-description">Comprehensive leave management report</div>
+                </div>
             </div>
         </div>
 
@@ -1772,11 +2383,11 @@
         const CONFIG = {
             SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzWoFoWo5m_fXAF0t6X8HJGDMNGcLgd1pqFW7sv_5vGmV0a9EHtKVsCx2NukA1yDV5x/exec',
             USE_GOOGLE_SHEETS: true,
-            SYNC_SCHEDULES_TO_SHEETS: true, // Set to false to use localStorage only
-            USE_FALLBACK_CREDENTIALS: true // Set to false to only use Google Sheets credentials
+            SYNC_SCHEDULES_TO_SHEETS: true,
+            SYNC_LEAVES_TO_SHEETS: true,
+            USE_FALLBACK_CREDENTIALS: true
         };
 
-        // Fallback credentials if Google Sheets fails to load
         const FALLBACK_CREDENTIALS = {
             'admin': {
                 password: 'admin123',
@@ -1802,14 +2413,64 @@
         let credentialsData = null;
         let credentialsPromise = null;
         let staffData = [];
-        let scheduleData = {}; // Format: { "2025-01-15": { "dept": [{ staffId, timeIn, timeOut }] } }
+        let leaveRecords = [];
+        let notifications = [];
+        let scheduleData = {};
         let charts = {};
         let currentView = 'monitor';
         let editingIndex = -1;
+        let editingLeaveId = null;
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
         let selectedDate = null;
         let selectedDept = '';
+        let leaveCalendarView = false;
+        let leaveCalendarMonth = new Date().getMonth();
+        let leaveCalendarYear = new Date().getFullYear();
+        let selectedLeaveDate = null;
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const loginInfo = document.getElementById('loginInfo');
+            
+            credentialsPromise = loadCredentials().then(success => {
+                if (success) {
+                    loginInfo.className = 'login-info ready';
+                    loginInfo.textContent = '✅ System ready - Please sign in';
+                } else {
+                    loginInfo.className = 'login-info';
+                    loginInfo.style.background = '#ffebee';
+                    loginInfo.style.color = '#c62828';
+                    loginInfo.style.borderLeftColor = '#c62828';
+                    loginInfo.textContent = '❌ Failed to load credentials - Please refresh the page';
+                }
+                return success;
+            });
+
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const view = this.getAttribute('data-view');
+                    switchView(view);
+                });
+            });
+
+            loadScheduleData();
+            loadLeaveRecords();
+            
+            setInterval(checkNotifications, 60000);
+        });
+
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('notificationDropdown');
+            const bell = document.querySelector('.notification-bell');
+            
+            if (dropdown && bell && !dropdown.contains(event.target) && !bell.contains(event.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
 
         // ============================================
         // PERMISSION SYSTEM
@@ -1845,13 +2506,11 @@
                 }
             }
 
-            // Try loading from Google Sheets
             try {
                 const url = `https://docs.google.com/spreadsheets/d/${CREDENTIALS_SHEET_ID}/export?format=xlsx`;
                 
-                // Add timeout to prevent hanging
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
                 
                 const response = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`, {
                     signal: controller.signal
@@ -1875,7 +2534,9 @@
                             password: row[1] ? row[1].toString() : '',
                             displayName: row[2] ? row[2].toString() : row[0].toString(),
                             role: row[3] ? row[3].toString() : 'User',
-                            email: row[4] ? row[4].toString() : ''
+                            email: row[4] ? row[4].toString() : '',
+                            canExport: row[5] ? row[5].toString().toUpperCase() === 'TRUE' : false,
+                            canRefresh: row[6] ? row[6].toString().toUpperCase() === 'TRUE' : false
                         };
                     }
                 }
@@ -1886,7 +2547,6 @@
             } catch (error) {
                 console.error('Error loading credentials from Google Sheets:', error);
                 
-                // Use fallback credentials if enabled
                 if (CONFIG.USE_FALLBACK_CREDENTIALS) {
                     console.log('Using fallback credentials');
                     credentialsData = FALLBACK_CREDENTIALS;
@@ -1896,35 +2556,6 @@
                 }
             }
         }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const loginInfo = document.getElementById('loginInfo');
-            
-            credentialsPromise = loadCredentials().then(success => {
-                if (success) {
-                    loginInfo.className = 'login-info ready';
-                    loginInfo.textContent = '✅ System ready - Please sign in';
-                } else {
-                    loginInfo.className = 'login-info';
-                    loginInfo.style.background = '#ffebee';
-                    loginInfo.style.color = '#c62828';
-                    loginInfo.style.borderLeftColor = '#c62828';
-                    loginInfo.textContent = '❌ Failed to load credentials - Please refresh the page';
-                }
-                return success;
-            });
-
-            // Setup navigation event listeners with proper event delegation
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const view = this.getAttribute('data-view');
-                    switchView(view);
-                });
-            });
-
-            // Load schedule data from Google Sheets or localStorage
-            loadScheduleData();
-        });
 
         async function handleLogin(event) {
             event.preventDefault();
@@ -1975,6 +2606,8 @@
                     renderStaff();
                     updateMonitorStats();
                 }
+                
+                checkNotifications();
             } else {
                 errorDiv.textContent = '❌ Invalid username or password';
                 errorDiv.style.display = 'block';
@@ -1998,7 +2631,6 @@
             const userInfo = document.getElementById('userInfo');
             if (userInfo) userInfo.innerHTML = userHTML;
 
-            // Enable/disable add staff button based on permissions
             const addStaffBtn = document.getElementById('addStaffBtn');
             if (addStaffBtn) {
                 if (!hasExportPrivileges()) {
@@ -2033,16 +2665,18 @@
             if (CONFIG.USE_GOOGLE_SHEETS) {
                 fetchFromSheetsActual();
             }
+            
+            loadLeaveRecords();
+            checkNotifications();
         }
 
         // ============================================
-        // DATA MANAGEMENT
+        // VIEW SWITCHING
         // ============================================
 
         function switchView(view) {
             currentView = view;
             
-            // Update active tab
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 if (tab.getAttribute('data-view') === view) {
                     tab.classList.add('active');
@@ -2051,16 +2685,23 @@
                 }
             });
             
-            // Hide all views
             document.querySelectorAll('.view-section').forEach(section => {
                 section.classList.remove('active');
             });
             
-            // Show selected view
             if (view === 'monitor') {
                 document.getElementById('monitorView').classList.add('active');
                 renderStaff();
                 updateMonitorStats();
+            } else if (view === 'leaves') {
+                document.getElementById('leavesView').classList.add('active');
+                if (leaveCalendarView) {
+                    updateLeaveDepartmentSelect();
+                    renderLeaveCalendar();
+                } else {
+                    renderLeaves();
+                    updateLeaveStats();
+                }
             } else if (view === 'analytics') {
                 document.getElementById('analyticsView').classList.add('active');
                 loadAnalytics();
@@ -2071,6 +2712,129 @@
                 document.getElementById('reportsView').classList.add('active');
             }
         }
+
+        // ============================================
+        // ALERT SYSTEM
+        // ============================================
+
+        function showAlert(message) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = message;
+            alertBox.className = 'alert show';
+            setTimeout(() => alertBox.classList.remove('show'), 4000);
+        }
+
+        // ============================================
+        // NOTIFICATION SYSTEM
+        // ============================================
+
+        function checkNotifications() {
+            if (!leaveRecords || leaveRecords.length === 0) return;
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            notifications = [];
+            
+            leaveRecords.forEach(leave => {
+                const endDate = new Date(leave.endDate);
+                endDate.setHours(0, 0, 0, 0);
+                
+                const diffTime = endDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                const staff = staffData.find(s => s.trn === leave.staffId);
+                if (!staff) return;
+                
+                if (diffDays === 2) {
+                    notifications.push({
+                        id: `${leave.id}-2days`,
+                        staffName: staff.name,
+                        leaveType: leave.leaveType,
+                        endDate: leave.endDate,
+                        daysRemaining: 2,
+                        type: 'urgent',
+                        message: `${staff.name}'s ${getLeaveTypeName(leave.leaveType)} ends in 2 days (${formatDate(leave.endDate)})`
+                    });
+                }
+                
+                if (diffDays === 1) {
+                    notifications.push({
+                        id: `${leave.id}-1day`,
+                        staffName: staff.name,
+                        leaveType: leave.leaveType,
+                        endDate: leave.endDate,
+                        daysRemaining: 1,
+                        type: 'warning',
+                        message: `${staff.name}'s ${getLeaveTypeName(leave.leaveType)} ends tomorrow (${formatDate(leave.endDate)})`
+                    });
+                }
+                
+                if (diffDays === 0) {
+                    notifications.push({
+                        id: `${leave.id}-today`,
+                        staffName: staff.name,
+                        leaveType: leave.leaveType,
+                        endDate: leave.endDate,
+                        daysRemaining: 0,
+                        type: 'warning',
+                        message: `${staff.name}'s ${getLeaveTypeName(leave.leaveType)} ends today`
+                    });
+                }
+            });
+            
+            updateNotificationBadge();
+            updateNotificationDropdown();
+        }
+
+        function updateNotificationBadge() {
+            const badge = document.getElementById('notificationBadge');
+            if (notifications.length > 0) {
+                badge.textContent = notifications.length;
+                badge.style.display = 'block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function updateNotificationDropdown() {
+            const list = document.getElementById('notificationList');
+            
+            if (notifications.length === 0) {
+                list.innerHTML = '<div class="notification-empty">🔔 No new notifications</div>';
+                return;
+            }
+            
+            list.innerHTML = notifications.map(notif => `
+                <div class="notification-item ${notif.type}">
+                    <div class="notification-title">
+                        ${notif.daysRemaining === 0 ? '🚨' : notif.daysRemaining === 1 ? '⚠️' : '📌'} 
+                        ${notif.staffName}
+                    </div>
+                    <div class="notification-message">${notif.message}</div>
+                    <div class="notification-time">
+                        Leave Type: ${getLeaveTypeName(notif.leaveType)} 
+                        ${notif.daysRemaining > 0 ? `• ${notif.daysRemaining} day${notif.daysRemaining > 1 ? 's' : ''} remaining` : '• Ends today'}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        function clearAllNotifications() {
+            notifications = [];
+            updateNotificationBadge();
+            updateNotificationDropdown();
+            document.getElementById('notificationDropdown').classList.remove('active');
+        }
+
+        // ============================================
+        // STAFF DATA MANAGEMENT (WITH ROLES)
+        // ============================================
 
         async function fetchFromSheets() {
             const cacheKey = 'staffDataCache';
@@ -2100,7 +2864,7 @@
 
         async function fetchFromSheetsActual() {
             try {
-                showAlert('📥 Fetching latest data...');
+                showAlert('🔥 Fetching latest data...');
                 const response = await fetch(CONFIG.SCRIPT_URL);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 
@@ -2116,7 +2880,8 @@
                         departmentalLeave: parseInt(row[6]) || 0,
                         overTime: parseInt(row[7]) || 0,
                         late: parseInt(row[8]) || 0,
-                        vacationLeave: parseInt(row[9]) || 0
+                        vacationLeave: parseInt(row[9]) || 0,
+                        role: row[10] || 'Staff'  // Added role field
                     }));
                     
                     sessionStorage.setItem('staffDataCache', JSON.stringify(staffData));
@@ -2140,7 +2905,7 @@
                 headers: {'Content-Type': 'text/plain'},
                 body: JSON.stringify({
                     action: 'addRow',
-                    data: [staff.name, staff.trn, staff.department, staff.dayOff, staff.sickLeave, staff.claims, staff.departmentalLeave, staff.overTime, staff.late, staff.vacationLeave]
+                    data: [staff.name, staff.trn, staff.department, staff.dayOff, staff.sickLeave, staff.claims, staff.departmentalLeave, staff.overTime, staff.late, staff.vacationLeave, staff.role || 'Staff']
                 })
             });
             const result = await response.json();
@@ -2154,7 +2919,7 @@
                 body: JSON.stringify({
                     action: 'updateRow',
                     rowIndex: index + 2,
-                    data: [staff.name, staff.trn, staff.department, staff.dayOff, staff.sickLeave, staff.claims, staff.departmentalLeave, staff.overTime, staff.late, staff.vacationLeave]
+                    data: [staff.name, staff.trn, staff.department, staff.dayOff, staff.sickLeave, staff.claims, staff.departmentalLeave, staff.overTime, staff.late, staff.vacationLeave, staff.role || 'Staff']
                 })
             });
             const result = await response.json();
@@ -2180,6 +2945,7 @@
 
         function clearForm() {
             ['staffName', 'staffTrn', 'staffDepartment'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('staffRole').value = 'Staff';  // Reset role to default
             ['staffDayOff', 'staffSickLeave', 'staffClaims', 'staffDeptLeave', 'staffOverTime', 'staffLate', 'staffVacation'].forEach(id => document.getElementById(id).value = '0');
         }
 
@@ -2189,6 +2955,7 @@
             const name = document.getElementById('staffName').value.trim();
             const trn = document.getElementById('staffTrn').value.trim();
             const department = document.getElementById('staffDepartment').value.trim();
+            const role = document.getElementById('staffRole').value;  // Get role
 
             if (!name || !trn || !department) {
                 showAlert('⚠️ Please fill in all required fields');
@@ -2196,7 +2963,7 @@
             }
 
             const newStaff = {
-                name, trn, department,
+                name, trn, department, role,  // Include role
                 dayOff: parseInt(document.getElementById('staffDayOff').value) || 0,
                 sickLeave: parseInt(document.getElementById('staffSickLeave').value) || 0,
                 claims: parseInt(document.getElementById('staffClaims').value) || 0,
@@ -2232,6 +2999,7 @@
             document.getElementById('editStaffName').value = staff.name;
             document.getElementById('editStaffTrn').value = staff.trn;
             document.getElementById('editStaffDepartment').value = staff.department;
+            document.getElementById('editStaffRole').value = staff.role || 'Staff';  // Set role
             document.getElementById('editStaffDayOff').value = staff.dayOff;
             document.getElementById('editStaffSickLeave').value = staff.sickLeave;
             document.getElementById('editStaffClaims').value = staff.claims;
@@ -2254,6 +3022,7 @@
             const name = document.getElementById('editStaffName').value.trim();
             const trn = document.getElementById('editStaffTrn').value.trim();
             const department = document.getElementById('editStaffDepartment').value.trim();
+            const role = document.getElementById('editStaffRole').value;  // Get role
 
             if (!name || !trn || !department) {
                 showAlert('⚠️ Please fill in all required fields');
@@ -2261,7 +3030,7 @@
             }
 
             const updatedStaff = {
-                name, trn, department,
+                name, trn, department, role,  // Include role
                 dayOff: parseInt(document.getElementById('editStaffDayOff').value) || 0,
                 sickLeave: parseInt(document.getElementById('editStaffSickLeave').value) || 0,
                 claims: parseInt(document.getElementById('editStaffClaims').value) || 0,
@@ -2327,7 +3096,8 @@
             const filteredData = staffData.filter(staff => 
                 staff.name.toLowerCase().includes(searchTerm) ||
                 staff.department.toLowerCase().includes(searchTerm) ||
-                staff.trn.toString().includes(searchTerm)
+                staff.trn.toString().includes(searchTerm) ||
+                (staff.role || 'Staff').toLowerCase().includes(searchTerm)  // Search by role
             );
 
             const grid = document.getElementById('staffGrid');
@@ -2365,8 +3135,10 @@
                         <div class="department" onclick="toggleDetails(${actualIndex})">
                             <span>📋</span>
                             <span>${staff.department}</span>
+                            <span class="role-badge">${staff.role || 'Staff'}</span>
                         </div>
                         <div id="details-${actualIndex}" class="details">
+                            <div class="detail-row"><span class="detail-label">Role:</span><span class="detail-value">${staff.role || 'Staff'}</span></div>
                             <div class="detail-row"><span class="detail-label">Day Off:</span><span class="detail-value">${staff.dayOff}</span></div>
                             <div class="detail-row"><span class="detail-label">Sick Leave:</span><span class="detail-value">${staff.sickLeave}</span></div>
                             <div class="detail-row"><span class="detail-label">Claims:</span><span class="detail-value">${staff.claims}</span></div>
@@ -2395,6 +3167,726 @@
             document.getElementById('monitorTotalStaff').textContent = totalStaff;
             document.getElementById('monitorTotalAbsences').textContent = totalAbsences;
             document.getElementById('monitorAvgAbsences').textContent = avgAbsences;
+        }
+
+        // ============================================
+        // LEAVE MANAGEMENT FUNCTIONS (CONTINUES...)
+        // ============================================
+
+        function toggleLeaveView() {
+            leaveCalendarView = !leaveCalendarView;
+            const calendarView = document.getElementById('leaveCalendarView');
+            const listView = document.getElementById('leaveListView');
+            const icon = document.getElementById('leaveViewIcon');
+            const text = document.getElementById('leaveViewText');
+            
+            if (leaveCalendarView) {
+                calendarView.style.display = 'block';
+                listView.style.display = 'none';
+                icon.textContent = '📋';
+                text.textContent = 'List View';
+                updateLeaveDepartmentSelect();
+                renderLeaveCalendar();
+            } else {
+                calendarView.style.display = 'none';
+                listView.style.display = 'block';
+                icon.textContent = '📅';
+                text.textContent = 'Calendar View';
+                renderLeaves();
+            }
+        }
+
+        function updateLeaveDepartmentSelect() {
+            const departments = [...new Set(staffData.map(s => s.department))];
+            const select = document.getElementById('leaveDeptFilter');
+            select.innerHTML = '<option value="">All Departments</option>' + 
+                departments.map(dept => `<option value="${dept}">${dept}</option>`).join('');
+        }
+
+        function previousLeaveMonth() {
+            leaveCalendarMonth--;
+            if (leaveCalendarMonth < 0) {
+                leaveCalendarMonth = 11;
+                leaveCalendarYear--;
+            }
+            renderLeaveCalendar();
+        }
+
+        function nextLeaveMonth() {
+            leaveCalendarMonth++;
+            if (leaveCalendarMonth > 11) {
+                leaveCalendarMonth = 0;
+                leaveCalendarYear++;
+            }
+            renderLeaveCalendar();
+        }
+
+        function renderLeaveCalendar() {
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            document.getElementById('leaveCalendarTitle').textContent = `${monthNames[leaveCalendarMonth]} ${leaveCalendarYear}`;
+            
+            const deptFilter = document.getElementById('leaveDeptFilter')?.value || '';
+            const typeFilter = document.getElementById('leaveTypeFilter')?.value || '';
+
+            const firstDay = new Date(leaveCalendarYear, leaveCalendarMonth, 1).getDay();
+            const daysInMonth = new Date(leaveCalendarYear, leaveCalendarMonth + 1, 0).getDate();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let html = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => 
+                `<div class="calendar-header">${day}</div>`
+            ).join('');
+
+            const prevMonthDays = new Date(leaveCalendarYear, leaveCalendarMonth, 0).getDate();
+            for (let i = firstDay - 1; i >= 0; i--) {
+                html += `<div class="calendar-day other-month"><div class="day-number">${prevMonthDays - i}</div></div>`;
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${leaveCalendarYear}-${String(leaveCalendarMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dateObj = new Date(dateStr);
+                dateObj.setHours(0, 0, 0, 0);
+                
+                const isToday = dateObj.getTime() === today.getTime();
+                
+                const dayLeaves = getLeavesForDate(dateStr, deptFilter, typeFilter);
+                
+                let leaveClass = '';
+                let leaveHTML = '';
+                
+                if (dayLeaves.length > 0) {
+                    const types = [...new Set(dayLeaves.map(l => l.leaveType))];
+                    if (types.length > 1) {
+                        leaveClass = 'has-leave multiple';
+                    } else {
+                        leaveClass = `has-leave ${types[0]}`;
+                    }
+                    
+                    leaveHTML = `<div class="day-leaves">`;
+                    const displayLeaves = dayLeaves.slice(0, 2);
+                    displayLeaves.forEach(leave => {
+                        const staff = staffData.find(s => s.trn === leave.staffId);
+                        if (staff) {
+                            leaveHTML += `<span class="leave-indicator ${leave.leaveType}">${staff.name.split(' ')[0]}</span>`;
+                        }
+                    });
+                    if (dayLeaves.length > 2) {
+                        leaveHTML += `<span class="leave-indicator" style="background: #718096;">+${dayLeaves.length - 2}</span>`;
+                    }
+                    leaveHTML += `</div>`;
+                }
+
+                html += `
+                    <div class="calendar-day ${leaveClass} ${isToday ? 'today' : ''}" data-date="${dateStr}">
+                        <div class="day-number">${day}</div>
+                        ${leaveHTML}
+                    </div>
+                `;
+            }
+
+            const totalCells = (html.match(/calendar-day/g) || []).length;
+            const remainingCells = 42 - totalCells;
+            for (let day = 1; day <= remainingCells; day++) {
+                html += `<div class="calendar-day other-month"><div class="day-number">${day}</div></div>`;
+            }
+
+            document.getElementById('leaveCalendarGrid').innerHTML = html;
+
+            document.querySelectorAll('#leaveCalendarGrid .calendar-day[data-date]').forEach(dayEl => {
+                dayEl.addEventListener('click', function() {
+                    const dateStr = this.getAttribute('data-date');
+                    openLeaveDayModal(dateStr);
+                });
+            });
+
+            renderUpcomingLeavesCalendar();
+        }
+
+        function getLeavesForDate(dateStr, deptFilter = '', typeFilter = '') {
+            const date = new Date(dateStr);
+            date.setHours(0, 0, 0, 0);
+            
+            return leaveRecords.filter(leave => {
+                const start = new Date(leave.startDate);
+                const end = new Date(leave.endDate);
+                start.setHours(0, 0, 0, 0);
+                end.setHours(0, 0, 0, 0);
+                
+                const isInRange = date >= start && date <= end;
+                if (!isInRange) return false;
+                
+                if (typeFilter && leave.leaveType !== typeFilter) return false;
+                
+                if (deptFilter) {
+                    const staff = staffData.find(s => s.trn === leave.staffId);
+                    if (!staff || staff.department !== deptFilter) return false;
+                }
+                
+                return true;
+            });
+        }
+
+        function openLeaveDayModal(dateStr) {
+            selectedLeaveDate = dateStr;
+            const date = new Date(dateStr + 'T12:00:00');
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('leaveDayTitle').textContent = `Leaves for ${date.toLocaleDateString('en-US', options)}`;
+
+            const select = document.getElementById('leaveModalStaffSelect');
+            select.innerHTML = '<option value="">Select Staff Member...</option>' + 
+                staffData.map(staff => 
+                    `<option value="${staff.trn}">${staff.name} (${staff.department})</option>`
+                ).join('');
+
+            document.getElementById('leaveModalStartDate').value = dateStr;
+            document.getElementById('leaveModalEndDate').value = dateStr;
+            document.getElementById('leaveModalType').value = '';
+            document.getElementById('leaveModalReason').value = '';
+
+            renderLeaveDayList();
+            document.getElementById('leaveDayModal').classList.add('active');
+        }
+
+        function closeLeaveDayModal() {
+            document.getElementById('leaveDayModal').classList.remove('active');
+            selectedLeaveDate = null;
+        }
+
+        function renderLeaveDayList() {
+            const dayLeaves = getLeavesForDate(selectedLeaveDate);
+            const container = document.getElementById('leaveDayList');
+
+            if (dayLeaves.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #718096; padding: 20px;">No leaves on this date</p>';
+                return;
+            }
+
+            container.innerHTML = dayLeaves.map(leave => {
+                const staff = staffData.find(s => s.trn === leave.staffId);
+                if (!staff) return '';
+
+                return `
+                    <div class="staff-assignment-item">
+                        <div class="staff-assignment-header">
+                            <div>
+                                <span class="staff-assignment-name">${staff.name} - ${staff.department}</span>
+                                <span class="leave-type-badge ${leave.leaveType}" style="margin-left: 10px;">${getLeaveTypeName(leave.leaveType)}</span>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="icon-btn edit" onclick="openEditLeaveModal('${leave.id}'); closeLeaveDayModal();" title="Edit">✏️</button>
+                                <button class="remove-assignment" onclick="deleteLeaveRecord('${leave.id}')">Remove</button>
+                            </div>
+                        </div>
+                        <div style="font-size: 12px; color: #718096; margin-top: 8px;">
+                            📅 ${formatDate(leave.startDate)} → ${formatDate(leave.endDate)}
+                        </div>
+                        ${leave.reason ? `<div style="font-size: 12px; color: #4a5568; margin-top: 6px;">💬 ${leave.reason}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function addLeaveFromCalendar() {
+            const staffId = document.getElementById('leaveModalStaffSelect').value;
+            const leaveType = document.getElementById('leaveModalType').value;
+            const startDate = document.getElementById('leaveModalStartDate').value;
+            const endDate = document.getElementById('leaveModalEndDate').value;
+            const reason = document.getElementById('leaveModalReason').value.trim();
+            
+            if (!staffId || !leaveType || !startDate || !endDate) {
+                showAlert('⚠️ Please fill in all required fields');
+                return;
+            }
+            
+            if (new Date(endDate) < new Date(startDate)) {
+                showAlert('⚠️ End date cannot be before start date');
+                return;
+            }
+            
+            const newLeave = {
+                id: Date.now().toString(),
+                staffId,
+                leaveType,
+                startDate,
+                endDate,
+                reason,
+                createdAt: new Date().toISOString(),
+                status: getLeaveStatus(startDate, endDate)
+            };
+            
+            try {
+                if (CONFIG.SYNC_LEAVES_TO_SHEETS) {
+                    showAlert('💾 Saving leave record...');
+                    await saveLeaveToSheets(newLeave);
+                }
+                
+                leaveRecords.push(newLeave);
+                saveLeaveRecordsToLocalStorage();
+                renderLeaveCalendar();
+                renderLeaveDayList();
+                checkNotifications();
+                
+                document.getElementById('leaveModalStaffSelect').value = '';
+                document.getElementById('leaveModalType').value = '';
+                document.getElementById('leaveModalReason').value = '';
+                
+                showAlert('✅ Leave record added successfully!');
+            } catch (error) {
+                showAlert('❌ Failed to add leave record: ' + error.message);
+            }
+        }
+
+        async function deleteLeaveRecord(leaveId) {
+            if (!confirm('Are you sure you want to delete this leave record?')) return;
+            
+            try {
+                if (CONFIG.SYNC_LEAVES_TO_SHEETS) {
+                    showAlert('🗑️ Deleting...');
+                    await deleteLeaveFromSheets(leaveId);
+                }
+                
+                leaveRecords = leaveRecords.filter(l => l.id !== leaveId);
+                saveLeaveRecordsToLocalStorage();
+                
+                if (leaveCalendarView) {
+                    renderLeaveCalendar();
+                    if (selectedLeaveDate) {
+                        renderLeaveDayList();
+                    }
+                } else {
+                    renderLeaves();
+                    updateLeaveStats();
+                }
+                
+                checkNotifications();
+                showAlert('✅ Leave record deleted successfully!');
+            } catch (error) {
+                showAlert('❌ Failed to delete: ' + error.message);
+            }
+        }
+
+        async function deleteLeaveFromSheets(leaveId) {
+            const response = await fetch(CONFIG.SCRIPT_URL, {
+                method: 'POST',
+                headers: {'Content-Type': 'text/plain'},
+                body: JSON.stringify({
+                    action: 'deleteLeave',
+                    leaveId: leaveId
+                })
+            });
+            const result = await response.json();
+            if (result.status !== 'success') throw new Error(result.message || 'Failed to delete leave');
+        }
+
+        function renderUpcomingLeavesCalendar() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const sevenDaysFromNow = new Date(today);
+            sevenDaysFromNow.setDate(today.getDate() + 7);
+            
+            const upcoming = leaveRecords.filter(leave => {
+                const endDate = new Date(leave.endDate);
+                endDate.setHours(0, 0, 0, 0);
+                return endDate >= today && endDate <= sevenDaysFromNow;
+            }).sort((a, b) => new Date(a.endDate) - new Date(b.endDate));
+            
+            const container = document.getElementById('upcomingLeavesListCalendar');
+            
+            if (upcoming.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #718096; padding: 20px;">No leaves ending in the next 7 days</p>';
+                return;
+            }
+            
+            container.innerHTML = upcoming.map(leave => {
+                const staff = staffData.find(s => s.trn === leave.staffId);
+                if (!staff) return '';
+                
+                const endDate = new Date(leave.endDate);
+                const diffTime = endDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                return `
+                    <div class="staff-list-item" style="border-left-color: ${diffDays <= 1 ? '#ef4444' : '#f59e0b'};">
+                        <h4>${staff.name} - ${getLeaveTypeName(leave.leaveType)}</h4>
+                        <div style="font-size: 13px; color: #718096; margin-top: 4px;">
+                            Ends: ${formatDate(leave.endDate)} 
+                            ${diffDays === 0 ? '• Today' : diffDays === 1 ? '• Tomorrow' : `• In ${diffDays} days`}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function syncLeavesNow() {
+            if (!CONFIG.SYNC_LEAVES_TO_SHEETS) {
+                showAlert('⚠️ Google Sheets sync is disabled');
+                return;
+            }
+            
+            showAlert('🔄 Syncing leave records with Google Sheets...');
+            
+            try {
+                for (const leave of leaveRecords) {
+                    await saveLeaveToSheets(leave);
+                }
+                
+                await loadLeaveRecords();
+                
+                if (leaveCalendarView) {
+                    renderLeaveCalendar();
+                } else {
+                    renderLeaves();
+                    updateLeaveStats();
+                }
+                
+                checkNotifications();
+                showAlert('✅ Leave records synced successfully!');
+            } catch (error) {
+                console.error('Sync error:', error);
+                showAlert('❌ Failed to sync. Using local data.');
+            }
+        }
+
+        function toggleLeaveForm() {
+            const form = document.getElementById('leaveForm');
+            form.classList.toggle('active');
+            
+            if (form.classList.contains('active')) {
+                const select = document.getElementById('leaveStaffSelect');
+                select.innerHTML = '<option value="">Select Staff Member...</option>' + 
+                    staffData.map(staff => 
+                        `<option value="${staff.trn}">${staff.name} (${staff.department})</option>`
+                    ).join('');
+                
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('leaveStartDate').value = today;
+                document.getElementById('leaveEndDate').value = today;
+                document.getElementById('leaveType').value = '';
+                document.getElementById('leaveReason').value = '';
+            }
+        }
+
+        async function addLeaveRecord() {
+            const staffId = document.getElementById('leaveStaffSelect').value;
+            const leaveType = document.getElementById('leaveType').value;
+            const startDate = document.getElementById('leaveStartDate').value;
+            const endDate = document.getElementById('leaveEndDate').value;
+            const reason = document.getElementById('leaveReason').value.trim();
+            
+            console.log('Adding leave record:', { staffId, leaveType, startDate, endDate }); // Debug log
+            
+            if (!staffId || !leaveType || !startDate || !endDate) {
+                showAlert('⚠️ Please fill in all required fields');
+                return;
+            }
+            
+            if (new Date(endDate) < new Date(startDate)) {
+                showAlert('⚠️ End date cannot be before start date');
+                return;
+            }
+            
+            const newLeave = {
+                id: Date.now().toString(),
+                staffId,
+                leaveType,
+                startDate,
+                endDate,
+                reason,
+                createdAt: new Date().toISOString(),
+                status: getLeaveStatus(startDate, endDate)
+            };
+            
+            try {
+                if (CONFIG.SYNC_LEAVES_TO_SHEETS) {
+                    showAlert('💾 Saving leave record...');
+                    try {
+                        await saveLeaveToSheets(newLeave);
+                    } catch (error) {
+                        console.warn('Failed to sync to sheets, saving locally:', error);
+                    }
+                }
+                
+                leaveRecords.push(newLeave);
+                saveLeaveRecordsToLocalStorage();
+                renderLeaves();
+                updateLeaveStats();
+                toggleLeaveForm();
+                checkNotifications();
+                showAlert('✅ Leave record added successfully!');
+            } catch (error) {
+                console.error('Error adding leave:', error);
+                showAlert('❌ Failed to add leave record: ' + error.message);
+            }
+        }
+
+        async function saveLeaveToSheets(leave) {
+            const response = await fetch(CONFIG.SCRIPT_URL, {
+                method: 'POST',
+                headers: {'Content-Type': 'text/plain'},
+                body: JSON.stringify({
+                    action: 'addLeave',
+                    leaveData: leave
+                })
+            });
+            const result = await response.json();
+            if (result.status !== 'success') throw new Error(result.message || 'Failed to save leave');
+        }
+
+        async function loadLeaveRecords() {
+            if (CONFIG.SYNC_LEAVES_TO_SHEETS) {
+                try {
+                    const response = await fetch(CONFIG.SCRIPT_URL + '?action=getLeaves');
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.status === 'success' && result.leaveData) {
+                            leaveRecords = result.leaveData;
+                            saveLeaveRecordsToLocalStorage();
+                            console.log('Leave records loaded from Google Sheets');
+                            if (currentView === 'leaves') {
+                                renderLeaves();
+                                updateLeaveStats();
+                            }
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Failed to load from sheets, using localStorage:', error);
+                }
+            }
+            
+            const saved = localStorage.getItem('hospitalLeaveRecords');
+            if (saved) {
+                try {
+                    leaveRecords = JSON.parse(saved);
+                    console.log('Leave records loaded from localStorage');
+                } catch (e) {
+                    console.error('Error loading leave records:', e);
+                    leaveRecords = [];
+                }
+            }
+            
+            if (currentView === 'leaves') {
+                renderLeaves();
+                updateLeaveStats();
+            }
+        }
+
+        function saveLeaveRecordsToLocalStorage() {
+            try {
+                localStorage.setItem('hospitalLeaveRecords', JSON.stringify(leaveRecords));
+            } catch (error) {
+                console.error('Error saving leave records to localStorage:', error);
+            }
+        }
+
+        function getLeaveStatus(startDate, endDate) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const start = new Date(startDate);
+            start.setHours(0, 0, 0, 0);
+            
+            const end = new Date(endDate);
+            end.setHours(0, 0, 0, 0);
+            
+            if (end < today) return 'completed';
+            if (start > today) return 'upcoming';
+            return 'active';
+        }
+
+        function getLeaveTypeName(type) {
+            const types = {
+                'sick': 'Sick Leave',
+                'vacation': 'Vacation Leave',
+                'dayoff': 'Day Off',
+                'dept': 'Departmental Leave'
+            };
+            return types[type] || type;
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        function renderLeaves() {
+            const searchTerm = document.getElementById('leaveSearchInput')?.value?.toLowerCase() || '';
+            
+            // Debug logging
+            console.log('Rendering leaves. Total leave records:', leaveRecords.length);
+            console.log('Staff data available:', staffData.length);
+            
+            const filteredLeaves = leaveRecords.filter(leave => {
+                const staff = staffData.find(s => s.trn === leave.staffId);
+                
+                // If no staff found, still show the leave with partial info
+                if (!staff && !searchTerm) {
+                    return true; // Show orphaned leaves when not searching
+                }
+                
+                if (!staff) return false; // Hide orphaned leaves when searching
+                
+                const matchesSearch = !searchTerm || 
+                    staff.name.toLowerCase().includes(searchTerm) ||
+                    getLeaveTypeName(leave.leaveType).toLowerCase().includes(searchTerm) ||
+                    leave.status.toLowerCase().includes(searchTerm);
+                
+                return matchesSearch;
+            });
+            
+            console.log('Filtered leaves to display:', filteredLeaves.length);
+            
+            const grid = document.getElementById('leaveGrid');
+            const emptyState = document.getElementById('emptyLeaveState');
+            
+            if (filteredLeaves.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+                
+                // Add helpful message if records exist but aren't showing
+                if (leaveRecords.length > 0) {
+                    emptyState.innerHTML = `
+                        <div class="empty-state-icon">📋</div>
+                        <h3 style="color: #2d3748; margin-bottom: 8px;">No matching leave records found</h3>
+                        <p style="color: #718096;">There are ${leaveRecords.length} leave records but they may not have matching staff members.</p>
+                        <p style="color: #ef4444; margin-top: 10px;">Try refreshing the page to reload staff data.</p>
+                    `;
+                }
+                return;
+            }
+            
+            grid.style.display = 'grid';
+            emptyState.style.display = 'none';
+            
+            grid.innerHTML = filteredLeaves.map(leave => {
+                const staff = staffData.find(s => s.trn === leave.staffId);
+                const status = getLeaveStatus(leave.startDate, leave.endDate);
+                const typeName = getLeaveTypeName(leave.leaveType);
+                
+                // Handle case where staff member is not found
+                if (!staff) {
+                    return `
+                        <div class="leave-card ${leave.leaveType}" style="border: 2px dashed #ef4444;">
+                            <div class="leave-header">
+                                <div>
+                                    <div class="leave-staff-name" style="color: #ef4444;">Unknown Staff (ID: ${leave.staffId})</div>
+                                    <div style="font-size: 13px; color: #718096; margin-top: 4px;">Staff member not found in system</div>
+                                </div>
+                                <span class="leave-type-badge ${leave.leaveType}">${typeName}</span>
+                            </div>
+                            <div class="leave-dates">
+                                <span>📅 Start: ${formatDate(leave.startDate)}</span>
+                                <span>📅 End: ${formatDate(leave.endDate)}</span>
+                            </div>
+                            ${leave.reason ? `<div class="leave-reason">💬 ${leave.reason}</div>` : ''}
+                            <div class="leave-actions" style="display: flex; justify-content: space-between; align-items: center;">
+                                <span class="leave-status ${status}">${status}</span>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="icon-btn edit" onclick="openEditLeaveModal('${leave.id}')" title="Edit Leave">✏️</button>
+                                    <button class="icon-btn delete" onclick="deleteLeaveRecord('${leave.id}')" title="Delete Leave">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="leave-card ${leave.leaveType}">
+                        <div class="leave-header">
+                            <div>
+                                <div class="leave-staff-name">${staff.name}</div>
+                                <div style="font-size: 13px; color: #718096; margin-top: 4px;">${staff.department}</div>
+                            </div>
+                            <span class="leave-type-badge ${leave.leaveType}">${typeName}</span>
+                        </div>
+                        <div class="leave-dates">
+                            <span>📅 Start: ${formatDate(leave.startDate)}</span>
+                            <span>📅 End: ${formatDate(leave.endDate)}</span>
+                        </div>
+                        ${leave.reason ? `<div class="leave-reason">💬 ${leave.reason}</div>` : ''}
+                        <div class="leave-actions" style="display: flex; justify-content: space-between; align-items: center;">
+                            <span class="leave-status ${status}">${status}</span>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="icon-btn edit" onclick="openEditLeaveModal('${leave.id}')" title="Edit Leave">✏️</button>
+                                <button class="icon-btn delete" onclick="deleteLeaveRecord('${leave.id}')" title="Delete Leave">🗑️</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            renderUpcomingLeaves();
+        }
+
+        function renderUpcomingLeaves() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const sevenDaysFromNow = new Date(today);
+            sevenDaysFromNow.setDate(today.getDate() + 7);
+            
+            const upcoming = leaveRecords.filter(leave => {
+                const endDate = new Date(leave.endDate);
+                endDate.setHours(0, 0, 0, 0);
+                return endDate >= today && endDate <= sevenDaysFromNow;
+            }).sort((a, b) => new Date(a.endDate) - new Date(b.endDate));
+            
+            const container = document.getElementById('upcomingLeavesList');
+            
+            if (upcoming.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #718096; padding: 20px;">No leaves ending in the next 7 days</p>';
+                return;
+            }
+            
+            container.innerHTML = upcoming.map(leave => {
+                const staff = staffData.find(s => s.trn === leave.staffId);
+                if (!staff) return '';
+                
+                const endDate = new Date(leave.endDate);
+                const diffTime = endDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                return `
+                    <div class="staff-list-item" style="border-left-color: ${diffDays <= 1 ? '#ef4444' : '#f59e0b'};">
+                        <h4>${staff.name} - ${getLeaveTypeName(leave.leaveType)}</h4>
+                        <div style="font-size: 13px; color: #718096; margin-top: 4px;">
+                            Ends: ${formatDate(leave.endDate)} 
+                            ${diffDays === 0 ? '• Today' : diffDays === 1 ? '• Tomorrow' : `• In ${diffDays} days`}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterLeaves() {
+            renderLeaves();
+        }
+
+        function updateLeaveStats() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const activeLeaves = leaveRecords.filter(leave => {
+                const start = new Date(leave.startDate);
+                const end = new Date(leave.endDate);
+                start.setHours(0, 0, 0, 0);
+                end.setHours(0, 0, 0, 0);
+                return start <= today && end >= today;
+            }).length;
+            
+            const sevenDaysFromNow = new Date(today);
+            sevenDaysFromNow.setDate(today.getDate() + 7);
+            
+            const upcomingLeaves = leaveRecords.filter(leave => {
+                const start = new Date(leave.startDate);
+                start.setHours(0, 0, 0, 0);
+                return start > today && start <= sevenDaysFromNow;
+            }).length;
+            
+            document.getElementById('activeLeavesCount').textContent = activeLeaves;
+            document.getElementById('upcomingLeavesCount').textContent = upcomingLeaves;
+            document.getElementById('totalLeavesCount').textContent = leaveRecords.length;
         }
 
         // ============================================
@@ -2708,7 +4200,7 @@
                 const totalDays = staff.dayOff + staff.sickLeave + staff.departmentalLeave + staff.vacationLeave;
                 content += `
                     <div class="staff-list-item">
-                        <h4>${staff.name} - TRN: ${staff.trn}</h4>
+                        <h4>${staff.name} - TRN: ${staff.trn} <span style="background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; margin-left: 10px;">${staff.role || 'Staff'}</span></h4>
                         <div class="staff-detail-grid">
                             <div class="staff-detail-item"><span style="color: #718096;">Day Off:</span><span style="font-weight: 600;">${staff.dayOff}</span></div>
                             <div class="staff-detail-item"><span style="color: #718096;">Sick Leave:</span><span style="font-weight: 600;">${staff.sickLeave}</span></div>
@@ -2733,12 +4225,12 @@
         }
 
         // ============================================
-        // SCHEDULING/CALENDAR SYSTEM WITH GOOGLE SHEETS SYNC
+        // SCHEDULING/CALENDAR SYSTEM (CONTINUES...)
         // ============================================
 
         function initializeSchedule() {
             updateDepartmentSelect();
-            loadScheduleData(); // This will fetch from sheets if enabled
+            loadScheduleData();
             renderCalendar();
         }
 
@@ -2780,13 +4272,11 @@
                 `<div class="calendar-header">${day}</div>`
             ).join('');
 
-            // Previous month days
             const prevMonthDays = new Date(currentYear, currentMonth, 0).getDate();
             for (let i = firstDay - 1; i >= 0; i--) {
                 html += `<div class="calendar-day other-month"><div class="day-number">${prevMonthDays - i}</div></div>`;
             }
 
-            // Current month days
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const isToday = today.getDate() === day && today.getMonth() === currentMonth && today.getFullYear() === currentYear;
@@ -2803,7 +4293,6 @@
                 `;
             }
 
-            // Next month days to fill grid
             const totalCells = (html.match(/calendar-day/g) || []).length;
             const remainingCells = 42 - totalCells;
             for (let day = 1; day <= remainingCells; day++) {
@@ -2812,7 +4301,6 @@
 
             document.getElementById('calendarGrid').innerHTML = html;
 
-            // Add event listeners to calendar days
             document.querySelectorAll('.calendar-day[data-date]').forEach(dayEl => {
                 dayEl.addEventListener('click', function() {
                     const dateStr = this.getAttribute('data-date');
@@ -2915,7 +4403,6 @@
                 scheduleData[selectedDate][staff.department] = [];
             }
 
-            // Check if already assigned
             if (scheduleData[selectedDate][staff.department].find(a => a.staffId === staffId)) {
                 showAlert('⚠️ Staff member already assigned to this day');
                 return;
@@ -2965,11 +4452,9 @@
 
         function saveScheduleData() {
             try {
-                // Always save to localStorage as cache
                 localStorage.setItem('hospitalScheduleData', JSON.stringify(scheduleData));
                 console.log('Schedule data saved to localStorage');
                 
-                // Sync to Google Sheets if enabled
                 if (CONFIG.SYNC_SCHEDULES_TO_SHEETS) {
                     saveScheduleToSheets();
                 }
@@ -2997,12 +4482,10 @@
                 }
             } catch (error) {
                 console.error('Error syncing schedule to sheets:', error);
-                // Don't show error to user - localStorage backup still works
             }
         }
 
         async function loadScheduleData() {
-            // Try loading from Google Sheets first if enabled
             if (CONFIG.SYNC_SCHEDULES_TO_SHEETS) {
                 try {
                     const response = await fetch(CONFIG.SCRIPT_URL + '?action=getSchedule');
@@ -3010,7 +4493,6 @@
                         const result = await response.json();
                         if (result.status === 'success' && result.scheduleData) {
                             scheduleData = result.scheduleData;
-                            // Update localStorage cache
                             localStorage.setItem('hospitalScheduleData', JSON.stringify(scheduleData));
                             console.log('Schedule data loaded from Google Sheets');
                             if (currentView === 'schedule') {
@@ -3024,7 +4506,6 @@
                 }
             }
             
-            // Fallback to localStorage
             const saved = localStorage.getItem('hospitalScheduleData');
             if (saved) {
                 try {
@@ -3050,10 +4531,8 @@
             showAlert('🔄 Syncing schedule with Google Sheets...');
             
             try {
-                // First, save current data to sheets
                 await saveScheduleToSheets();
                 
-                // Then, load from sheets to ensure we have latest
                 const response = await fetch(CONFIG.SCRIPT_URL + '?action=getSchedule');
                 if (response.ok) {
                     const result = await response.json();
@@ -3073,15 +4552,8 @@
         }
 
         // ============================================
-        // REPORT GENERATION
+        // REPORT GENERATION (WITH ROLES)
         // ============================================
-
-        function showAlert(message) {
-            const alertBox = document.getElementById('alertBox');
-            alertBox.textContent = message;
-            alertBox.className = 'alert show';
-            setTimeout(() => alertBox.classList.remove('show'), 4000);
-        }
 
         function showIndividualStaffReport() {
             if (staffData.length === 0) {
@@ -3092,7 +4564,7 @@
             const listContainer = document.getElementById('staffSelectionList');
             listContainer.innerHTML = staffData.map((staff, index) => `
                 <div style="padding: 12px; margin-bottom: 8px; background: #f7fafc; border-radius: 8px; cursor: pointer;" onclick="generateIndividualStaffReport(${index})">
-                    <div style="font-weight: 600;">${staff.name}</div>
+                    <div style="font-weight: 600;">${staff.name} <span style="background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-left: 8px;">${staff.role || 'Staff'}</span></div>
                     <div style="font-size: 13px; color: #718096;">TRN: ${staff.trn} • ${staff.department}</div>
                 </div>
             `).join('');
@@ -3105,13 +4577,17 @@
 
         function filterStaffSelection() {
             const searchTerm = document.getElementById('staffSearchInput').value.toLowerCase();
-            const filtered = staffData.filter(staff => staff.name.toLowerCase().includes(searchTerm) || staff.trn.toString().includes(searchTerm));
+            const filtered = staffData.filter(staff => 
+                staff.name.toLowerCase().includes(searchTerm) || 
+                staff.trn.toString().includes(searchTerm) ||
+                (staff.role || 'Staff').toLowerCase().includes(searchTerm)
+            );
             const listContainer = document.getElementById('staffSelectionList');
             listContainer.innerHTML = filtered.map((staff) => {
                 const actualIndex = staffData.indexOf(staff);
                 return `
                     <div style="padding: 12px; margin-bottom: 8px; background: #f7fafc; border-radius: 8px; cursor: pointer;" onclick="generateIndividualStaffReport(${actualIndex})">
-                        <div style="font-weight: 600;">${staff.name}</div>
+                        <div style="font-weight: 600;">${staff.name} <span style="background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-left: 8px;">${staff.role || 'Staff'}</span></div>
                         <div style="font-size: 13px; color: #718096;">TRN: ${staff.trn} • ${staff.department}</div>
                     </div>
                 `;
@@ -3128,9 +4604,10 @@
                     <p>Generated on ${new Date().toLocaleDateString()}</p>
                 </div>
                 <h2>${staff.name}</h2>
-                <p><strong>TRN:</strong> ${staff.trn} | <strong>Department:</strong> ${staff.department}</p>
+                <p><strong>TRN:</strong> ${staff.trn} | <strong>Department:</strong> ${staff.department} | <strong>Role:</strong> ${staff.role || 'Staff'}</p>
                 <table class="print-table">
                     <tr><th>Metric</th><th>Value</th></tr>
+                    <tr><td>Role</td><td>${staff.role || 'Staff'}</td></tr>
                     <tr><td>Days Off</td><td>${staff.dayOff}</td></tr>
                     <tr><td>Sick Leave</td><td>${staff.sickLeave}</td></tr>
                     <tr><td>Claims</td><td>${staff.claims}</td></tr>
@@ -3157,9 +4634,9 @@
                 </div>
                 <p><strong>Total Staff:</strong> ${staffData.length} | <strong>Total Absences:</strong> ${totalAbsences}</p>
                 <table class="print-table">
-                    <thead><tr><th>Name</th><th>TRN</th><th>Department</th><th>Total Days</th></tr></thead>
+                    <thead><tr><th>Name</th><th>TRN</th><th>Department</th><th>Role</th><th>Total Days</th></tr></thead>
                     <tbody>
-                        ${staffData.map(staff => `<tr><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${calculateTotalDays(staff)}</td></tr>`).join('')}
+                        ${staffData.map(staff => `<tr><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td>${calculateTotalDays(staff)}</td></tr>`).join('')}
                     </tbody>
                 </table>
             `;
@@ -3202,9 +4679,9 @@
                             </div>
                         </div>
                         <table class="print-table">
-                            <thead><tr><th>Name</th><th>TRN</th><th>Total Absences</th><th>Overtime</th><th>Late</th></tr></thead>
+                            <thead><tr><th>Name</th><th>TRN</th><th>Role</th><th>Total Absences</th><th>Overtime</th><th>Late</th></tr></thead>
                             <tbody>
-                                ${deptStaff.map(staff => `<tr><td>${staff.name}</td><td>${staff.trn}</td><td>${calculateTotalDays(staff)}</td><td>${staff.overTime}</td><td>${staff.late}</td></tr>`).join('')}
+                                ${deptStaff.map(staff => `<tr><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.role || 'Staff'}</td><td>${calculateTotalDays(staff)}</td><td>${staff.overTime}</td><td>${staff.late}</td></tr>`).join('')}
                             </tbody>
                         </table>
                     </div>
@@ -3234,8 +4711,8 @@
                     <div class="print-summary-item"><div class="print-summary-value">${avgSickLeave}</div><div class="print-summary-label">Average per Staff</div></div>
                 </div>
                 <table class="print-table">
-                    <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Sick Leave Days</th></tr></thead>
-                    <tbody>${staffData.sort((a, b) => b.sickLeave - a.sickLeave).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td style="font-weight: bold; color: ${staff.sickLeave > 10 ? '#ef4444' : '#10b981'};">${staff.sickLeave}</td></tr>`).join('')}</tbody>
+                    <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Role</th><th>Sick Leave Days</th></tr></thead>
+                    <tbody>${staffData.sort((a, b) => b.sickLeave - a.sickLeave).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td style="font-weight: bold; color: ${staff.sickLeave > 10 ? '#ef4444' : '#10b981'};">${staff.sickLeave}</td></tr>`).join('')}</tbody>
                 </table>
             `;
             window.print();
@@ -3260,8 +4737,8 @@
                     <div class="print-summary-item"><div class="print-summary-value">${avgVacation}</div><div class="print-summary-label">Average per Staff</div></div>
                 </div>
                 <table class="print-table">
-                    <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Vacation Days</th></tr></thead>
-                    <tbody>${staffData.sort((a, b) => b.vacationLeave - a.vacationLeave).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td style="font-weight: bold; color: #0ea5e9;">${staff.vacationLeave}</td></tr>`).join('')}</tbody>
+                    <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Role</th><th>Vacation Days</th></tr></thead>
+                    <tbody>${staffData.sort((a, b) => b.vacationLeave - a.vacationLeave).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td style="font-weight: bold; color: #0ea5e9;">${staff.vacationLeave}</td></tr>`).join('')}</tbody>
                 </table>
             `;
             window.print();
@@ -3286,8 +4763,8 @@
                     <div class="print-summary-item"><div class="print-summary-value">${avgOT}</div><div class="print-summary-label">Average per Staff</div></div>
                 </div>
                 <table class="print-table">
-                    <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Overtime Hours</th></tr></thead>
-                    <tbody>${staffData.sort((a, b) => b.overTime - a.overTime).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td style="font-weight: bold; color: ${staff.overTime > 20 ? '#ef4444' : '#10b981'};">${staff.overTime}</td></tr>`).join('')}</tbody>
+                    <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Role</th><th>Overtime Hours</th></tr></thead>
+                    <tbody>${staffData.sort((a, b) => b.overTime - a.overTime).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td style="font-weight: bold; color: ${staff.overTime > 20 ? '#ef4444' : '#10b981'};">${staff.overTime}</td></tr>`).join('')}</tbody>
                 </table>
             `;
             window.print();
@@ -3312,8 +4789,8 @@
                     <div class="print-summary-item"><div class="print-summary-value">${avgLate}</div><div class="print-summary-label">Average per Staff</div></div>
                 </div>
                 <table class="print-table">
-                    <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Late Incidents</th></tr></thead>
-                    <tbody>${staffData.sort((a, b) => b.late - a.late).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td style="font-weight: bold; color: ${staff.late > 5 ? '#ef4444' : '#10b981'};">${staff.late}</td></tr>`).join('')}</tbody>
+                    <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Role</th><th>Late Incidents</th></tr></thead>
+                    <tbody>${staffData.sort((a, b) => b.late - a.late).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td style="font-weight: bold; color: ${staff.late > 5 ? '#ef4444' : '#10b981'};">${staff.late}</td></tr>`).join('')}</tbody>
                 </table>
             `;
             window.print();
@@ -3338,8 +4815,8 @@
                     <div class="print-summary-item"><div class="print-summary-value">${avgClaims}</div><div class="print-summary-label">Average per Staff</div></div>
                 </div>
                 <table class="print-table">
-                    <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Claims</th></tr></thead>
-                    <tbody>${staffData.sort((a, b) => b.claims - a.claims).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td style="font-weight: bold; color: #a855f7;">${staff.claims}</td></tr>`).join('')}</tbody>
+                    <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Role</th><th>Claims</th></tr></thead>
+                    <tbody>${staffData.sort((a, b) => b.claims - a.claims).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td style="font-weight: bold; color: #a855f7;">${staff.claims}</td></tr>`).join('')}</tbody>
                 </table>
             `;
             window.print();
@@ -3364,12 +4841,272 @@
                     <div class="print-summary-item"><div class="print-summary-value">${avgDayOff}</div><div class="print-summary-label">Average per Staff</div></div>
                 </div>
                 <table class="print-table">
-                    <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Days Off</th></tr></thead>
-                    <tbody>${staffData.sort((a, b) => b.dayOff - a.dayOff).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td style="font-weight: bold; color: #f97316;">${staff.dayOff}</td></tr>`).join('')}</tbody>
+                    <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Role</th><th>Days Off</th></tr></thead>
+                    <tbody>${staffData.sort((a, b) => b.dayOff - a.dayOff).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td style="font-weight: bold; color: #f97316;">${staff.dayOff}</td></tr>`).join('')}</tbody>
+                </table>
+            `;
+            window.print();
+        }
+
+        function generateLeaveReport() {
+            if (leaveRecords.length === 0) {
+                showAlert('⚠️ No leave records available');
+                return;
+            }
+
+            const activeLeaves = leaveRecords.filter(l => getLeaveStatus(l.startDate, l.endDate) === 'active').length;
+            const upcomingLeaves = leaveRecords.filter(l => getLeaveStatus(l.startDate, l.endDate) === 'upcoming').length;
+            const completedLeaves = leaveRecords.filter(l => getLeaveStatus(l.startDate, l.endDate) === 'completed').length;
+
+            document.getElementById('printArea').innerHTML = `
+                <div class="print-header"><h1>📊 Leave Records Report</h1><p>Generated on ${new Date().toLocaleDateString()}</p></div>
+                <div class="print-summary">
+                    <div class="print-summary-item"><div class="print-summary-value">${leaveRecords.length}</div><div class="print-summary-label">Total Records</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${activeLeaves}</div><div class="print-summary-label">Active Leaves</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${upcomingLeaves}</div><div class="print-summary-label">Upcoming Leaves</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${completedLeaves}</div><div class="print-summary-label">Completed Leaves</div></div>
+                </div>
+                <table class="print-table">
+                    <thead><tr><th>Staff Name</th><th>Department</th><th>Role</th><th>Leave Type</th><th>Start Date</th><th>End Date</th><th>Status</th></tr></thead>
+                    <tbody>
+                        ${leaveRecords.map(leave => {
+                            const staff = staffData.find(s => s.trn === leave.staffId);
+                            if (!staff) return '';
+                            const status = getLeaveStatus(leave.startDate, leave.endDate);
+                            return `<tr><td>${staff.name}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td>${getLeaveTypeName(leave.leaveType)}</td><td>${formatDate(leave.startDate)}</td><td>${formatDate(leave.endDate)}</td><td style="text-transform: uppercase; font-weight: bold;">${status}</td></tr>`;
+                        }).join('')}
+                    </tbody>
                 </table>
             `;
             window.print();
         }
     </script>
+
+<!-- START: PATCH - notification & leave fixes -->
+<script>
+(function(){
+  // Initialize globals if missing
+  window.notifications = window.notifications || [];
+  window.staffList = window.staffList || [];
+  window.leaveRecords = window.leaveRecords || [];
+
+  // Utility: safe DOM getter
+  function el(id){ return document.getElementById(id); }
+
+  // Notification functions
+  function addNotification(message, category){
+    category = category || 'System';
+    window.notifications.push({
+      message: message,
+      category: category,
+      time: (new Date()).toLocaleString()
+    });
+    updateNotificationUI();
+  }
+  function updateNotificationUI(){
+    var list = el('notificationList');
+    var badge = el('notificationBadge');
+    if(!list || !badge) return;
+    if(!window.notifications || window.notifications.length === 0){
+      list.innerHTML = '<div class="notification-empty">No notifications</div>';
+      badge.style.display = 'none';
+      return;
+    }
+    badge.style.display = 'block';
+    badge.textContent = window.notifications.length;
+    list.innerHTML = window.notifications.map(function(n){
+      return '<div class="notification-item">'+
+                '<div class="notification-title">'+escapeHtml(n.category)+'</div>'+
+                '<div class="notification-message">'+escapeHtml(n.message)+'</div>'+
+                '<div class="notification-time">'+escapeHtml(n.time)+'</div>'+
+             '</div>';
+    }).join('');
+  }
+  function clearAllNotifications(){
+    window.notifications = [];
+    updateNotificationUI();
+  }
+  // expose toggle used in original UI
+  window.toggleNotifications = function(){
+    var dd = el('notificationDropdown');
+    if(!dd) return;
+    dd.classList.toggle('active');
+    updateNotificationUI();
+  }
+  window.clearAllNotifications = clearAllNotifications;
+
+  // Helper: escape html
+  function escapeHtml(s){
+    if(s===null || s===undefined) return '';
+    return String(s)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#39;');
+  }
+
+  // Staff name helper: tries id, trn, or name
+  window.getStaffNameById = function(id){
+    if(!id) return 'Unknown';
+    if(!window.staffList || !window.staffList.length) return id;
+    var s = window.staffList.find(function(x){
+      if(!x) return false;
+      return x.id === id || x.trn === id || x.name === id;
+    });
+    return s ? s.name : id;
+  }
+
+  // Patch addLeaveRecord if not present or wrap existing to ensure notifications
+  function ensureAddLeaveRecord(){
+    var original = window.addLeaveRecord;
+    window.addLeaveRecord = function(){
+      try{
+        // Try to call original if exists to preserve behavior
+        if(typeof original === 'function'){
+          original.apply(this, arguments);
+          // attempt to find the newly added leave (last item) and notify
+          var lr = window.leaveRecords && window.leaveRecords[window.leaveRecords.length-1];
+          if(lr){
+            var staffName = lr.staffName || getStaffNameById(lr.staffId) || lr.staff || 'Unknown';
+            addNotification('New '+(lr.leaveType||'leave')+' leave added for '+staffName, 'Leave Management');
+            updateNotificationUI();
+          }
+          return;
+        }
+      }catch(e){
+        console.warn('original addLeaveRecord call failed', e);
+      }
+      // Fallback simple implementation if original not present
+      var sel = el('leaveStaffSelect');
+      var staffVal = sel ? sel.value : '';
+      var leaveType = (el('leaveType') && el('leaveType').value) || '';
+      var startDate = (el('leaveStartDate') && el('leaveStartDate').value) || '';
+      var endDate = (el('leaveEndDate') && el('leaveEndDate').value) || '';
+      var reason = (el('leaveReason') && el('leaveReason').value) || '';
+      if(!staffVal || !leaveType || !startDate || !endDate){
+        alert('Please fill all required fields');
+        return;
+      }
+      var staffName = getStaffNameById(staffVal) || staffVal;
+      window.leaveRecords.push({ staffName: staffName, leaveType: leaveType, startDate: startDate, endDate: endDate, reason: reason, status: 'Active' });
+      if(typeof window.renderLeaves === 'function') window.renderLeaves();
+      addNotification('New '+leaveType+' leave added for '+staffName, 'Leave Management');
+      if(typeof window.showAlert === 'function') window.showAlert('Leave added successfully!');
+      // close form if function exists
+      if(typeof window.toggleLeaveForm === 'function') window.toggleLeaveForm();
+      updateNotificationUI();
+    }
+  }
+
+  // Patch saveEditLeave to add notification
+  function ensureSaveEditLeave(){
+    var original = window.saveEditLeave;
+    window.saveEditLeave = function(){
+      try{
+        if(typeof original === 'function'){
+          original.apply(this, arguments);
+          // try to identify edited leave via window.currentEditLeaveIndex
+          var idx = window.currentEditLeaveIndex;
+          var lr = (window.leaveRecords && window.leaveRecords[idx]) || null;
+          if(lr){
+            var staffName = lr.staffName || getStaffNameById(lr.staffId) || lr.staff || 'Unknown';
+            addNotification(staffName + \"'s \" + (lr.leaveType||'leave') + ' was updated.', 'Leave Management');
+            updateNotificationUI();
+          }
+          return;
+        }
+      }catch(e){
+        console.warn('original saveEditLeave failed', e);
+      }
+      // fallback: attempt to read edit form fields
+      var sel = el('editLeaveStaffSelect');
+      var staffVal = sel ? sel.value : '';
+      var leaveType = (el('editLeaveType') && el('editLeaveType').value) || '';
+      var startDate = (el('editLeaveStartDate') && el('editLeaveStartDate').value) || '';
+      var endDate = (el('editLeaveEndDate') && el('editLeaveEndDate').value) || '';
+      var reason = (el('editLeaveReason') && el('editLeaveReason').value) || '';
+      var idx = window.currentEditLeaveIndex;
+      var staffName = getStaffNameById(staffVal) || staffVal;
+      if(typeof idx === 'number' && window.leaveRecords && window.leaveRecords[idx]){
+        window.leaveRecords[idx] = { staffName: staffName, leaveType: leaveType, startDate: startDate, endDate: endDate, reason: reason, status: 'Active' };
+      }
+      if(typeof window.renderLeaves === 'function') window.renderLeaves();
+      addNotification(staffName + \"'s \" + leaveType + ' was updated.', 'Leave Management');
+      updateNotificationUI();
+      if(typeof window.closeEditLeaveModal === 'function') window.closeEditLeaveModal();
+      if(typeof window.showAlert === 'function') window.showAlert('Leave record updated successfully!');
+    }
+  }
+
+  // Ensure renderLeaves shows staff name even if stored as staffId
+  function ensureRenderLeaves(){
+    var original = window.renderLeaves;
+    window.renderLeaves = function(){
+      try{
+        if(typeof original === 'function'){
+          original.apply(this, arguments);
+          // after original render, update any missing names in DOM
+          var cards = document.querySelectorAll('.leave-card');
+          cards.forEach(function(card, i){
+            var nameEl = card.querySelector('.leave-staff-name');
+            if(nameEl && (!nameEl.textContent || nameEl.textContent.trim()==='')){
+              var lr = window.leaveRecords && window.leaveRecords[i];
+              if(lr){
+                nameEl.textContent = lr.staffName || getStaffNameById(lr.staffId) || lr.staff || 'Unknown';
+              }
+            }
+          });
+          return;
+        }
+      }catch(e){
+        console.warn('original renderLeaves failed', e);
+      }
+      // fallback render
+      var grid = el('leaveGrid');
+      if(!grid) return;
+      if(!window.leaveRecords || window.leaveRecords.length===0){
+        grid.innerHTML = '<div class="empty-state">No leave records found</div>';
+        return;
+      }
+      grid.innerHTML = window.leaveRecords.map(function(l){
+        var staffName = l.staffName || getStaffNameById(l.staffId) || l.staff || 'Unknown';
+        var type = l.leaveType || '';
+        return '<div class=\"leave-card '+escapeHtml(type)+'\">' +
+                 '<div class=\"leave-header\">' +
+                   '<div class=\"leave-staff-name\">'+escapeHtml(staffName)+'</div>' +
+                   '<div class=\"leave-type-badge '+escapeHtml(type)+'\">'+escapeHtml((type||'').toUpperCase())+'</div>' +
+                 '</div>' +
+                 '<div class=\"leave-dates\"><span>🗓️ '+escapeHtml(l.startDate||'')+'</span> ➡️ <span>'+escapeHtml(l.endDate||'')+'</span></div>' +
+                 '<div class=\"leave-reason\">'+escapeHtml(l.reason||'No reason provided')+'</div>' +
+               '</div>';
+      }).join('');
+    }
+  }
+
+  // Run ensures on DOM ready
+  function initPatch(){
+    ensureAddLeaveRecord();
+    ensureSaveEditLeave();
+    ensureRenderLeaves();
+    // Update UI once
+    setTimeout(updateNotificationUI, 200);
+  }
+
+  if(document.readyState === 'complete' || document.readyState === 'interactive'){
+    initPatch();
+  } else {
+    document.addEventListener('DOMContentLoaded', initPatch);
+  }
+
+  // Expose functions for testing in console
+  window._patch = {
+    addNotification: addNotification,
+    updateNotificationUI: updateNotificationUI,
+    getStaffNameById: window.getStaffNameById
+  };
+})();
+</script>
+<!-- END: PATCH -->
 </body>
 </html>
