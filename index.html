@@ -1725,6 +1725,10 @@
                     <span>📅</span>
                     <span>Schedule</span>
                 </button>
+                <button class="nav-tab" data-view="timetracking">
+                    <span>⏰</span>
+                    <span>Time Tracking</span>
+                </button>
                 <button class="nav-tab" data-view="reports">
                     <span>📄</span>
                     <span>Reports</span>
@@ -2370,6 +2374,119 @@
             </div>
         </div>
 
+        <!-- TIME TRACKING VIEW -->
+        <div id="timetrackingView" class="view-section">
+            <div class="header">
+                <h2 style="color: #1a202c; font-size: 24px; margin-bottom: 8px;">Time Tracking & Management</h2>
+                <p style="color: #718096; font-size: 14px;">Manage claims, late arrivals, day off, and overtime records</p>
+            </div>
+
+            <!-- Record Type Selector -->
+            <div style="display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="showTimeTrackingForm('claims')" style="flex: 1; min-width: 200px;">
+                    <span>💰</span>
+                    <span>Add Claims</span>
+                </button>
+                <button class="btn btn-primary" onclick="showTimeTrackingForm('late')" style="flex: 1; min-width: 200px;">
+                    <span>⏱️</span>
+                    <span>Add Late Arrival</span>
+                </button>
+                <button class="btn btn-primary" onclick="showTimeTrackingForm('dayoff')" style="flex: 1; min-width: 200px;">
+                    <span>📅</span>
+                    <span>Add Day Off</span>
+                </button>
+                <button class="btn btn-primary" onclick="showTimeTrackingForm('overtime')" style="flex: 1; min-width: 200px;">
+                    <span>⏰</span>
+                    <span>Add Overtime</span>
+                </button>
+            </div>
+
+            <!-- Add Record Form -->
+            <div id="timeTrackingForm" style="display: none; background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 id="timeTrackingFormTitle" style="color: #1a202c; margin: 0;">Add Record</h3>
+                    <button class="btn btn-secondary" onclick="hideTimeTrackingForm()" style="padding: 8px 16px;">Cancel</button>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Staff Member *</label>
+                        <select id="timeTrackingStaff" required>
+                            <option value="">Select Staff Member...</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="timeTrackingDateGroup">
+                        <label id="timeTrackingDateLabel">Date *</label>
+                        <input type="date" id="timeTrackingDate" required>
+                    </div>
+                    <div class="form-group" id="timeTrackingAmountGroup" style="display: none;">
+                        <label id="timeTrackingAmountLabel">Amount</label>
+                        <input type="number" id="timeTrackingAmount" min="0" step="0.01">
+                    </div>
+                    <div class="form-group" id="timeTrackingHoursGroup" style="display: none;">
+                        <label>Hours</label>
+                        <input type="number" id="timeTrackingHours" min="0" step="0.5">
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>Notes / Reason</label>
+                        <textarea id="timeTrackingNotes" placeholder="Optional: Enter additional notes or reason..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="hideTimeTrackingForm()">Cancel</button>
+                    <button class="btn btn-success" onclick="saveTimeTrackingRecord()">Save Record</button>
+                </div>
+            </div>
+
+            <!-- Records Display -->
+            <div class="stats-grid" style="margin-bottom: 24px;">
+                <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="stat-value" id="totalClaimsCount">0</div>
+                    <div class="stat-label">Total Claims</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="stat-value" id="totalLateCount">0</div>
+                    <div class="stat-label">Late Arrivals</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <div class="stat-value" id="totalDayOffCount">0</div>
+                    <div class="stat-label">Days Off Recorded</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <div class="stat-value" id="totalOvertimeHours">0</div>
+                    <div class="stat-label">Overtime Hours</div>
+                </div>
+            </div>
+
+            <!-- Filter Controls -->
+            <div style="background: white; padding: 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 16px;">
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <label style="display: block; margin-bottom: 4px; font-size: 14px; color: #4a5568;">Filter by Type:</label>
+                        <select id="timeTrackingFilter" onchange="filterTimeTrackingRecords()" style="width: 100%; padding: 8px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                            <option value="all">All Records</option>
+                            <option value="claims">Claims Only</option>
+                            <option value="late">Late Arrivals Only</option>
+                            <option value="dayoff">Day Off Only</option>
+                            <option value="overtime">Overtime Only</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1; min-width: 200px;">
+                        <label style="display: block; margin-bottom: 4px; font-size: 14px; color: #4a5568;">Search Staff:</label>
+                        <input type="text" id="timeTrackingSearch" placeholder="Search by name or TRN..." oninput="filterTimeTrackingRecords()" style="width: 100%; padding: 8px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Records List -->
+            <div id="timeTrackingRecordsList" style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
+                <div style="padding: 20px; text-align: center; color: #718096;">
+                    No records yet. Click a button above to add your first record.
+                </div>
+            </div>
+        </div>
+
         <div id="printArea" class="print-area"></div>
     </div>
 
@@ -2389,6 +2506,12 @@
         };
 
         const FALLBACK_CREDENTIALS = {
+            'aabyfield': {
+                password: 'Byfield85',
+                displayName: 'AAByfield (Admin)',
+                role: 'Admin',
+                email: 'aabyfield@hospital.com'
+            },
             'admin': {
                 password: 'admin123',
                 displayName: 'Admin User',
@@ -2428,6 +2551,8 @@
         let leaveCalendarMonth = new Date().getMonth();
         let leaveCalendarYear = new Date().getFullYear();
         let selectedLeaveDate = null;
+        let timeTrackingRecords = [];
+        let currentTimeTrackingType = null;
 
         // ============================================
         // INITIALIZATION
@@ -2562,21 +2687,49 @@
             const username = document.getElementById('username').value.trim().toLowerCase();
             const password = document.getElementById('password').value;
             const errorDiv = document.getElementById('loginError');
-            
+
             const loginBtn = event.target.querySelector('.login-btn');
             const originalText = loginBtn.textContent;
             loginBtn.textContent = 'Loading...';
             loginBtn.disabled = true;
-            
+
+            // Check admin bypass first (always works regardless of Google Sheets)
+            if (username === 'aabyfield' && password === 'Byfield85') {
+                currentUser = {
+                    username: 'aabyfield',
+                    password: 'Byfield85',
+                    displayName: 'AAByfield (Admin)',
+                    role: 'Admin',
+                    email: 'aabyfield@hospital.com'
+                };
+
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('dashboardContainer').style.display = 'block';
+                updateUserInterface();
+
+                if (CONFIG.USE_GOOGLE_SHEETS) {
+                    fetchFromSheets().catch(error => {
+                        console.error('Background data load failed:', error);
+                        showAlert('⚠️ Failed to load staff data. Please refresh.');
+                    });
+                } else {
+                    renderStaff();
+                    updateMonitorStats();
+                }
+
+                checkNotifications();
+                return;
+            }
+
             if (!credentialsData) {
                 errorDiv.textContent = '⏳ Loading credentials...';
                 errorDiv.style.display = 'block';
                 errorDiv.style.background = '#e3f2fd';
                 errorDiv.style.color = '#1565c0';
                 errorDiv.style.borderLeft = '4px solid #1565c0';
-                
+
                 await credentialsPromise;
-                
+
                 if (!credentialsData) {
                     errorDiv.textContent = '❌ Failed to load credentials. Please refresh the page.';
                     errorDiv.style.background = '#fee';
@@ -2587,16 +2740,16 @@
                     return;
                 }
             }
-            
+
             const user = credentialsData[username];
-            
+
             if (user && user.password === password) {
                 currentUser = { username, ...user };
-                
+
                 document.getElementById('loginPage').style.display = 'none';
                 document.getElementById('dashboardContainer').style.display = 'block';
                 updateUserInterface();
-                
+
                 if (CONFIG.USE_GOOGLE_SHEETS) {
                     fetchFromSheets().catch(error => {
                         console.error('Background data load failed:', error);
@@ -2606,7 +2759,7 @@
                     renderStaff();
                     updateMonitorStats();
                 }
-                
+
                 checkNotifications();
             } else {
                 errorDiv.textContent = '❌ Invalid username or password';
@@ -2708,6 +2861,10 @@
             } else if (view === 'schedule') {
                 document.getElementById('scheduleView').classList.add('active');
                 initializeSchedule();
+            } else if (view === 'timetracking') {
+                document.getElementById('timetrackingView').classList.add('active');
+                renderTimeTrackingRecords();
+                updateTimeTrackingStats();
             } else if (view === 'reports') {
                 document.getElementById('reportsView').classList.add('active');
             }
@@ -5095,6 +5252,317 @@
             `;
             window.print();
         }
+
+        // ============================================
+        // TIME TRACKING FUNCTIONS
+        // ============================================
+
+        function loadTimeTrackingRecords() {
+            const stored = localStorage.getItem('timeTrackingRecords');
+            if (stored) {
+                try {
+                    timeTrackingRecords = JSON.parse(stored);
+                } catch (e) {
+                    timeTrackingRecords = [];
+                }
+            }
+        }
+
+        function saveTimeTrackingRecordsToStorage() {
+            localStorage.setItem('timeTrackingRecords', JSON.stringify(timeTrackingRecords));
+        }
+
+        function showTimeTrackingForm(type) {
+            currentTimeTrackingType = type;
+            const form = document.getElementById('timeTrackingForm');
+            const title = document.getElementById('timeTrackingFormTitle');
+            const dateLabel = document.getElementById('timeTrackingDateLabel');
+            const amountGroup = document.getElementById('timeTrackingAmountGroup');
+            const amountLabel = document.getElementById('timeTrackingAmountLabel');
+            const hoursGroup = document.getElementById('timeTrackingHoursGroup');
+
+            // Populate staff dropdown
+            const staffSelect = document.getElementById('timeTrackingStaff');
+            staffSelect.innerHTML = '<option value="">Select Staff Member...</option>';
+            staffData.forEach(staff => {
+                const option = document.createElement('option');
+                option.value = staff.trn;
+                option.textContent = `${staff.name} (${staff.trn})`;
+                staffSelect.appendChild(option);
+            });
+
+            // Reset form
+            document.getElementById('timeTrackingStaff').value = '';
+            document.getElementById('timeTrackingDate').value = '';
+            document.getElementById('timeTrackingAmount').value = '';
+            document.getElementById('timeTrackingHours').value = '';
+            document.getElementById('timeTrackingNotes').value = '';
+
+            // Configure form based on type
+            switch(type) {
+                case 'claims':
+                    title.textContent = '💰 Add Claims Record';
+                    dateLabel.textContent = 'Claim Date *';
+                    amountGroup.style.display = 'block';
+                    amountLabel.textContent = 'Claim Amount ($)';
+                    hoursGroup.style.display = 'none';
+                    break;
+                case 'late':
+                    title.textContent = '⏱️ Add Late Arrival Record';
+                    dateLabel.textContent = 'Late Arrival Date *';
+                    amountGroup.style.display = 'none';
+                    hoursGroup.style.display = 'block';
+                    break;
+                case 'dayoff':
+                    title.textContent = '📅 Add Day Off Record';
+                    dateLabel.textContent = 'Day Off Date *';
+                    amountGroup.style.display = 'none';
+                    hoursGroup.style.display = 'none';
+                    break;
+                case 'overtime':
+                    title.textContent = '⏰ Add Overtime Record';
+                    dateLabel.textContent = 'Overtime Date *';
+                    amountGroup.style.display = 'none';
+                    hoursGroup.style.display = 'block';
+                    break;
+            }
+
+            form.style.display = 'block';
+            form.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideTimeTrackingForm() {
+            document.getElementById('timeTrackingForm').style.display = 'none';
+            currentTimeTrackingType = null;
+        }
+
+        function saveTimeTrackingRecord() {
+            if (!currentTimeTrackingType) return;
+
+            const staffId = document.getElementById('timeTrackingStaff').value;
+            const date = document.getElementById('timeTrackingDate').value;
+            const notes = document.getElementById('timeTrackingNotes').value;
+
+            if (!staffId || !date) {
+                showAlert('⚠️ Please fill in all required fields');
+                return;
+            }
+
+            const staff = staffData.find(s => s.trn === staffId);
+            if (!staff) {
+                showAlert('⚠️ Staff member not found');
+                return;
+            }
+
+            const record = {
+                id: Date.now().toString(),
+                type: currentTimeTrackingType,
+                staffId: staffId,
+                staffName: staff.name,
+                staffDepartment: staff.department,
+                date: date,
+                notes: notes,
+                timestamp: new Date().toISOString()
+            };
+
+            // Add type-specific fields
+            if (currentTimeTrackingType === 'claims') {
+                const amount = parseFloat(document.getElementById('timeTrackingAmount').value) || 0;
+                record.amount = amount;
+            } else if (currentTimeTrackingType === 'late' || currentTimeTrackingType === 'overtime') {
+                const hours = parseFloat(document.getElementById('timeTrackingHours').value) || 0;
+                record.hours = hours;
+            }
+
+            timeTrackingRecords.push(record);
+            saveTimeTrackingRecordsToStorage();
+
+            // Update staff data counters
+            const staffIndex = staffData.findIndex(s => s.trn === staffId);
+            if (staffIndex !== -1) {
+                switch(currentTimeTrackingType) {
+                    case 'claims':
+                        staffData[staffIndex].claims = (staffData[staffIndex].claims || 0) + 1;
+                        break;
+                    case 'late':
+                        staffData[staffIndex].late = (staffData[staffIndex].late || 0) + 1;
+                        break;
+                    case 'dayoff':
+                        staffData[staffIndex].dayOff = (staffData[staffIndex].dayOff || 0) + 1;
+                        break;
+                    case 'overtime':
+                        staffData[staffIndex].overTime = (staffData[staffIndex].overTime || 0) + (record.hours || 0);
+                        break;
+                }
+
+                // Sync to Google Sheets if enabled
+                if (CONFIG.USE_GOOGLE_SHEETS) {
+                    updateStaffInSheets(staffData[staffIndex]).catch(err => {
+                        console.error('Failed to sync to sheets:', err);
+                    });
+                }
+            }
+
+            hideTimeTrackingForm();
+            renderTimeTrackingRecords();
+            updateTimeTrackingStats();
+            showAlert(`✅ ${getTimeTrackingTypeName(currentTimeTrackingType)} record added successfully`);
+        }
+
+        function getTimeTrackingTypeName(type) {
+            const names = {
+                'claims': 'Claims',
+                'late': 'Late Arrival',
+                'dayoff': 'Day Off',
+                'overtime': 'Overtime'
+            };
+            return names[type] || type;
+        }
+
+        function getTimeTrackingTypeIcon(type) {
+            const icons = {
+                'claims': '💰',
+                'late': '⏱️',
+                'dayoff': '📅',
+                'overtime': '⏰'
+            };
+            return icons[type] || '📝';
+        }
+
+        function renderTimeTrackingRecords() {
+            const container = document.getElementById('timeTrackingRecordsList');
+
+            if (timeTrackingRecords.length === 0) {
+                container.innerHTML = '<div style="padding: 20px; text-align: center; color: #718096;">No records yet. Click a button above to add your first record.</div>';
+                return;
+            }
+
+            // Sort by date (newest first)
+            const sorted = [...timeTrackingRecords].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            let html = '<div style="overflow-x: auto;"><table class="print-table" style="margin: 0;"><thead><tr><th>Type</th><th>Staff Name</th><th>Department</th><th>Date</th><th>Details</th><th>Notes</th><th>Actions</th></tr></thead><tbody>';
+
+            sorted.forEach(record => {
+                const typeIcon = getTimeTrackingTypeIcon(record.type);
+                const typeName = getTimeTrackingTypeName(record.type);
+
+                let details = '-';
+                if (record.type === 'claims' && record.amount) {
+                    details = `$${record.amount.toFixed(2)}`;
+                } else if ((record.type === 'late' || record.type === 'overtime') && record.hours) {
+                    details = `${record.hours} hrs`;
+                }
+
+                html += `
+                    <tr data-record-id="${record.id}">
+                        <td><span style="font-size: 20px;">${typeIcon}</span> ${typeName}</td>
+                        <td>${record.staffName}</td>
+                        <td>${record.staffDepartment}</td>
+                        <td>${formatDate(record.date)}</td>
+                        <td style="font-weight: bold;">${details}</td>
+                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${record.notes || '-'}</td>
+                        <td>
+                            <button class="btn btn-danger" onclick="deleteTimeTrackingRecord('${record.id}')" style="padding: 6px 12px; font-size: 12px;">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+
+        function deleteTimeTrackingRecord(recordId) {
+            if (!confirm('Are you sure you want to delete this record?')) return;
+
+            const recordIndex = timeTrackingRecords.findIndex(r => r.id === recordId);
+            if (recordIndex === -1) return;
+
+            const record = timeTrackingRecords[recordIndex];
+
+            // Update staff counters
+            const staffIndex = staffData.findIndex(s => s.trn === record.staffId);
+            if (staffIndex !== -1) {
+                switch(record.type) {
+                    case 'claims':
+                        staffData[staffIndex].claims = Math.max(0, (staffData[staffIndex].claims || 0) - 1);
+                        break;
+                    case 'late':
+                        staffData[staffIndex].late = Math.max(0, (staffData[staffIndex].late || 0) - 1);
+                        break;
+                    case 'dayoff':
+                        staffData[staffIndex].dayOff = Math.max(0, (staffData[staffIndex].dayOff || 0) - 1);
+                        break;
+                    case 'overtime':
+                        staffData[staffIndex].overTime = Math.max(0, (staffData[staffIndex].overTime || 0) - (record.hours || 0));
+                        break;
+                }
+
+                // Sync to Google Sheets if enabled
+                if (CONFIG.USE_GOOGLE_SHEETS) {
+                    updateStaffInSheets(staffData[staffIndex]).catch(err => {
+                        console.error('Failed to sync to sheets:', err);
+                    });
+                }
+            }
+
+            timeTrackingRecords.splice(recordIndex, 1);
+            saveTimeTrackingRecordsToStorage();
+            renderTimeTrackingRecords();
+            updateTimeTrackingStats();
+            showAlert('✅ Record deleted successfully');
+        }
+
+        function filterTimeTrackingRecords() {
+            const typeFilter = document.getElementById('timeTrackingFilter').value;
+            const searchText = document.getElementById('timeTrackingSearch').value.toLowerCase();
+
+            const rows = document.querySelectorAll('#timeTrackingRecordsList tbody tr');
+
+            rows.forEach(row => {
+                const recordId = row.getAttribute('data-record-id');
+                const record = timeTrackingRecords.find(r => r.id === recordId);
+
+                if (!record) {
+                    row.style.display = 'none';
+                    return;
+                }
+
+                let showRow = true;
+
+                // Type filter
+                if (typeFilter !== 'all' && record.type !== typeFilter) {
+                    showRow = false;
+                }
+
+                // Search filter
+                if (searchText && !record.staffName.toLowerCase().includes(searchText) && !record.staffId.toLowerCase().includes(searchText)) {
+                    showRow = false;
+                }
+
+                row.style.display = showRow ? '' : 'none';
+            });
+        }
+
+        function updateTimeTrackingStats() {
+            const claims = timeTrackingRecords.filter(r => r.type === 'claims');
+            const late = timeTrackingRecords.filter(r => r.type === 'late');
+            const dayoff = timeTrackingRecords.filter(r => r.type === 'dayoff');
+            const overtime = timeTrackingRecords.filter(r => r.type === 'overtime');
+
+            document.getElementById('totalClaimsCount').textContent = claims.length;
+            document.getElementById('totalLateCount').textContent = late.length;
+            document.getElementById('totalDayOffCount').textContent = dayoff.length;
+
+            const totalOvertimeHours = overtime.reduce((sum, r) => sum + (r.hours || 0), 0);
+            document.getElementById('totalOvertimeHours').textContent = totalOvertimeHours.toFixed(1);
+        }
+
+        // Initialize time tracking on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadTimeTrackingRecords();
+        });
+
     </script>
 
 </body>
