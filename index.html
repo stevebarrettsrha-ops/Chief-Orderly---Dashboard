@@ -2502,6 +2502,7 @@
             USE_GOOGLE_SHEETS: true,
             SYNC_SCHEDULES_TO_SHEETS: true,
             SYNC_LEAVES_TO_SHEETS: true,
+            SYNC_TIME_TRACKING_TO_SHEETS: true,
             USE_FALLBACK_CREDENTIALS: true
         };
 
@@ -2848,19 +2849,51 @@
                 updateMonitorStats();
             } else if (view === 'leaves') {
                 document.getElementById('leavesView').classList.add('active');
-                if (leaveCalendarView) {
-                    updateLeaveDepartmentSelect();
-                    renderLeaveCalendar();
+                // Ensure staff data is loaded for proper leave display
+                if (staffData.length === 0 && CONFIG.USE_GOOGLE_SHEETS) {
+                    fetchFromSheets().then(() => {
+                        if (leaveCalendarView) {
+                            updateLeaveDepartmentSelect();
+                            renderLeaveCalendar();
+                        } else {
+                            renderLeaves();
+                            updateLeaveStats();
+                        }
+                    }).catch(err => {
+                        console.error('Failed to load staff data:', err);
+                        if (leaveCalendarView) {
+                            updateLeaveDepartmentSelect();
+                            renderLeaveCalendar();
+                        } else {
+                            renderLeaves();
+                            updateLeaveStats();
+                        }
+                    });
                 } else {
-                    renderLeaves();
-                    updateLeaveStats();
+                    if (leaveCalendarView) {
+                        updateLeaveDepartmentSelect();
+                        renderLeaveCalendar();
+                    } else {
+                        renderLeaves();
+                        updateLeaveStats();
+                    }
                 }
             } else if (view === 'analytics') {
                 document.getElementById('analyticsView').classList.add('active');
                 loadAnalytics();
             } else if (view === 'schedule') {
                 document.getElementById('scheduleView').classList.add('active');
-                initializeSchedule();
+                // Ensure staff data is loaded before initializing schedule
+                if (staffData.length === 0 && CONFIG.USE_GOOGLE_SHEETS) {
+                    fetchFromSheets().then(() => {
+                        initializeSchedule();
+                    }).catch(err => {
+                        console.error('Failed to load staff data:', err);
+                        initializeSchedule(); // Initialize anyway with empty data
+                    });
+                } else {
+                    initializeSchedule();
+                }
             } else if (view === 'timetracking') {
                 document.getElementById('timetrackingView').classList.add('active');
                 renderTimeTrackingRecords();
@@ -5257,7 +5290,21 @@
         // TIME TRACKING FUNCTIONS
         // ============================================
 
-        function loadTimeTrackingRecords() {
+        async function loadTimeTrackingRecords() {
+            if (CONFIG.SYNC_TIME_TRACKING_TO_SHEETS) {
+                try {
+                    const sheetsData = await loadTimeTrackingFromSheets();
+                    if (sheetsData) {
+                        timeTrackingRecords = sheetsData;
+                        saveTimeTrackingRecordsToStorage();
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Failed to load time tracking from Google Sheets, using local storage:', error);
+                }
+            }
+
+            // Fallback to localStorage
             const stored = localStorage.getItem('timeTrackingRecords');
             if (stored) {
                 try {
@@ -5270,6 +5317,36 @@
 
         function saveTimeTrackingRecordsToStorage() {
             localStorage.setItem('timeTrackingRecords', JSON.stringify(timeTrackingRecords));
+        }
+
+        async function saveTimeTrackingToSheets(record) {
+            const response = await fetch(CONFIG.SCRIPT_URL, {
+                method: 'POST',
+                headers: {'Content-Type': 'text/plain'},
+                body: JSON.stringify({
+                    action: 'addTimeTracking',
+                    timeTrackingData: record
+                })
+            });
+            const result = await response.json();
+            if (result.status !== 'success') throw new Error(result.message || 'Failed to save time tracking record');
+        }
+
+        async function loadTimeTrackingFromSheets() {
+            if (CONFIG.SYNC_TIME_TRACKING_TO_SHEETS) {
+                try {
+                    const response = await fetch(CONFIG.SCRIPT_URL + '?action=getTimeTracking');
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.status === 'success' && result.timeTrackingData) {
+                            return result.timeTrackingData;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to load time tracking from sheets:', error);
+                }
+            }
+            return null;
         }
 
         function showTimeTrackingForm(type) {
@@ -5377,6 +5454,13 @@
             timeTrackingRecords.push(record);
             saveTimeTrackingRecordsToStorage();
 
+            // Sync to Google Sheets if enabled
+            if (CONFIG.SYNC_TIME_TRACKING_TO_SHEETS) {
+                saveTimeTrackingToSheets(record).catch(err => {
+                    console.error('Failed to sync time tracking to sheets:', err);
+                });
+            }
+
             // Update staff data counters
             const staffIndex = staffData.findIndex(s => s.trn === staffId);
             if (staffIndex !== -1) {
@@ -5397,7 +5481,7 @@
 
                 // Sync to Google Sheets if enabled
                 if (CONFIG.USE_GOOGLE_SHEETS) {
-                    updateStaffInSheets(staffData[staffIndex]).catch(err => {
+                    updateInSheets(staffIndex, staffData[staffIndex]).catch(err => {
                         console.error('Failed to sync to sheets:', err);
                     });
                 }
@@ -5500,7 +5584,7 @@
 
                 // Sync to Google Sheets if enabled
                 if (CONFIG.USE_GOOGLE_SHEETS) {
-                    updateStaffInSheets(staffData[staffIndex]).catch(err => {
+                    updateInSheets(staffIndex, staffData[staffIndex]).catch(err => {
                         console.error('Failed to sync to sheets:', err);
                     });
                 }
