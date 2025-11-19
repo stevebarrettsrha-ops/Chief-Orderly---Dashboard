@@ -20,8 +20,8 @@
 // ============================================
 
 const SHEET_IDS = {
-  // Main staff data sheet (the one you're already using)
-  STAFF: '1your-staff-sheet-id-here',
+  // Main staff data sheet - Staff Monitor Dashboard
+  STAFF: '15BXIEtJViCna0zQdrrPXHXqN2bkddPNNEFGcS33PUK0',
 
   // NEW SHEETS - Update these with the IDs from your Google Sheets URLs
   // The ID is the long string in the URL: /spreadsheets/d/[THIS-IS-THE-ID]/edit
@@ -48,11 +48,11 @@ function doGet(e) {
         return getScheduleFromSheet();
       case 'getTimeTracking':
         return getTimeTrackingFromSheet();
+      case 'getStaff':
+        return getStaffFromSheet();
       default:
-        return ContentService.createTextOutput(JSON.stringify({
-          status: 'error',
-          message: 'Invalid action'
-        })).setMimeType(ContentService.MimeType.JSON);
+        // Default action: return staff data (for backwards compatibility)
+        return getStaffFromSheet();
     }
   } catch (error) {
     return ContentService.createTextOutput(JSON.stringify({
@@ -132,6 +132,16 @@ function deleteStaffRow(rowIndex) {
   sheet.deleteRow(rowIndex);
   return ContentService.createTextOutput(JSON.stringify({
     status: 'success'
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function getStaffFromSheet() {
+  const sheet = SpreadsheetApp.openById(SHEET_IDS.STAFF).getActiveSheet();
+  const data = sheet.getDataRange().getValues();
+
+  return ContentService.createTextOutput(JSON.stringify({
+    status: 'success',
+    data: data
   })).setMimeType(ContentService.MimeType.JSON);
 }
 
