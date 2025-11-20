@@ -1778,6 +1778,18 @@
                         </select>
                     </div>
                     <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="editStaffPhone" placeholder="876-555-1234">
+                    </div>
+                    <div class="form-group">
+                        <label>Emergency Contact</label>
+                        <input type="text" id="editStaffEmergencyContact" placeholder="Name & Phone">
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>Permanent Address</label>
+                        <textarea id="editStaffAddress" rows="2" placeholder="Enter full address"></textarea>
+                    </div>
+                    <div class="form-group">
                         <label>Days Off</label>
                         <input type="number" id="editStaffDayOff" min="0">
                     </div>
@@ -2006,6 +2018,18 @@
                             <option value="Supervisor">Supervisor</option>
                             <option value="Team Lead">Team Lead</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="staffPhone" placeholder="876-555-1234">
+                    </div>
+                    <div class="form-group">
+                        <label>Emergency Contact</label>
+                        <input type="text" id="staffEmergencyContact" placeholder="Name & Phone">
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>Permanent Address</label>
+                        <textarea id="staffAddress" rows="2" placeholder="Enter full address"></textarea>
                     </div>
                     <div class="form-group">
                         <label>Days Off</label>
@@ -3230,18 +3254,21 @@
         }
 
         function clearForm() {
-            ['staffName', 'staffTrn', 'staffDepartment'].forEach(id => document.getElementById(id).value = '');
+            ['staffName', 'staffTrn', 'staffDepartment', 'staffPhone', 'staffEmergencyContact', 'staffAddress'].forEach(id => document.getElementById(id).value = '');
             document.getElementById('staffRole').value = 'Staff';  // Reset role to default
             ['staffDayOff', 'staffSickLeave', 'staffClaims', 'staffDeptLeave', 'staffOverTime', 'staffLate', 'staffVacation'].forEach(id => document.getElementById(id).value = '0');
         }
 
         async function addStaff() {
             if (!checkEditPermission()) return;
-            
+
             const name = document.getElementById('staffName').value.trim();
             const trn = document.getElementById('staffTrn').value.trim();
             const department = document.getElementById('staffDepartment').value.trim();
-            const role = document.getElementById('staffRole').value;  // Get role
+            const role = document.getElementById('staffRole').value;
+            const phone = document.getElementById('staffPhone').value.trim();
+            const emergencyContact = document.getElementById('staffEmergencyContact').value.trim();
+            const address = document.getElementById('staffAddress').value.trim();
 
             if (!name || !trn || !department) {
                 showAlert('⚠️ Please fill in all required fields');
@@ -3249,7 +3276,10 @@
             }
 
             const newStaff = {
-                name, trn, department, role,  // Include role
+                name, trn, department, role,
+                phone: phone || '',
+                emergencyContact: emergencyContact || '',
+                address: address || '',
                 dayOff: parseInt(document.getElementById('staffDayOff').value) || 0,
                 sickLeave: parseInt(document.getElementById('staffSickLeave').value) || 0,
                 claims: parseInt(document.getElementById('staffClaims').value) || 0,
@@ -3279,14 +3309,17 @@
 
         function openEditModal(index) {
             if (!checkEditPermission()) return;
-            
+
             editingIndex = index;
             const staff = staffData[index];
-            
+
             document.getElementById('editStaffName').value = staff.name;
             document.getElementById('editStaffTrn').value = staff.trn;
             document.getElementById('editStaffDepartment').value = staff.department;
-            document.getElementById('editStaffRole').value = staff.role || 'Staff';  // Set role
+            document.getElementById('editStaffRole').value = staff.role || 'Staff';
+            document.getElementById('editStaffPhone').value = staff.phone || '';
+            document.getElementById('editStaffEmergencyContact').value = staff.emergencyContact || '';
+            document.getElementById('editStaffAddress').value = staff.address || '';
             document.getElementById('editStaffDayOff').value = staff.dayOff;
             document.getElementById('editStaffSickLeave').value = staff.sickLeave;
             document.getElementById('editStaffClaims').value = staff.claims;
@@ -3294,7 +3327,7 @@
             document.getElementById('editStaffOverTime').value = staff.overTime;
             document.getElementById('editStaffLate').value = staff.late;
             document.getElementById('editStaffVacation').value = staff.vacationLeave;
-            
+
             document.getElementById('editModal').classList.add('active');
         }
 
@@ -3305,11 +3338,14 @@
 
         async function saveEditStaff() {
             if (editingIndex === -1 || !checkEditPermission()) return;
-            
+
             const name = document.getElementById('editStaffName').value.trim();
             const trn = document.getElementById('editStaffTrn').value.trim();
             const department = document.getElementById('editStaffDepartment').value.trim();
-            const role = document.getElementById('editStaffRole').value;  // Get role
+            const role = document.getElementById('editStaffRole').value;
+            const phone = document.getElementById('editStaffPhone').value.trim();
+            const emergencyContact = document.getElementById('editStaffEmergencyContact').value.trim();
+            const address = document.getElementById('editStaffAddress').value.trim();
 
             if (!name || !trn || !department) {
                 showAlert('⚠️ Please fill in all required fields');
@@ -3317,7 +3353,10 @@
             }
 
             const updatedStaff = {
-                name, trn, department, role,  // Include role
+                name, trn, department, role,
+                phone: phone || '',
+                emergencyContact: emergencyContact || '',
+                address: address || '',
                 dayOff: parseInt(document.getElementById('editStaffDayOff').value) || 0,
                 sickLeave: parseInt(document.getElementById('editStaffSickLeave').value) || 0,
                 claims: parseInt(document.getElementById('editStaffClaims').value) || 0,
@@ -3428,6 +3467,10 @@
                         </div>
                         <div id="details-${actualIndex}" class="details">
                             <div class="detail-row"><span class="detail-label">Role:</span><span class="detail-value">${staff.role || 'Staff'}</span></div>
+                            <div class="detail-row"><span class="detail-label">📞 Phone:</span><span class="detail-value">${staff.phone || 'Not provided'}</span></div>
+                            <div class="detail-row"><span class="detail-label">🚨 Emergency:</span><span class="detail-value">${staff.emergencyContact || 'Not provided'}</span></div>
+                            <div class="detail-row"><span class="detail-label">🏠 Address:</span><span class="detail-value" style="white-space: normal;">${staff.address || 'Not provided'}</span></div>
+                            <div class="detail-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e2e8f0;"><span class="detail-label" style="font-weight: bold;">Absence Tracking</span></div>
                             <div class="detail-row"><span class="detail-label">Day Off:</span><span class="detail-value">${staff.dayOff}</span></div>
                             <div class="detail-row"><span class="detail-label">Sick Leave:</span><span class="detail-value">${staff.sickLeave}</span></div>
                             <div class="detail-row"><span class="detail-label">Claims:</span><span class="detail-value">${staff.claims}</span></div>
