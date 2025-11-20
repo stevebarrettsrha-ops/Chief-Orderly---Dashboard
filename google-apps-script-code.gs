@@ -136,13 +136,82 @@ function deleteStaffRow(rowIndex) {
 }
 
 function getStaffFromSheet() {
-  const sheet = SpreadsheetApp.openById(SHEET_IDS.STAFF).getActiveSheet();
-  const data = sheet.getDataRange().getValues();
+  try {
+    const sheet = SpreadsheetApp.openById(SHEET_IDS.STAFF).getActiveSheet();
+    const data = sheet.getDataRange().getValues();
 
-  return ContentService.createTextOutput(JSON.stringify({
-    status: 'success',
-    data: data
-  })).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'success',
+      data: data
+    })).setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    Logger.log('Error in getStaffFromSheet: ' + error.toString());
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'error',
+      message: 'Failed to fetch staff data: ' + error.toString(),
+      sheetId: SHEET_IDS.STAFF
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// Test function - Run this in Apps Script to verify permissions
+function testSheetAccess() {
+  const results = {
+    staff: false,
+    leaves: false,
+    schedule: false,
+    timeTracking: false,
+    errors: []
+  };
+
+  // Test Staff sheet
+  try {
+    const staffSheet = SpreadsheetApp.openById(SHEET_IDS.STAFF);
+    const staffData = staffSheet.getActiveSheet().getDataRange().getValues();
+    results.staff = true;
+    Logger.log('✅ Staff sheet accessible - ' + staffData.length + ' rows');
+  } catch (error) {
+    results.errors.push('Staff sheet: ' + error.toString());
+    Logger.log('❌ Staff sheet error: ' + error.toString());
+  }
+
+  // Test Leave Records sheet
+  try {
+    const leaveSheet = SpreadsheetApp.openById(SHEET_IDS.LEAVE_RECORDS);
+    const leaveData = leaveSheet.getActiveSheet().getDataRange().getValues();
+    results.leaves = true;
+    Logger.log('✅ Leave Records sheet accessible - ' + leaveData.length + ' rows');
+  } catch (error) {
+    results.errors.push('Leave Records: ' + error.toString());
+    Logger.log('❌ Leave Records error: ' + error.toString());
+  }
+
+  // Test Schedule sheet
+  try {
+    const scheduleSheet = SpreadsheetApp.openById(SHEET_IDS.SCHEDULE_DATA);
+    const scheduleData = scheduleSheet.getActiveSheet().getDataRange().getValues();
+    results.schedule = true;
+    Logger.log('✅ Schedule Data sheet accessible - ' + scheduleData.length + ' rows');
+  } catch (error) {
+    results.errors.push('Schedule Data: ' + error.toString());
+    Logger.log('❌ Schedule Data error: ' + error.toString());
+  }
+
+  // Test Time Tracking sheet
+  try {
+    const timeSheet = SpreadsheetApp.openById(SHEET_IDS.TIME_TRACKING);
+    const timeData = timeSheet.getActiveSheet().getDataRange().getValues();
+    results.timeTracking = true;
+    Logger.log('✅ Time Tracking sheet accessible - ' + timeData.length + ' rows');
+  } catch (error) {
+    results.errors.push('Time Tracking: ' + error.toString());
+    Logger.log('❌ Time Tracking error: ' + error.toString());
+  }
+
+  Logger.log('=== TEST RESULTS ===');
+  Logger.log(JSON.stringify(results, null, 2));
+
+  return results;
 }
 
 // ============================================
