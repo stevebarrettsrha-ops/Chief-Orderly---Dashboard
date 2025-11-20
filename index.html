@@ -2372,6 +2372,53 @@
                     <div class="report-description">Comprehensive leave management report</div>
                 </div>
             </div>
+
+            <!-- DATA MANAGEMENT SECTION -->
+            <div class="header" style="margin-top: 40px;">
+                <h2 style="color: #1a202c; font-size: 24px; margin-bottom: 8px;">💾 Data Management</h2>
+                <p style="color: #718096; font-size: 14px;">Export and import your data for backup and portability</p>
+            </div>
+
+            <div class="reports-grid">
+                <div class="report-card" onclick="exportAllData()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="report-icon">📥</div>
+                    <div class="report-title" style="color: white;">Export All Data</div>
+                    <div class="report-description" style="color: rgba(255,255,255,0.9);">Download complete backup of all data</div>
+                </div>
+
+                <div class="report-card" onclick="importAllData()" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="report-icon">📤</div>
+                    <div class="report-title" style="color: white;">Import All Data</div>
+                    <div class="report-description" style="color: rgba(255,255,255,0.9);">Restore data from backup file</div>
+                </div>
+
+                <div class="report-card" onclick="exportStaffData()">
+                    <div class="report-icon">👥</div>
+                    <div class="report-title">Export Staff Data</div>
+                    <div class="report-description">Download staff member records</div>
+                </div>
+
+                <div class="report-card" onclick="exportLeaveData()">
+                    <div class="report-icon">🏖️</div>
+                    <div class="report-title">Export Leave Records</div>
+                    <div class="report-description">Download leave request data</div>
+                </div>
+
+                <div class="report-card" onclick="exportScheduleData()">
+                    <div class="report-icon">📅</div>
+                    <div class="report-title">Export Schedule Data</div>
+                    <div class="report-description">Download scheduling information</div>
+                </div>
+
+                <div class="report-card" onclick="exportTimeTrackingData()">
+                    <div class="report-icon">⏰</div>
+                    <div class="report-title">Export Time Tracking</div>
+                    <div class="report-description">Download time tracking records</div>
+                </div>
+            </div>
+
+            <!-- Hidden file input for imports -->
+            <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="handleFileImport(event)">
         </div>
 
         <!-- TIME TRACKING VIEW -->
@@ -2499,11 +2546,12 @@
         
         const CONFIG = {
             SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzWoFoWo5m_fXAF0t6X8HJGDMNGcLgd1pqFW7sv_5vGmV0a9EHtKVsCx2NukA1yDV5x/exec',
-            USE_GOOGLE_SHEETS: true,
-            SYNC_SCHEDULES_TO_SHEETS: true,
-            SYNC_LEAVES_TO_SHEETS: true,
-            SYNC_TIME_TRACKING_TO_SHEETS: true,
-            USE_FALLBACK_CREDENTIALS: true
+            USE_GOOGLE_SHEETS: false,  // Disabled - using local storage with export/import
+            SYNC_SCHEDULES_TO_SHEETS: false,
+            SYNC_LEAVES_TO_SHEETS: false,
+            SYNC_TIME_TRACKING_TO_SHEETS: false,
+            USE_FALLBACK_CREDENTIALS: true,
+            USE_LOCAL_STORAGE: true  // Enable local storage mode
         };
 
         const FALLBACK_CREDENTIALS = {
@@ -2714,8 +2762,10 @@
                         showAlert('⚠️ Failed to load staff data. Please refresh.');
                     });
                 } else {
-                    renderStaff();
-                    updateMonitorStats();
+                    loadStaffDataFromLocalStorage();  // Load from localStorage
+                    loadLeaveRecords();  // Load leave records
+                    loadScheduleData();  // Load schedule data
+                    loadTimeTrackingRecords();  // Load time tracking records
                 }
 
                 checkNotifications();
@@ -2757,8 +2807,10 @@
                         showAlert('⚠️ Failed to load staff data. Please refresh.');
                     });
                 } else {
-                    renderStaff();
-                    updateMonitorStats();
+                    loadStaffDataFromLocalStorage();  // Load from localStorage
+                    loadLeaveRecords();  // Load leave records
+                    loadScheduleData();  // Load schedule data
+                    loadTimeTrackingRecords();  // Load time tracking records
                 }
 
                 checkNotifications();
@@ -3215,6 +3267,7 @@
                     sessionStorage.removeItem('staffDataCacheTime');
                 }
                 staffData.push(newStaff);
+                saveStaffDataToLocalStorage();  // Save to localStorage
                 renderStaff();
                 updateMonitorStats();
                 toggleAddForm();
@@ -3282,6 +3335,7 @@
                     sessionStorage.removeItem('staffDataCacheTime');
                 }
                 staffData[editingIndex] = updatedStaff;
+                saveStaffDataToLocalStorage();  // Save to localStorage
                 renderStaff();
                 updateMonitorStats();
                 closeEditModal();
@@ -3303,6 +3357,7 @@
                     sessionStorage.removeItem('staffDataCacheTime');
                 }
                 staffData.splice(index, 1);
+                saveStaffDataToLocalStorage();  // Save to localStorage
                 renderStaff();
                 updateMonitorStats();
                 showAlert('✅ Deleted successfully!');
@@ -5284,6 +5339,161 @@
                 </table>
             `;
             window.print();
+        }
+
+        // ============================================
+        // DATA EXPORT/IMPORT FUNCTIONS
+        // ============================================
+
+        function downloadJSON(data, filename) {
+            const jsonStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function exportAllData() {
+            const exportData = {
+                exportDate: new Date().toISOString(),
+                version: '1.0',
+                staffData: staffData,
+                leaveRecords: leaveRecords,
+                scheduleData: scheduleData,
+                timeTrackingRecords: timeTrackingRecords
+            };
+
+            const timestamp = new Date().toISOString().split('T')[0];
+            downloadJSON(exportData, `chief-orderly-backup-${timestamp}.json`);
+            showAlert('✅ All data exported successfully!');
+        }
+
+        function exportStaffData() {
+            if (staffData.length === 0) {
+                showAlert('⚠️ No staff data to export');
+                return;
+            }
+            const timestamp = new Date().toISOString().split('T')[0];
+            downloadJSON(staffData, `staff-data-${timestamp}.json`);
+            showAlert(`✅ Exported ${staffData.length} staff records`);
+        }
+
+        function exportLeaveData() {
+            if (leaveRecords.length === 0) {
+                showAlert('⚠️ No leave records to export');
+                return;
+            }
+            const timestamp = new Date().toISOString().split('T')[0];
+            downloadJSON(leaveRecords, `leave-records-${timestamp}.json`);
+            showAlert(`✅ Exported ${leaveRecords.length} leave records`);
+        }
+
+        function exportScheduleData() {
+            if (Object.keys(scheduleData).length === 0) {
+                showAlert('⚠️ No schedule data to export');
+                return;
+            }
+            const timestamp = new Date().toISOString().split('T')[0];
+            downloadJSON(scheduleData, `schedule-data-${timestamp}.json`);
+            showAlert('✅ Schedule data exported successfully');
+        }
+
+        function exportTimeTrackingData() {
+            if (timeTrackingRecords.length === 0) {
+                showAlert('⚠️ No time tracking records to export');
+                return;
+            }
+            const timestamp = new Date().toISOString().split('T')[0];
+            downloadJSON(timeTrackingRecords, `time-tracking-${timestamp}.json`);
+            showAlert(`✅ Exported ${timeTrackingRecords.length} time tracking records`);
+        }
+
+        let currentImportType = 'all';
+
+        function importAllData() {
+            currentImportType = 'all';
+            document.getElementById('importFileInput').click();
+        }
+
+        function handleFileImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+
+                    if (currentImportType === 'all') {
+                        // Validate the data structure
+                        if (!importedData.staffData) {
+                            showAlert('⚠️ Invalid backup file: missing staff data');
+                            return;
+                        }
+
+                        // Import all data
+                        staffData = importedData.staffData || [];
+                        leaveRecords = importedData.leaveRecords || [];
+                        scheduleData = importedData.scheduleData || {};
+                        timeTrackingRecords = importedData.timeTrackingRecords || [];
+
+                        // Save to localStorage
+                        localStorage.setItem('staffData', JSON.stringify(staffData));
+                        saveLeaveRecordsToLocalStorage();
+                        localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
+                        saveTimeTrackingRecordsToStorage();
+
+                        // Refresh displays
+                        renderStaff();
+                        updateMonitorStats();
+                        renderLeaves();
+                        updateLeaveStats();
+                        renderCalendar();
+                        renderTimeTrackingRecords();
+                        updateTimeTrackingStats();
+
+                        showAlert(`✅ Successfully imported all data!\n` +
+                                `Staff: ${staffData.length} | Leaves: ${leaveRecords.length} | ` +
+                                `Time Tracking: ${timeTrackingRecords.length}`);
+                    }
+
+                    // Reset file input
+                    event.target.value = '';
+
+                } catch (error) {
+                    console.error('Import error:', error);
+                    showAlert('❌ Error importing file: ' + error.message);
+                    event.target.value = '';
+                }
+            };
+
+            reader.readAsText(file);
+        }
+
+        // Ensure staff data is saved to localStorage
+        function saveStaffDataToLocalStorage() {
+            localStorage.setItem('staffData', JSON.stringify(staffData));
+        }
+
+        // Load staff data from localStorage on startup
+        function loadStaffDataFromLocalStorage() {
+            const stored = localStorage.getItem('staffData');
+            if (stored) {
+                try {
+                    staffData = JSON.parse(stored);
+                    renderStaff();
+                    updateMonitorStats();
+                    showAlert(`✅ Loaded ${staffData.length} staff members from local storage`);
+                } catch (e) {
+                    console.error('Error loading staff data:', e);
+                    staffData = [];
+                }
+            }
         }
 
         // ============================================
