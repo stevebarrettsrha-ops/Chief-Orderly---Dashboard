@@ -1618,35 +1618,150 @@
         }
 
         @media (max-width: 768px) {
-            .charts-grid {
-                grid-template-columns: 1fr;
+            /* Container and layout */
+            .container {
+                padding: 15px;
             }
-            .header-top {
+
+            /* Header and navigation */
+            .nav-header {
+                padding: 15px;
+            }
+
+            .nav-top {
                 flex-direction: column;
+                align-items: flex-start;
                 gap: 15px;
             }
+
+            .nav-title {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .nav-title h1 {
+                font-size: 20px;
+            }
+
+            .nav-title p {
+                font-size: 12px !important;
+            }
+
+            /* User info and logout button */
+            .user-info {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                padding: 10px 15px;
+            }
+
+            .user-info span {
+                font-size: 12px;
+            }
+
+            .logout-btn {
+                margin-left: auto;
+                white-space: nowrap;
+            }
+
+            /* Navigation tabs */
             .nav-tabs {
                 width: 100%;
                 flex-direction: column;
             }
+
             .nav-tab {
                 width: 100%;
                 justify-content: center;
             }
+
+            /* Calendar navigation */
+            .calendar-nav {
+                width: 100%;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .calendar-nav button {
+                padding: 10px 15px;
+                font-size: 14px;
+                white-space: nowrap;
+            }
+
+            .calendar-title {
+                width: 100%;
+                text-align: center;
+                order: -1;
+                margin-bottom: 10px;
+            }
+
+            /* Schedule controls */
+            .schedule-controls {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+
+            .schedule-controls > div {
+                width: 100%;
+            }
+
+            /* Charts and grids */
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-top {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            /* Modal */
             .modal-content {
                 width: 95%;
                 padding: 20px;
+                max-height: 90vh;
+                overflow-y: auto;
             }
+
+            /* Calendar */
             .calendar-grid {
                 font-size: 12px;
             }
+
             .calendar-day {
                 min-height: 80px;
                 padding: 4px;
             }
+
+            /* Notifications */
             .notification-dropdown {
                 width: 95%;
                 right: 2.5%;
+                left: 2.5%;
+            }
+
+            /* Stats cards */
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+
+            /* Form groups */
+            .form-row {
+                flex-direction: column;
+            }
+
+            /* Buttons */
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            /* Department select */
+            .dept-select {
+                width: 100%;
             }
         }
     </style>
@@ -2575,12 +2690,12 @@
         
         const CONFIG = {
             SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzWoFoWo5m_fXAF0t6X8HJGDMNGcLgd1pqFW7sv_5vGmV0a9EHtKVsCx2NukA1yDV5x/exec',
-            USE_GOOGLE_SHEETS: false,  // Disabled - using local storage with export/import
-            SYNC_SCHEDULES_TO_SHEETS: false,
-            SYNC_LEAVES_TO_SHEETS: false,
-            SYNC_TIME_TRACKING_TO_SHEETS: false,
+            USE_GOOGLE_SHEETS: true,  // Enabled for cross-device data access
+            SYNC_SCHEDULES_TO_SHEETS: true,
+            SYNC_LEAVES_TO_SHEETS: true,
+            SYNC_TIME_TRACKING_TO_SHEETS: true,
             USE_FALLBACK_CREDENTIALS: true,
-            USE_LOCAL_STORAGE: true  // Enable local storage mode
+            USE_LOCAL_STORAGE: false  // Disabled - using Google Sheets for cross-device access
         };
 
         const FALLBACK_CREDENTIALS = {
