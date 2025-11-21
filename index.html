@@ -1632,6 +1632,7 @@
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 15px;
+                align-items: stretch !important;
             }
 
             .nav-title {
@@ -1762,6 +1763,133 @@
             /* Department select */
             .dept-select {
                 width: 100%;
+            }
+
+            /* Fix button groups to wrap on mobile */
+            .form-actions {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            /* Make all button containers wrap */
+            div[style*="display: flex"] {
+                flex-wrap: wrap !important;
+            }
+
+            /* Responsive button sizing */
+            .btn {
+                padding: 10px 16px;
+                font-size: 13px;
+                flex: 1 1 auto;
+                min-width: fit-content;
+                justify-content: center;
+            }
+
+            /* Adjust grid layouts for mobile */
+            .staff-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .department-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            /* Navigation top area */
+            .nav-top {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+
+            .nav-title {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .nav-title h1 {
+                font-size: 20px;
+            }
+
+            /* Schedule controls */
+            .schedule-controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .calendar-nav {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .calendar-nav button {
+                flex: 1;
+                min-width: 100px;
+            }
+        }
+
+        /* Extra small devices (phones in portrait, less than 480px) */
+        @media (max-width: 480px) {
+            .btn {
+                padding: 8px 12px;
+                font-size: 12px;
+                width: 100%;
+            }
+
+            .btn span:last-child {
+                display: inline;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .form-actions .btn {
+                width: 100%;
+            }
+
+            .header-top > div {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .header-top > div > .btn {
+                width: 100%;
+            }
+
+            .icon-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 14px;
+            }
+
+            .staff-card {
+                padding: 16px;
+            }
+
+            .modal-content {
+                width: 98%;
+                padding: 15px;
+            }
+
+            .calendar-nav button {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            /* Reduce padding on containers */
+            .container {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 15px;
             }
         }
     </style>
