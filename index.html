@@ -2690,12 +2690,12 @@
         
         const CONFIG = {
             SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzWoFoWo5m_fXAF0t6X8HJGDMNGcLgd1pqFW7sv_5vGmV0a9EHtKVsCx2NukA1yDV5x/exec',
-            USE_GOOGLE_SHEETS: true,  // Enabled for cross-device data access
-            SYNC_SCHEDULES_TO_SHEETS: true,
-            SYNC_LEAVES_TO_SHEETS: true,
-            SYNC_TIME_TRACKING_TO_SHEETS: true,
+            USE_GOOGLE_SHEETS: false,  // Disabled - using local storage with export/import
+            SYNC_SCHEDULES_TO_SHEETS: false,
+            SYNC_LEAVES_TO_SHEETS: false,
+            SYNC_TIME_TRACKING_TO_SHEETS: false,
             USE_FALLBACK_CREDENTIALS: true,
-            USE_LOCAL_STORAGE: false  // Disabled - using Google Sheets for cross-device access
+            USE_LOCAL_STORAGE: true  // Enable local storage mode
         };
 
         const FALLBACK_CREDENTIALS = {
