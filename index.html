@@ -2182,6 +2182,11 @@
                             <label>Reason / Notes</label>
                             <textarea id="leaveReason" placeholder="Optional: Enter reason or additional notes..."></textarea>
                         </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>📎 Attach Document (PDF)</label>
+                            <input type="file" id="leaveAttachment" accept=".pdf" style="padding: 8px;">
+                            <small style="color: #64748b; display: block; margin-top: 4px;">Optional: Upload supporting document (PDF only, max 5MB)</small>
+                        </div>
                     </div>
                     <div class="form-actions">
                         <button class="btn btn-secondary" onclick="toggleLeaveForm()">Cancel</button>
@@ -2873,15 +2878,34 @@
         function handleLogout() {
             if (confirm('Are you sure you want to logout?')) {
                 currentUser = null;
-                
+
+                // Clear session storage cache
                 sessionStorage.removeItem('staffDataCache');
                 sessionStorage.removeItem('staffDataCacheTime');
-                
+
+                // Clear in-memory data arrays to ensure fresh load on next login
+                staffData = [];
+                leaveRecords = [];
+                scheduleData = {};
+                timeTrackingRecords = [];
+
+                // Destroy charts to prevent memory leaks
+                Object.values(charts).forEach(chart => {
+                    if (chart) chart.destroy();
+                });
+                charts = {
+                    departmentPie: null,
+                    absencesBar: null,
+                    overtimeBar: null,
+                    lateBar: null,
+                    comprehensive: null
+                };
+
                 document.getElementById('dashboardContainer').style.display = 'none';
                 document.getElementById('loginPage').style.display = 'flex';
                 document.getElementById('loginForm').reset();
                 document.getElementById('loginError').style.display = 'none';
-                
+
                 const loginInfo = document.getElementById('loginInfo');
                 loginInfo.className = 'login-info ready';
                 loginInfo.textContent = '✅ System ready - Please sign in';
@@ -2956,7 +2980,22 @@
                 }
             } else if (view === 'analytics') {
                 document.getElementById('analyticsView').classList.add('active');
-                loadAnalytics();
+                // Ensure staff data is loaded before showing analytics
+                if (staffData.length === 0) {
+                    if (CONFIG.USE_GOOGLE_SHEETS) {
+                        fetchFromSheets().then(() => {
+                            loadAnalytics();
+                        }).catch(err => {
+                            console.error('Failed to load staff data:', err);
+                            loadAnalytics(); // Show analytics anyway (will show empty data)
+                        });
+                    } else {
+                        loadStaffDataFromLocalStorage();
+                        loadAnalytics();
+                    }
+                } else {
+                    loadAnalytics();
+                }
             } else if (view === 'schedule') {
                 document.getElementById('scheduleView').classList.add('active');
                 // Ensure staff data is loaded before initializing schedule
@@ -4054,7 +4093,35 @@
                 document.getElementById('leaveEndDate').value = today;
                 document.getElementById('leaveType').value = '';
                 document.getElementById('leaveReason').value = '';
+                document.getElementById('leaveAttachment').value = '';
             }
+        }
+
+        // Helper function to convert file to base64
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Function to download PDF attachment
+        function downloadLeaveAttachment(leaveId) {
+            const leave = leaveRecords.find(l => l.id === leaveId);
+            if (!leave || !leave.attachment) {
+                showAlert('⚠️ No attachment found');
+                return;
+            }
+
+            const link = document.createElement('a');
+            link.href = leave.attachment.data;
+            link.download = leave.attachment.filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showAlert('✅ Downloading ' + leave.attachment.filename);
         }
 
         async function addLeaveRecord() {
@@ -4063,6 +4130,7 @@
             const startDate = document.getElementById('leaveStartDate').value;
             const endDate = document.getElementById('leaveEndDate').value;
             const reason = document.getElementById('leaveReason').value.trim();
+            const fileInput = document.getElementById('leaveAttachment');
 
             console.log('Adding leave record:', { staffId, leaveType, startDate, endDate }); // Debug log
 
@@ -4076,6 +4144,33 @@
                 return;
             }
 
+            // Handle PDF attachment
+            let attachment = null;
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+
+                // Validate file size (5MB limit)
+                if (file.size > 5 * 1024 * 1024) {
+                    showAlert('⚠️ File size must be less than 5MB');
+                    return;
+                }
+
+                // Convert PDF to base64
+                try {
+                    const base64 = await fileToBase64(file);
+                    attachment = {
+                        filename: file.name,
+                        data: base64,
+                        size: file.size,
+                        uploadedAt: new Date().toISOString()
+                    };
+                } catch (error) {
+                    console.error('Error reading file:', error);
+                    showAlert('⚠️ Failed to upload file');
+                    return;
+                }
+            }
+
             const newLeave = {
                 id: Date.now().toString(),
                 staffId,
@@ -4083,6 +4178,7 @@
                 startDate,
                 endDate,
                 reason,
+                attachment: attachment,
                 createdAt: new Date().toISOString(),
                 status: getLeaveStatus(startDate, endDate)
             };
@@ -4308,6 +4404,20 @@
                             <span>📅 End: ${formatDate(leave.endDate)}</span>
                         </div>
                         ${leave.reason ? `<div class="leave-reason">💬 ${leave.reason}</div>` : ''}
+                        ${leave.attachment ? `
+                            <div style="margin: 12px 0; padding: 10px; background: #f1f5f9; border-radius: 6px; display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 20px;">📎</span>
+                                    <div>
+                                        <div style="font-weight: 500; color: #1e293b;">${leave.attachment.filename}</div>
+                                        <div style="font-size: 12px; color: #64748b;">${(leave.attachment.size / 1024).toFixed(1)} KB</div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" onclick="downloadLeaveAttachment('${leave.id}')" style="padding: 6px 12px; font-size: 13px;">
+                                    📥 Download
+                                </button>
+                            </div>
+                        ` : ''}
                         <div class="leave-actions" style="display: flex; justify-content: space-between; align-items: center;">
                             <span class="leave-status ${status}">${status}</span>
                             <div style="display: flex; gap: 8px;">
