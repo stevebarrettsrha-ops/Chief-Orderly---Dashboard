@@ -2343,7 +2343,7 @@
                             <span id="leaveViewIcon">📅</span>
                             <span id="leaveViewText">Calendar View</span>
                         </button>
-                        <button class="btn btn-success" onclick="syncLeavesNow()" title="Sync with Google Sheets">
+                        <button class="btn btn-success" onclick="syncLeavesNow()" title="Save and sync local data">
                             <span>🔄</span>
                             <span>Sync</span>
                         </button>
@@ -2562,7 +2562,7 @@
                     <select class="dept-select" id="scheduleDeptSelect" onchange="renderCalendar()">
                         <option value="">All Departments</option>
                     </select>
-                    <button class="btn btn-success" onclick="syncScheduleNow()" title="Sync with Google Sheets">
+                    <button class="btn btn-success" onclick="syncScheduleNow()" title="Save and sync local data">
                         <span>🔄</span>
                         <span>Sync</span>
                     </button>
@@ -4291,32 +4291,25 @@
         }
 
         async function syncLeavesNow() {
-            if (!CONFIG.SYNC_LEAVES_TO_SHEETS) {
-                showAlert('⚠️ Google Sheets sync is disabled');
-                return;
-            }
-            
-            showAlert('🔄 Syncing leave records with Google Sheets...');
-            
+            showAlert('🔄 Syncing leave records...');
+
             try {
-                for (const leave of leaveRecords) {
-                    await saveLeaveToSheets(leave);
-                }
-                
-                await loadLeaveRecords();
-                
+                // Save current leave records to localStorage
+                saveLeaveRecordsToLocalStorage();
+
+                // Refresh the views to ensure everything is in sync
                 if (leaveCalendarView) {
                     renderLeaveCalendar();
                 } else {
                     renderLeaves();
                     updateLeaveStats();
                 }
-                
+
                 checkNotifications();
-                showAlert('✅ Leave records synced successfully!');
+                showAlert('✅ Leave records synced successfully! (' + leaveRecords.length + ' records saved)');
             } catch (error) {
                 console.error('Sync error:', error);
-                showAlert('❌ Failed to sync. Using local data.');
+                showAlert('❌ Failed to sync leave records.');
             }
         }
 
@@ -5379,31 +5372,20 @@
         }
 
         async function syncScheduleNow() {
-            if (!CONFIG.SYNC_SCHEDULES_TO_SHEETS) {
-                showAlert('⚠️ Google Sheets sync is disabled');
-                return;
-            }
-            
-            showAlert('🔄 Syncing schedule with Google Sheets...');
-            
+            showAlert('🔄 Syncing schedule data...');
+
             try {
-                await saveScheduleToSheets();
-                
-                const response = await fetch(CONFIG.SCRIPT_URL + '?action=getSchedule');
-                if (response.ok) {
-                    const result = await response.json();
-                    if (result.status === 'success' && result.scheduleData) {
-                        scheduleData = result.scheduleData;
-                        localStorage.setItem('hospitalScheduleData', JSON.stringify(scheduleData));
-                        renderCalendar();
-                        showAlert('✅ Schedule synced successfully!');
-                        return;
-                    }
-                }
-                throw new Error('Failed to fetch updated schedule');
+                // Save current schedule data to localStorage
+                localStorage.setItem('hospitalScheduleData', JSON.stringify(scheduleData));
+
+                // Refresh the calendar view
+                renderCalendar();
+
+                const assignmentCount = Object.keys(scheduleData).length;
+                showAlert('✅ Schedule synced successfully! (' + assignmentCount + ' assignments saved)');
             } catch (error) {
                 console.error('Sync error:', error);
-                showAlert('❌ Failed to sync schedule. Using local data.');
+                showAlert('❌ Failed to sync schedule data.');
             }
         }
 
