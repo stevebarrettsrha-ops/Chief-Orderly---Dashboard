@@ -274,6 +274,48 @@
         }
 
         /* NOTIFICATION BELL */
+        .save-data-btn, .sync-data-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .save-data-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .save-data-btn:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .sync-data-btn {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+        }
+
+        .sync-data-btn:hover {
+            background: linear-gradient(135deg, #4f46e5, #4338ca);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .save-data-btn, .sync-data-btn {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+        }
+
         .notification-bell {
             position: relative;
             cursor: pointer;
@@ -1943,6 +1985,12 @@
                     </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 15px;">
+                    <button onclick="saveAllData()" class="save-data-btn" title="Save all data to browser storage">
+                        💾 Save
+                    </button>
+                    <button onclick="recalculateStaffCounters()" class="sync-data-btn" title="Recalculate staff counters from leave records">
+                        🔄 Sync
+                    </button>
                     <div class="notification-bell" onclick="toggleNotifications()">
                         <div class="notification-bell-icon">🔔</div>
                         <div class="notification-badge" id="notificationBadge" style="display: none;">0</div>
@@ -4072,6 +4120,27 @@
                     }
                 }
 
+                // Update staff member's absence counter (decrement) before deleting
+                if (deletedLeave && staff) {
+                    const leaveDays = calculateLeaveDays(deletedLeave.startDate, deletedLeave.endDate);
+                    switch(deletedLeave.leaveType) {
+                        case 'sick':
+                            staff.sickLeave = Math.max(0, (staff.sickLeave || 0) - leaveDays);
+                            break;
+                        case 'vacation':
+                            staff.vacationLeave = Math.max(0, (staff.vacationLeave || 0) - leaveDays);
+                            break;
+                        case 'dayoff':
+                            staff.dayOff = Math.max(0, (staff.dayOff || 0) - leaveDays);
+                            break;
+                        case 'dept':
+                            staff.departmentalLeave = Math.max(0, (staff.departmentalLeave || 0) - leaveDays);
+                            break;
+                    }
+                    saveStaffDataToLocalStorage();
+                    console.log(`Decremented ${staff.name}'s ${deletedLeave.leaveType} counter by ${leaveDays} days`);
+                }
+
                 // Delete locally regardless of sync status
                 leaveRecords = leaveRecords.filter(l => l.id !== leaveId);
                 saveLeaveRecordsToLocalStorage();
@@ -4434,6 +4503,27 @@
 
                 // Get staff name for notification
                 const staff = staffData.find(s => s.trn === staffId);
+
+                // Update staff member's absence counter based on leave type
+                if (staff) {
+                    const leaveDays = calculateLeaveDays(startDate, endDate);
+                    switch(leaveType) {
+                        case 'sick':
+                            staff.sickLeave = (staff.sickLeave || 0) + leaveDays;
+                            break;
+                        case 'vacation':
+                            staff.vacationLeave = (staff.vacationLeave || 0) + leaveDays;
+                            break;
+                        case 'dayoff':
+                            staff.dayOff = (staff.dayOff || 0) + leaveDays;
+                            break;
+                        case 'dept':
+                            staff.departmentalLeave = (staff.departmentalLeave || 0) + leaveDays;
+                            break;
+                    }
+                    saveStaffDataToLocalStorage();
+                    console.log(`Updated ${staff.name}'s ${leaveType} counter by ${leaveDays} days`);
+                }
                 const staffName = staff ? staff.name : staffId;
 
                 // Add notification
@@ -4515,13 +4605,24 @@
             }
         }
 
+        // Calculate number of days between start and end date (inclusive)
+        function calculateLeaveDays(startDate, endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            start.setHours(0, 0, 0, 0);
+            end.setHours(0, 0, 0, 0);
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 for inclusive
+            return diffDays;
+        }
+
         function getLeaveStatus(startDate, endDate) {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            
+
             const start = new Date(startDate);
             start.setHours(0, 0, 0, 0);
-            
+
             const end = new Date(endDate);
             end.setHours(0, 0, 0, 0);
             
@@ -5856,6 +5957,79 @@
         // Ensure staff data is saved to localStorage
         function saveStaffDataToLocalStorage() {
             localStorage.setItem('staffData', JSON.stringify(staffData));
+        }
+
+        // Save all data to localStorage (manual save button)
+        function saveAllData() {
+            try {
+                localStorage.setItem('staffData', JSON.stringify(staffData));
+                saveLeaveRecordsToLocalStorage();
+                localStorage.setItem('hospitalScheduleData', JSON.stringify(scheduleData));
+                saveTimeTrackingRecordsToStorage();
+                showAlert('✅ All data saved successfully to browser storage!');
+                console.log('All data saved:', {
+                    staff: staffData.length,
+                    leaves: leaveRecords.length,
+                    timeTracking: timeTrackingRecords.length
+                });
+            } catch (error) {
+                console.error('Error saving data:', error);
+                showAlert('❌ Failed to save data: ' + error.message);
+            }
+        }
+
+        // Recalculate staff absence counters from leave records
+        // Use this to fix any data inconsistencies
+        function recalculateStaffCounters() {
+            if (!confirm('This will recalculate all staff absence counters from leave records. Continue?')) return;
+
+            try {
+                // Reset all counters to 0
+                staffData.forEach(staff => {
+                    staff.sickLeave = 0;
+                    staff.vacationLeave = 0;
+                    staff.dayOff = 0;
+                    staff.departmentalLeave = 0;
+                });
+
+                // Recalculate from leave records
+                leaveRecords.forEach(leave => {
+                    const staff = staffData.find(s => s.trn === leave.staffId);
+                    if (staff) {
+                        const leaveDays = calculateLeaveDays(leave.startDate, leave.endDate);
+                        switch(leave.leaveType) {
+                            case 'sick':
+                                staff.sickLeave = (staff.sickLeave || 0) + leaveDays;
+                                break;
+                            case 'vacation':
+                                staff.vacationLeave = (staff.vacationLeave || 0) + leaveDays;
+                                break;
+                            case 'dayoff':
+                                staff.dayOff = (staff.dayOff || 0) + leaveDays;
+                                break;
+                            case 'dept':
+                                staff.departmentalLeave = (staff.departmentalLeave || 0) + leaveDays;
+                                break;
+                        }
+                    }
+                });
+
+                // Save updated staff data
+                saveStaffDataToLocalStorage();
+
+                // Refresh UI
+                renderStaff();
+                updateMonitorStats();
+                if (typeof updateAnalyticsMetrics === 'function') {
+                    updateAnalyticsMetrics();
+                }
+
+                showAlert('✅ Staff counters recalculated from ' + leaveRecords.length + ' leave records!');
+                console.log('Recalculated staff counters from leave records');
+            } catch (error) {
+                console.error('Error recalculating counters:', error);
+                showAlert('❌ Failed to recalculate: ' + error.message);
+            }
         }
 
         // Load staff data from localStorage on startup
