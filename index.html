@@ -4703,8 +4703,9 @@
 
         // Calculate number of days between start and end date (inclusive)
         function calculateLeaveDays(startDate, endDate) {
-            const start = new Date(startDate);
-            const end = new Date(endDate);
+            const start = parseLocalDate(startDate);
+            const end = parseLocalDate(endDate);
+            if (!start || !end) return 1;
             start.setHours(0, 0, 0, 0);
             end.setHours(0, 0, 0, 0);
             const diffTime = Math.abs(end - start);
@@ -4712,16 +4713,29 @@
             return diffDays;
         }
 
+        // Helper function to parse date string as local date (not UTC)
+        function parseLocalDate(dateStr) {
+            if (!dateStr) return null;
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+            }
+            // Fallback - but add timezone offset to correct UTC interpretation
+            const date = new Date(dateStr);
+            return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+        }
+
         function getLeaveStatus(startDate, endDate) {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            const start = new Date(startDate);
-            start.setHours(0, 0, 0, 0);
+            const start = parseLocalDate(startDate);
+            if (start) start.setHours(0, 0, 0, 0);
 
-            const end = new Date(endDate);
-            end.setHours(0, 0, 0, 0);
-            
+            const end = parseLocalDate(endDate);
+            if (end) end.setHours(0, 0, 0, 0);
+
+            if (!start || !end) return 'unknown';
             if (end < today) return 'completed';
             if (start > today) return 'upcoming';
             return 'active';
@@ -4738,6 +4752,22 @@
         }
 
         function formatDate(dateStr) {
+            // Parse date string to avoid timezone offset issues
+            // Date strings like "2024-01-15" are interpreted as UTC midnight,
+            // which can shift to previous day in local time
+            if (!dateStr) return '-';
+
+            // Split the date string and create date using local timezone
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                const year = parseInt(parts[0]);
+                const month = parseInt(parts[1]) - 1; // Months are 0-indexed
+                const day = parseInt(parts[2]);
+                const date = new Date(year, month, day);
+                return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            }
+
+            // Fallback for other date formats
             const date = new Date(dateStr);
             return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
         }
@@ -4895,28 +4925,33 @@
         function renderUpcomingLeaves() {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            
+
             const sevenDaysFromNow = new Date(today);
             sevenDaysFromNow.setDate(today.getDate() + 7);
-            
+
             const upcoming = leaveRecords.filter(leave => {
-                const endDate = new Date(leave.endDate);
+                const endDate = parseLocalDate(leave.endDate);
+                if (!endDate) return false;
                 endDate.setHours(0, 0, 0, 0);
                 return endDate >= today && endDate <= sevenDaysFromNow;
-            }).sort((a, b) => new Date(a.endDate) - new Date(b.endDate));
-            
+            }).sort((a, b) => {
+                const dateA = parseLocalDate(a.endDate);
+                const dateB = parseLocalDate(b.endDate);
+                return (dateA || 0) - (dateB || 0);
+            });
+
             const container = document.getElementById('upcomingLeavesList');
-            
+
             if (upcoming.length === 0) {
                 container.innerHTML = '<p style="text-align: center; color: #718096; padding: 20px;">No leaves ending in the next 7 days</p>';
                 return;
             }
-            
+
             container.innerHTML = upcoming.map(leave => {
                 const staff = staffData.find(s => s.trn === leave.staffId);
                 if (!staff) return '';
-                
-                const endDate = new Date(leave.endDate);
+
+                const endDate = parseLocalDate(leave.endDate);
                 const diffTime = endDate - today;
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 
@@ -5002,24 +5037,26 @@
         function updateLeaveStats() {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            
+
             const activeLeaves = leaveRecords.filter(leave => {
-                const start = new Date(leave.startDate);
-                const end = new Date(leave.endDate);
+                const start = parseLocalDate(leave.startDate);
+                const end = parseLocalDate(leave.endDate);
+                if (!start || !end) return false;
                 start.setHours(0, 0, 0, 0);
                 end.setHours(0, 0, 0, 0);
                 return start <= today && end >= today;
             }).length;
-            
+
             const sevenDaysFromNow = new Date(today);
             sevenDaysFromNow.setDate(today.getDate() + 7);
-            
+
             const upcomingLeaves = leaveRecords.filter(leave => {
-                const start = new Date(leave.startDate);
+                const start = parseLocalDate(leave.startDate);
+                if (!start) return false;
                 start.setHours(0, 0, 0, 0);
                 return start > today && start <= sevenDaysFromNow;
             }).length;
-            
+
             document.getElementById('activeLeavesCount').textContent = activeLeaves;
             document.getElementById('upcomingLeavesCount').textContent = upcomingLeaves;
             document.getElementById('totalLeavesCount').textContent = leaveRecords.length;
