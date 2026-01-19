@@ -2857,14 +2857,33 @@
                         <label id="timeTrackingDateLabel">Date *</label>
                         <input type="date" id="timeTrackingDate" required>
                     </div>
-                    <div class="form-group" id="timeTrackingAmountGroup" style="display: none;">
-                        <label id="timeTrackingAmountLabel">Amount</label>
-                        <input type="number" id="timeTrackingAmount" min="0" step="0.01">
+                    <div class="form-group" id="timeTrackingClaimsHoursGroup" style="display: none;">
+                        <label>Claims Hours *</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <div style="flex: 1;">
+                                <input type="number" id="timeTrackingClaimsHours" min="0" max="23" placeholder="Hours" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                            </div>
+                            <span style="font-weight: bold; color: #4a5568;">:</span>
+                            <div style="flex: 1;">
+                                <input type="number" id="timeTrackingClaimsMinutes" min="0" max="59" placeholder="Minutes" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                            </div>
+                        </div>
+                        <small style="color: #718096; margin-top: 4px; display: block;">Enter hours and minutes (e.g., 2 hours 30 minutes)</small>
                     </div>
                     <div class="form-group" id="timeTrackingHoursGroup" style="display: none;">
-                        <label>Hours</label>
-                        <input type="number" id="timeTrackingHours" min="0" step="0.5">
+                        <label id="timeTrackingHoursLabel">Hours</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <div style="flex: 1;">
+                                <input type="number" id="timeTrackingHours" min="0" max="23" placeholder="Hours" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                            </div>
+                            <span style="font-weight: bold; color: #4a5568;">:</span>
+                            <div style="flex: 1;">
+                                <input type="number" id="timeTrackingMinutes" min="0" max="59" placeholder="Minutes" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                            </div>
+                        </div>
+                        <small style="color: #718096; margin-top: 4px; display: block;">Enter hours and minutes</small>
                     </div>
+                    <input type="hidden" id="timeTrackingEditId" value="">
                     <div class="form-group" style="grid-column: 1 / -1;">
                         <label>Notes / Reason</label>
                         <textarea id="timeTrackingNotes" placeholder="Optional: Enter additional notes or reason..."></textarea>
@@ -2880,8 +2899,8 @@
             <!-- Records Display -->
             <div class="stats-grid" style="margin-bottom: 24px;">
                 <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                    <div class="stat-value" id="totalClaimsCount">0</div>
-                    <div class="stat-label">Total Claims</div>
+                    <div class="stat-value" id="totalClaimsHours">0</div>
+                    <div class="stat-label">Claims Hours</div>
                 </div>
                 <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
                     <div class="stat-value" id="totalLateCount">0</div>
@@ -6278,14 +6297,14 @@
             return null;
         }
 
-        function showTimeTrackingForm(type) {
+        function showTimeTrackingForm(type, editRecord = null) {
             currentTimeTrackingType = type;
             const form = document.getElementById('timeTrackingForm');
             const title = document.getElementById('timeTrackingFormTitle');
             const dateLabel = document.getElementById('timeTrackingDateLabel');
-            const amountGroup = document.getElementById('timeTrackingAmountGroup');
-            const amountLabel = document.getElementById('timeTrackingAmountLabel');
+            const claimsHoursGroup = document.getElementById('timeTrackingClaimsHoursGroup');
             const hoursGroup = document.getElementById('timeTrackingHoursGroup');
+            const hoursLabel = document.getElementById('timeTrackingHoursLabel');
 
             // Populate staff dropdown
             const staffSelect = document.getElementById('timeTrackingStaff');
@@ -6300,37 +6319,63 @@
             // Reset form
             document.getElementById('timeTrackingStaff').value = '';
             document.getElementById('timeTrackingDate').value = '';
-            document.getElementById('timeTrackingAmount').value = '';
+            document.getElementById('timeTrackingClaimsHours').value = '';
+            document.getElementById('timeTrackingClaimsMinutes').value = '';
             document.getElementById('timeTrackingHours').value = '';
+            document.getElementById('timeTrackingMinutes').value = '';
             document.getElementById('timeTrackingNotes').value = '';
+            document.getElementById('timeTrackingEditId').value = '';
 
             // Configure form based on type
             switch(type) {
                 case 'claims':
-                    title.textContent = '💰 Add Claims Record';
+                    title.textContent = editRecord ? '💰 Edit Claims Record' : '💰 Add Claims Record';
                     dateLabel.textContent = 'Claim Date *';
-                    amountGroup.style.display = 'block';
-                    amountLabel.textContent = 'Claim Amount ($)';
+                    claimsHoursGroup.style.display = 'block';
                     hoursGroup.style.display = 'none';
                     break;
                 case 'late':
-                    title.textContent = '⏱️ Add Late Arrival Record';
+                    title.textContent = editRecord ? '⏱️ Edit Late Arrival Record' : '⏱️ Add Late Arrival Record';
                     dateLabel.textContent = 'Late Arrival Date *';
-                    amountGroup.style.display = 'none';
+                    claimsHoursGroup.style.display = 'none';
                     hoursGroup.style.display = 'block';
+                    hoursLabel.textContent = 'Late Duration';
                     break;
                 case 'dayoff':
-                    title.textContent = '📅 Add Day Off Record';
+                    title.textContent = editRecord ? '📅 Edit Day Off Record' : '📅 Add Day Off Record';
                     dateLabel.textContent = 'Day Off Date *';
-                    amountGroup.style.display = 'none';
+                    claimsHoursGroup.style.display = 'none';
                     hoursGroup.style.display = 'none';
                     break;
                 case 'overtime':
-                    title.textContent = '⏰ Add Overtime Record';
+                    title.textContent = editRecord ? '⏰ Edit Overtime Record' : '⏰ Add Overtime Record';
                     dateLabel.textContent = 'Overtime Date *';
-                    amountGroup.style.display = 'none';
+                    claimsHoursGroup.style.display = 'none';
                     hoursGroup.style.display = 'block';
+                    hoursLabel.textContent = 'Overtime Hours';
                     break;
+            }
+
+            // If editing, populate the form with existing data
+            if (editRecord) {
+                document.getElementById('timeTrackingEditId').value = editRecord.id;
+                document.getElementById('timeTrackingStaff').value = editRecord.staffId;
+                document.getElementById('timeTrackingDate').value = editRecord.date;
+                document.getElementById('timeTrackingNotes').value = editRecord.notes || '';
+
+                if (type === 'claims' && editRecord.hours !== undefined) {
+                    const totalMinutes = Math.round(editRecord.hours * 60);
+                    const hours = Math.floor(totalMinutes / 60);
+                    const minutes = totalMinutes % 60;
+                    document.getElementById('timeTrackingClaimsHours').value = hours;
+                    document.getElementById('timeTrackingClaimsMinutes').value = minutes;
+                } else if ((type === 'late' || type === 'overtime') && editRecord.hours !== undefined) {
+                    const totalMinutes = Math.round(editRecord.hours * 60);
+                    const hours = Math.floor(totalMinutes / 60);
+                    const minutes = totalMinutes % 60;
+                    document.getElementById('timeTrackingHours').value = hours;
+                    document.getElementById('timeTrackingMinutes').value = minutes;
+                }
             }
 
             form.style.display = 'block';
@@ -6345,6 +6390,8 @@
         function saveTimeTrackingRecord() {
             if (!currentTimeTrackingType) return;
 
+            const editId = document.getElementById('timeTrackingEditId').value;
+            const isEditing = editId !== '';
             const staffId = document.getElementById('timeTrackingStaff').value;
             const date = document.getElementById('timeTrackingDate').value;
             const notes = document.getElementById('timeTrackingNotes').value;
@@ -6360,66 +6407,139 @@
                 return;
             }
 
-            const record = {
-                id: Date.now().toString(),
-                type: currentTimeTrackingType,
-                staffId: staffId,
-                staffName: staff.name,
-                staffDepartment: staff.department,
-                date: date,
-                notes: notes,
-                timestamp: new Date().toISOString()
-            };
-
-            // Add type-specific fields
+            // Calculate hours for claims (now using hours/minutes)
+            let hours = 0;
             if (currentTimeTrackingType === 'claims') {
-                const amount = parseFloat(document.getElementById('timeTrackingAmount').value) || 0;
-                record.amount = amount;
+                const claimsHours = parseInt(document.getElementById('timeTrackingClaimsHours').value) || 0;
+                const claimsMinutes = parseInt(document.getElementById('timeTrackingClaimsMinutes').value) || 0;
+                hours = claimsHours + (claimsMinutes / 60);
             } else if (currentTimeTrackingType === 'late' || currentTimeTrackingType === 'overtime') {
-                const hours = parseFloat(document.getElementById('timeTrackingHours').value) || 0;
-                record.hours = hours;
+                const inputHours = parseInt(document.getElementById('timeTrackingHours').value) || 0;
+                const inputMinutes = parseInt(document.getElementById('timeTrackingMinutes').value) || 0;
+                hours = inputHours + (inputMinutes / 60);
             }
 
-            timeTrackingRecords.push(record);
-            saveTimeTrackingRecordsToStorage();
-
-            // Sync to Google Sheets if enabled
-            if (CONFIG.SYNC_TIME_TRACKING_TO_SHEETS) {
-                saveTimeTrackingToSheets(record).catch(err => {
-                    console.error('Failed to sync time tracking to sheets:', err);
-                });
-            }
-
-            // Update staff data counters
-            const staffIndex = staffData.findIndex(s => s.trn === staffId);
-            if (staffIndex !== -1) {
-                switch(currentTimeTrackingType) {
-                    case 'claims':
-                        staffData[staffIndex].claims = (staffData[staffIndex].claims || 0) + 1;
-                        break;
-                    case 'late':
-                        staffData[staffIndex].late = (staffData[staffIndex].late || 0) + 1;
-                        break;
-                    case 'dayoff':
-                        staffData[staffIndex].dayOff = (staffData[staffIndex].dayOff || 0) + 1;
-                        break;
-                    case 'overtime':
-                        staffData[staffIndex].overTime = (staffData[staffIndex].overTime || 0) + (record.hours || 0);
-                        break;
+            if (isEditing) {
+                // Update existing record
+                const recordIndex = timeTrackingRecords.findIndex(r => r.id === editId);
+                if (recordIndex === -1) {
+                    showAlert('⚠️ Record not found');
+                    return;
                 }
+
+                const oldRecord = timeTrackingRecords[recordIndex];
+
+                // Revert old staff counters
+                const oldStaffIndex = staffData.findIndex(s => s.trn === oldRecord.staffId);
+                if (oldStaffIndex !== -1) {
+                    switch(oldRecord.type) {
+                        case 'claims':
+                            staffData[oldStaffIndex].claims = Math.max(0, (staffData[oldStaffIndex].claims || 0) - 1);
+                            break;
+                        case 'late':
+                            staffData[oldStaffIndex].late = Math.max(0, (staffData[oldStaffIndex].late || 0) - 1);
+                            break;
+                        case 'dayoff':
+                            staffData[oldStaffIndex].dayOff = Math.max(0, (staffData[oldStaffIndex].dayOff || 0) - 1);
+                            break;
+                        case 'overtime':
+                            staffData[oldStaffIndex].overTime = Math.max(0, (staffData[oldStaffIndex].overTime || 0) - (oldRecord.hours || 0));
+                            break;
+                    }
+                }
+
+                // Update the record
+                timeTrackingRecords[recordIndex] = {
+                    ...oldRecord,
+                    staffId: staffId,
+                    staffName: staff.name,
+                    staffDepartment: staff.department,
+                    date: date,
+                    notes: notes,
+                    hours: hours,
+                    updatedAt: new Date().toISOString()
+                };
+
+                // Update new staff counters
+                const newStaffIndex = staffData.findIndex(s => s.trn === staffId);
+                if (newStaffIndex !== -1) {
+                    switch(currentTimeTrackingType) {
+                        case 'claims':
+                            staffData[newStaffIndex].claims = (staffData[newStaffIndex].claims || 0) + 1;
+                            break;
+                        case 'late':
+                            staffData[newStaffIndex].late = (staffData[newStaffIndex].late || 0) + 1;
+                            break;
+                        case 'dayoff':
+                            staffData[newStaffIndex].dayOff = (staffData[newStaffIndex].dayOff || 0) + 1;
+                            break;
+                        case 'overtime':
+                            staffData[newStaffIndex].overTime = (staffData[newStaffIndex].overTime || 0) + hours;
+                            break;
+                    }
+                }
+
+                saveTimeTrackingRecordsToStorage();
+                saveStaffDataToLocalStorage();
+                hideTimeTrackingForm();
+                renderTimeTrackingRecords();
+                updateTimeTrackingStats();
+                showAlert(`✅ ${getTimeTrackingTypeName(currentTimeTrackingType)} record updated successfully`);
+            } else {
+                // Create new record
+                const record = {
+                    id: Date.now().toString(),
+                    type: currentTimeTrackingType,
+                    staffId: staffId,
+                    staffName: staff.name,
+                    staffDepartment: staff.department,
+                    date: date,
+                    notes: notes,
+                    hours: hours,
+                    timestamp: new Date().toISOString()
+                };
+
+                timeTrackingRecords.push(record);
+                saveTimeTrackingRecordsToStorage();
 
                 // Sync to Google Sheets if enabled
-                if (CONFIG.USE_GOOGLE_SHEETS) {
-                    updateInSheets(staffIndex, staffData[staffIndex]).catch(err => {
-                        console.error('Failed to sync to sheets:', err);
+                if (CONFIG.SYNC_TIME_TRACKING_TO_SHEETS) {
+                    saveTimeTrackingToSheets(record).catch(err => {
+                        console.error('Failed to sync time tracking to sheets:', err);
                     });
                 }
-            }
 
-            hideTimeTrackingForm();
-            renderTimeTrackingRecords();
-            updateTimeTrackingStats();
-            showAlert(`✅ ${getTimeTrackingTypeName(currentTimeTrackingType)} record added successfully`);
+                // Update staff data counters
+                const staffIndex = staffData.findIndex(s => s.trn === staffId);
+                if (staffIndex !== -1) {
+                    switch(currentTimeTrackingType) {
+                        case 'claims':
+                            staffData[staffIndex].claims = (staffData[staffIndex].claims || 0) + 1;
+                            break;
+                        case 'late':
+                            staffData[staffIndex].late = (staffData[staffIndex].late || 0) + 1;
+                            break;
+                        case 'dayoff':
+                            staffData[staffIndex].dayOff = (staffData[staffIndex].dayOff || 0) + 1;
+                            break;
+                        case 'overtime':
+                            staffData[staffIndex].overTime = (staffData[staffIndex].overTime || 0) + hours;
+                            break;
+                    }
+
+                    // Sync to Google Sheets if enabled
+                    if (CONFIG.USE_GOOGLE_SHEETS) {
+                        updateInSheets(staffIndex, staffData[staffIndex]).catch(err => {
+                            console.error('Failed to sync to sheets:', err);
+                        });
+                    }
+                }
+
+                hideTimeTrackingForm();
+                renderTimeTrackingRecords();
+                updateTimeTrackingStats();
+                showAlert(`✅ ${getTimeTrackingTypeName(currentTimeTrackingType)} record added successfully`);
+            }
         }
 
         function getTimeTrackingTypeName(type) {
@@ -6442,8 +6562,20 @@
             return icons[type] || '📝';
         }
 
+        function formatHoursMinutes(hours) {
+            if (!hours && hours !== 0) return '-';
+            const totalMinutes = Math.round(hours * 60);
+            const h = Math.floor(totalMinutes / 60);
+            const m = totalMinutes % 60;
+            if (h === 0 && m === 0) return '-';
+            if (h === 0) return `${m}m`;
+            if (m === 0) return `${h}h`;
+            return `${h}h ${m}m`;
+        }
+
         function renderTimeTrackingRecords() {
             const container = document.getElementById('timeTrackingRecordsList');
+            const isAdmin = currentUser && currentUser.role && currentUser.role.toLowerCase() === 'admin';
 
             if (timeTrackingRecords.length === 0) {
                 container.innerHTML = '<div style="padding: 20px; text-align: center; color: #718096;">No records yet. Click a button above to add your first record.</div>';
@@ -6453,18 +6585,27 @@
             // Sort by date (newest first)
             const sorted = [...timeTrackingRecords].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            let html = '<div style="overflow-x: auto;"><table class="print-table" style="margin: 0;"><thead><tr><th>Type</th><th>Staff Name</th><th>Department</th><th>Date</th><th>Details</th><th>Notes</th><th>Actions</th></tr></thead><tbody>';
+            let html = '<div style="overflow-x: auto;"><table class="print-table" style="margin: 0;"><thead><tr><th>Type</th><th>Staff Name</th><th>Department</th><th>Date</th><th>Hours</th><th>Notes</th><th>Actions</th></tr></thead><tbody>';
 
             sorted.forEach(record => {
                 const typeIcon = getTimeTrackingTypeIcon(record.type);
                 const typeName = getTimeTrackingTypeName(record.type);
 
+                // Display hours for all types (claims now uses hours instead of amount)
                 let details = '-';
-                if (record.type === 'claims' && record.amount) {
-                    details = `$${record.amount.toFixed(2)}`;
-                } else if ((record.type === 'late' || record.type === 'overtime') && record.hours) {
-                    details = `${record.hours} hrs`;
+                if (record.hours !== undefined && record.hours !== null) {
+                    details = formatHoursMinutes(record.hours);
+                } else if (record.amount !== undefined) {
+                    // Legacy support for old claims with amount - convert to display as hours
+                    details = `$${record.amount.toFixed(2)} (legacy)`;
                 }
+
+                // Build action buttons - Edit only for Admin
+                let actionButtons = '';
+                if (isAdmin) {
+                    actionButtons += `<button class="btn btn-primary" onclick="editTimeTrackingRecord('${record.id}')" style="padding: 6px 12px; font-size: 12px; margin-right: 6px;">Edit</button>`;
+                }
+                actionButtons += `<button class="btn btn-danger" onclick="deleteTimeTrackingRecord('${record.id}')" style="padding: 6px 12px; font-size: 12px;">Delete</button>`;
 
                 html += `
                     <tr data-record-id="${record.id}">
@@ -6474,8 +6615,8 @@
                         <td>${formatDate(record.date)}</td>
                         <td style="font-weight: bold;">${details}</td>
                         <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${record.notes || '-'}</td>
-                        <td>
-                            <button class="btn btn-danger" onclick="deleteTimeTrackingRecord('${record.id}')" style="padding: 6px 12px; font-size: 12px;">Delete</button>
+                        <td style="white-space: nowrap;">
+                            ${actionButtons}
                         </td>
                     </tr>
                 `;
@@ -6483,6 +6624,23 @@
 
             html += '</tbody></table></div>';
             container.innerHTML = html;
+        }
+
+        function editTimeTrackingRecord(recordId) {
+            // Only Admin can edit
+            if (!currentUser || !currentUser.role || currentUser.role.toLowerCase() !== 'admin') {
+                showAlert('⚠️ Only Admin users can edit records');
+                return;
+            }
+
+            const record = timeTrackingRecords.find(r => r.id === recordId);
+            if (!record) {
+                showAlert('⚠️ Record not found');
+                return;
+            }
+
+            // Open the form in edit mode
+            showTimeTrackingForm(record.type, record);
         }
 
         function deleteTimeTrackingRecord(recordId) {
@@ -6563,7 +6721,10 @@
             const dayoff = timeTrackingRecords.filter(r => r.type === 'dayoff');
             const overtime = timeTrackingRecords.filter(r => r.type === 'overtime');
 
-            document.getElementById('totalClaimsCount').textContent = claims.length;
+            // Calculate total claims hours
+            const totalClaimsHours = claims.reduce((sum, r) => sum + (r.hours || 0), 0);
+            document.getElementById('totalClaimsHours').textContent = totalClaimsHours.toFixed(1);
+
             document.getElementById('totalLateCount').textContent = late.length;
             document.getElementById('totalDayOffCount').textContent = dayoff.length;
 
