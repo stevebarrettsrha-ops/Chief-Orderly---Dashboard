@@ -2520,6 +2520,15 @@
 
                 <!-- Search and Filter Section -->
                 <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="margin: 0; color: #1e293b; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 20px;">🔍</span> Search & Filter
+                        </h3>
+                        <button onclick="clearLeaveFilters()" class="btn btn-secondary" style="padding: 8px 16px; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+                            <span>✕</span> Clear All Filters
+                        </button>
+                    </div>
+
                     <div style="margin-bottom: 15px;">
                         <div style="position: relative;">
                             <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px;">🔍</span>
@@ -2533,8 +2542,8 @@
                         </div>
                     </div>
 
-                    <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
-                        <div style="flex: 1; min-width: 150px;">
+                    <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;">
+                        <div style="flex: 1; min-width: 140px;">
                             <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 4px;">Month</label>
                             <select id="leaveMonthFilter" onchange="filterLeaves()" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; background: white; cursor: pointer;">
                                 <option value="">All Months</option>
@@ -2553,7 +2562,7 @@
                             </select>
                         </div>
 
-                        <div style="flex: 1; min-width: 120px;">
+                        <div style="flex: 1; min-width: 110px;">
                             <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 4px;">Year</label>
                             <select id="leaveYearFilter" onchange="filterLeaves()" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; background: white; cursor: pointer;">
                                 <option value="">All Years</option>
@@ -2571,18 +2580,27 @@
                             </select>
                         </div>
 
-                        <div style="flex: 1; min-width: 180px;">
+                        <div style="flex: 1; min-width: 160px;">
                             <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 4px;">Department</label>
                             <select id="leaveDepartmentFilter" onchange="filterLeaves()" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; background: white; cursor: pointer;">
                                 <option value="">All Departments</option>
                             </select>
                         </div>
 
-                        <div style="flex: 0 0 auto; align-self: flex-end;">
-                            <button onclick="clearLeaveFilters()" class="btn btn-secondary" style="padding: 10px 16px; font-size: 14px;">
-                                Clear Filters
-                            </button>
+                        <div style="flex: 1; min-width: 130px;">
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 4px;">Status</label>
+                            <select id="leaveStatusFilter" onchange="filterLeaves()" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; background: white; cursor: pointer;">
+                                <option value="">All Statuses</option>
+                                <option value="active">Active</option>
+                                <option value="upcoming">Upcoming</option>
+                                <option value="completed">Completed</option>
+                            </select>
                         </div>
+                    </div>
+
+                    <div id="activeFiltersDisplay" style="margin-top: 12px; display: none;">
+                        <span style="font-size: 13px; color: #64748b;">Active filters: </span>
+                        <span id="activeFiltersList" style="font-size: 13px; color: #3b82f6; font-weight: 500;"></span>
                     </div>
                 </div>
 
@@ -4778,17 +4796,21 @@
             const yearFilter = document.getElementById('leaveYearFilter')?.value || '';
             const typeFilter = document.getElementById('leaveTypeFilter')?.value || '';
             const departmentFilter = document.getElementById('leaveDepartmentFilter')?.value || '';
+            const statusFilter = document.getElementById('leaveStatusFilter')?.value || '';
 
             // Debug logging
             console.log('Rendering leaves. Total leave records:', leaveRecords.length);
             console.log('Staff data available:', staffData.length);
-            console.log('Filters - Month:', monthFilter, 'Year:', yearFilter, 'Type:', typeFilter, 'Dept:', departmentFilter);
+            console.log('Filters - Month:', monthFilter, 'Year:', yearFilter, 'Type:', typeFilter, 'Dept:', departmentFilter, 'Status:', statusFilter);
+
+            // Update active filters display
+            updateActiveFiltersDisplay(searchTerm, monthFilter, yearFilter, typeFilter, departmentFilter, statusFilter);
 
             const filteredLeaves = leaveRecords.filter(leave => {
                 const staff = staffData.find(s => s.trn === leave.staffId);
 
                 // If no staff found, still show the leave with partial info when not searching/filtering
-                const hasActiveFilters = searchTerm || monthFilter || yearFilter || typeFilter || departmentFilter;
+                const hasActiveFilters = searchTerm || monthFilter || yearFilter || typeFilter || departmentFilter || statusFilter;
                 if (!staff && !hasActiveFilters) {
                     return true; // Show orphaned leaves when not searching/filtering
                 }
@@ -4799,15 +4821,15 @@
                 const matchesSearch = !searchTerm ||
                     staff.name.toLowerCase().includes(searchTerm) ||
                     getLeaveTypeName(leave.leaveType).toLowerCase().includes(searchTerm) ||
-                    leave.status?.toLowerCase().includes(searchTerm) ||
+                    getLeaveStatus(leave.startDate, leave.endDate).toLowerCase().includes(searchTerm) ||
                     staff.department.toLowerCase().includes(searchTerm);
 
-                // Month filter - check if leave start date is in selected month
-                const leaveStartDate = new Date(leave.startDate);
-                const matchesMonth = !monthFilter || leaveStartDate.getMonth() === parseInt(monthFilter);
+                // Month filter - use parseLocalDate to avoid timezone issues
+                const leaveStartDate = parseLocalDate(leave.startDate);
+                const matchesMonth = !monthFilter || (leaveStartDate && leaveStartDate.getMonth() === parseInt(monthFilter));
 
-                // Year filter - check if leave start date is in selected year
-                const matchesYear = !yearFilter || leaveStartDate.getFullYear() === parseInt(yearFilter);
+                // Year filter - use parseLocalDate to avoid timezone issues
+                const matchesYear = !yearFilter || (leaveStartDate && leaveStartDate.getFullYear() === parseInt(yearFilter));
 
                 // Type filter
                 const matchesType = !typeFilter || leave.leaveType === typeFilter;
@@ -4815,7 +4837,11 @@
                 // Department filter
                 const matchesDepartment = !departmentFilter || staff.department === departmentFilter;
 
-                return matchesSearch && matchesMonth && matchesYear && matchesType && matchesDepartment;
+                // Status filter
+                const leaveStatus = getLeaveStatus(leave.startDate, leave.endDate);
+                const matchesStatus = !statusFilter || leaveStatus === statusFilter;
+
+                return matchesSearch && matchesMonth && matchesYear && matchesType && matchesDepartment && matchesStatus;
             })
             // Sort by most recently added (createdAt descending)
             .sort((a, b) => {
@@ -5024,14 +5050,43 @@
             const yearFilter = document.getElementById('leaveYearFilter');
             const typeFilter = document.getElementById('leaveTypeFilter');
             const deptFilter = document.getElementById('leaveDepartmentFilter');
+            const statusFilter = document.getElementById('leaveStatusFilter');
 
             if (searchInput) searchInput.value = '';
             if (monthFilter) monthFilter.value = '';
             if (yearFilter) yearFilter.value = '';
             if (typeFilter) typeFilter.value = '';
             if (deptFilter) deptFilter.value = '';
+            if (statusFilter) statusFilter.value = '';
 
             filterLeaves();
+        }
+
+        function updateActiveFiltersDisplay(search, month, year, type, dept, status) {
+            const display = document.getElementById('activeFiltersDisplay');
+            const list = document.getElementById('activeFiltersList');
+
+            if (!display || !list) return;
+
+            const filters = [];
+
+            if (search) filters.push(`Search: "${search}"`);
+            if (month) {
+                const months = ['January', 'February', 'March', 'April', 'May', 'June',
+                               'July', 'August', 'September', 'October', 'November', 'December'];
+                filters.push(`Month: ${months[parseInt(month)]}`);
+            }
+            if (year) filters.push(`Year: ${year}`);
+            if (type) filters.push(`Type: ${getLeaveTypeName(type)}`);
+            if (dept) filters.push(`Dept: ${dept}`);
+            if (status) filters.push(`Status: ${status.charAt(0).toUpperCase() + status.slice(1)}`);
+
+            if (filters.length > 0) {
+                display.style.display = 'block';
+                list.textContent = filters.join(' | ');
+            } else {
+                display.style.display = 'none';
+            }
         }
 
         function updateLeaveStats() {
