@@ -3452,7 +3452,9 @@
             const autoNotifications = [];
 
             leaveRecords.forEach(leave => {
-                const endDate = new Date(leave.endDate);
+                // Use parseLocalDate to avoid timezone issues
+                const endDate = parseLocalDate(leave.endDate);
+                if (!endDate) return;
                 endDate.setHours(0, 0, 0, 0);
 
                 const diffTime = endDate - today;
