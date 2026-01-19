@@ -2424,7 +2424,7 @@
                         <select class="dept-select" id="leaveDeptFilter" onchange="renderLeaveCalendar()">
                             <option value="">All Departments</option>
                         </select>
-                        <select class="dept-select" id="leaveTypeFilter" onchange="renderLeaveCalendar()">
+                        <select class="dept-select" id="leaveTypeFilterCalendar" onchange="renderLeaveCalendar()">
                             <option value="">All Leave Types</option>
                             <option value="sick">Sick Leave</option>
                             <option value="vacation">Vacation</option>
@@ -3999,7 +3999,7 @@
             document.getElementById('leaveCalendarTitle').textContent = `${monthNames[leaveCalendarMonth]} ${leaveCalendarYear}`;
             
             const deptFilter = document.getElementById('leaveDeptFilter')?.value || '';
-            const typeFilter = document.getElementById('leaveTypeFilter')?.value || '';
+            const typeFilter = document.getElementById('leaveTypeFilterCalendar')?.value || '';
 
             const firstDay = new Date(leaveCalendarYear, leaveCalendarMonth, 1).getDay();
             const daysInMonth = new Date(leaveCalendarYear, leaveCalendarMonth + 1, 0).getDate();
