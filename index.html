@@ -1933,6 +1933,19 @@
             .header {
                 padding: 15px;
             }
+
+            /* Leave filter section responsive */
+            #leaveListView > div:first-child + div + div + div + div {
+                padding: 15px;
+            }
+
+            #leaveListView > div:first-child + div + div + div + div > div:last-child {
+                flex-direction: column;
+            }
+
+            #leaveListView > div:first-child + div + div + div + div > div:last-child > div {
+                min-width: 100% !important;
+            }
         }
     </style>
 </head>
@@ -2505,14 +2518,72 @@
                     </div>
                 </div>
 
-                <div style="margin-bottom: 20px;">
-                    <input 
-                        type="text" 
-                        id="leaveSearchInput" 
-                        placeholder="Search leaves by staff name, type, or status..." 
-                        style="width: 100%; padding: 14px 14px 14px 45px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 15px;"
-                        oninput="filterLeaves()"
-                    >
+                <!-- Search and Filter Section -->
+                <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
+                    <div style="margin-bottom: 15px;">
+                        <div style="position: relative;">
+                            <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px;">🔍</span>
+                            <input
+                                type="text"
+                                id="leaveSearchInput"
+                                placeholder="Search leaves by staff name, type, or status..."
+                                style="width: 100%; padding: 14px 14px 14px 45px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 15px; background: white;"
+                                oninput="filterLeaves()"
+                            >
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+                        <div style="flex: 1; min-width: 150px;">
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 4px;">Month</label>
+                            <select id="leaveMonthFilter" onchange="filterLeaves()" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; background: white; cursor: pointer;">
+                                <option value="">All Months</option>
+                                <option value="0">January</option>
+                                <option value="1">February</option>
+                                <option value="2">March</option>
+                                <option value="3">April</option>
+                                <option value="4">May</option>
+                                <option value="5">June</option>
+                                <option value="6">July</option>
+                                <option value="7">August</option>
+                                <option value="8">September</option>
+                                <option value="9">October</option>
+                                <option value="10">November</option>
+                                <option value="11">December</option>
+                            </select>
+                        </div>
+
+                        <div style="flex: 1; min-width: 120px;">
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 4px;">Year</label>
+                            <select id="leaveYearFilter" onchange="filterLeaves()" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; background: white; cursor: pointer;">
+                                <option value="">All Years</option>
+                            </select>
+                        </div>
+
+                        <div style="flex: 1; min-width: 150px;">
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 4px;">Leave Type</label>
+                            <select id="leaveTypeFilter" onchange="filterLeaves()" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; background: white; cursor: pointer;">
+                                <option value="">All Types</option>
+                                <option value="sick">Sick Leave</option>
+                                <option value="vacation">Vacation Leave</option>
+                                <option value="dayoff">Day Off</option>
+                                <option value="dept">Departmental Leave</option>
+                            </select>
+                        </div>
+
+                        <div style="flex: 1; min-width: 180px;">
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 4px;">Department</label>
+                            <select id="leaveDepartmentFilter" onchange="filterLeaves()" style="width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; background: white; cursor: pointer;">
+                                <option value="">All Departments</option>
+                            </select>
+                        </div>
+
+                        <div style="flex: 0 0 auto; align-self: flex-end;">
+                            <button onclick="clearLeaveFilters()" class="btn btn-secondary" style="padding: 10px 16px; font-size: 14px;">
+                                Clear Filters
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="leaveGrid" class="leave-grid"></div>
@@ -3243,6 +3314,7 @@
                 // Ensure staff data is loaded for proper leave display
                 if (staffData.length === 0 && CONFIG.USE_GOOGLE_SHEETS) {
                     fetchFromSheets().then(() => {
+                        populateLeaveFilterDropdowns();
                         if (leaveCalendarView) {
                             updateLeaveDepartmentSelect();
                             renderLeaveCalendar();
@@ -3252,6 +3324,7 @@
                         }
                     }).catch(err => {
                         console.error('Failed to load staff data:', err);
+                        populateLeaveFilterDropdowns();
                         if (leaveCalendarView) {
                             updateLeaveDepartmentSelect();
                             renderLeaveCalendar();
@@ -3261,6 +3334,7 @@
                         }
                     });
                 } else {
+                    populateLeaveFilterDropdowns();
                     if (leaveCalendarView) {
                         updateLeaveDepartmentSelect();
                         renderLeaveCalendar();
@@ -4529,6 +4603,7 @@
                 // Add notification
                 addNotification(`New ${getLeaveTypeName(leaveType)} added for ${staffName}`, 'Leave Management');
 
+                populateLeaveFilterDropdowns();
                 renderLeaves();
                 updateLeaveStats();
                 toggleLeaveForm();
@@ -4569,6 +4644,7 @@
                             saveLeaveRecordsToLocalStorage();
                             console.log('Leave records loaded from Google Sheets');
                             if (currentView === 'leaves') {
+                                populateLeaveFilterDropdowns();
                                 renderLeaves();
                                 updateLeaveStats();
                             }
@@ -4592,6 +4668,7 @@
             }
             
             if (currentView === 'leaves') {
+                populateLeaveFilterDropdowns();
                 renderLeaves();
                 updateLeaveStats();
             }
@@ -4648,27 +4725,54 @@
 
         function renderLeaves() {
             const searchTerm = document.getElementById('leaveSearchInput')?.value?.toLowerCase() || '';
-            
+            const monthFilter = document.getElementById('leaveMonthFilter')?.value || '';
+            const yearFilter = document.getElementById('leaveYearFilter')?.value || '';
+            const typeFilter = document.getElementById('leaveTypeFilter')?.value || '';
+            const departmentFilter = document.getElementById('leaveDepartmentFilter')?.value || '';
+
             // Debug logging
             console.log('Rendering leaves. Total leave records:', leaveRecords.length);
             console.log('Staff data available:', staffData.length);
-            
+            console.log('Filters - Month:', monthFilter, 'Year:', yearFilter, 'Type:', typeFilter, 'Dept:', departmentFilter);
+
             const filteredLeaves = leaveRecords.filter(leave => {
                 const staff = staffData.find(s => s.trn === leave.staffId);
-                
-                // If no staff found, still show the leave with partial info
-                if (!staff && !searchTerm) {
-                    return true; // Show orphaned leaves when not searching
+
+                // If no staff found, still show the leave with partial info when not searching/filtering
+                const hasActiveFilters = searchTerm || monthFilter || yearFilter || typeFilter || departmentFilter;
+                if (!staff && !hasActiveFilters) {
+                    return true; // Show orphaned leaves when not searching/filtering
                 }
-                
-                if (!staff) return false; // Hide orphaned leaves when searching
-                
-                const matchesSearch = !searchTerm || 
+
+                if (!staff) return false; // Hide orphaned leaves when searching/filtering
+
+                // Search filter
+                const matchesSearch = !searchTerm ||
                     staff.name.toLowerCase().includes(searchTerm) ||
                     getLeaveTypeName(leave.leaveType).toLowerCase().includes(searchTerm) ||
-                    leave.status.toLowerCase().includes(searchTerm);
-                
-                return matchesSearch;
+                    leave.status?.toLowerCase().includes(searchTerm) ||
+                    staff.department.toLowerCase().includes(searchTerm);
+
+                // Month filter - check if leave start date is in selected month
+                const leaveStartDate = new Date(leave.startDate);
+                const matchesMonth = !monthFilter || leaveStartDate.getMonth() === parseInt(monthFilter);
+
+                // Year filter - check if leave start date is in selected year
+                const matchesYear = !yearFilter || leaveStartDate.getFullYear() === parseInt(yearFilter);
+
+                // Type filter
+                const matchesType = !typeFilter || leave.leaveType === typeFilter;
+
+                // Department filter
+                const matchesDepartment = !departmentFilter || staff.department === departmentFilter;
+
+                return matchesSearch && matchesMonth && matchesYear && matchesType && matchesDepartment;
+            })
+            // Sort by most recently added (createdAt descending)
+            .sort((a, b) => {
+                const dateA = new Date(a.createdAt || a.startDate);
+                const dateB = new Date(b.createdAt || b.startDate);
+                return dateB - dateA; // Most recent first
             });
             
             console.log('Filtered leaves to display:', filteredLeaves.length);
@@ -4811,6 +4915,69 @@
 
         function filterLeaves() {
             renderLeaves();
+        }
+
+        function populateLeaveFilterDropdowns() {
+            // Populate Year dropdown
+            const yearSelect = document.getElementById('leaveYearFilter');
+            if (yearSelect) {
+                const years = new Set();
+                const currentYear = new Date().getFullYear();
+
+                // Add years from leave records
+                leaveRecords.forEach(leave => {
+                    const year = new Date(leave.startDate).getFullYear();
+                    if (!isNaN(year)) years.add(year);
+                });
+
+                // Add current year and a few years around it if not present
+                for (let i = currentYear - 2; i <= currentYear + 1; i++) {
+                    years.add(i);
+                }
+
+                const sortedYears = Array.from(years).sort((a, b) => b - a); // Most recent first
+
+                yearSelect.innerHTML = '<option value="">All Years</option>';
+                sortedYears.forEach(year => {
+                    yearSelect.innerHTML += `<option value="${year}">${year}</option>`;
+                });
+            }
+
+            // Populate Department dropdown
+            const deptSelect = document.getElementById('leaveDepartmentFilter');
+            if (deptSelect) {
+                const departments = new Set();
+
+                // Get unique departments from staff data
+                staffData.forEach(staff => {
+                    if (staff.department) {
+                        departments.add(staff.department);
+                    }
+                });
+
+                const sortedDepts = Array.from(departments).sort();
+
+                deptSelect.innerHTML = '<option value="">All Departments</option>';
+                sortedDepts.forEach(dept => {
+                    deptSelect.innerHTML += `<option value="${dept}">${dept}</option>`;
+                });
+            }
+        }
+
+        function clearLeaveFilters() {
+            const searchInput = document.getElementById('leaveSearchInput');
+            const monthFilter = document.getElementById('leaveMonthFilter');
+            const yearFilter = document.getElementById('leaveYearFilter');
+            const typeFilter = document.getElementById('leaveTypeFilter');
+            const deptFilter = document.getElementById('leaveDepartmentFilter');
+
+            if (searchInput) searchInput.value = '';
+            if (monthFilter) monthFilter.value = '';
+            if (yearFilter) yearFilter.value = '';
+            if (typeFilter) typeFilter.value = '';
+            if (deptFilter) deptFilter.value = '';
+
+            filterLeaves();
         }
 
         function updateLeaveStats() {
