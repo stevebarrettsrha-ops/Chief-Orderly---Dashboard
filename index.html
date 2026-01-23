@@ -2800,6 +2800,17 @@
                         <label>Reason / Notes</label>
                         <textarea id="editLeaveReason" placeholder="Optional: Enter reason or additional notes..."></textarea>
                     </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>📎 Current Attachment</label>
+                        <div id="editLeaveCurrentAttachment" style="padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <span style="color: #64748b;">No attachment</span>
+                        </div>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>📎 Upload New Document (PDF)</label>
+                        <input type="file" id="editLeaveAttachment" accept=".pdf" style="padding: 8px;">
+                        <small style="color: #64748b; display: block; margin-top: 4px;">Optional: Upload supporting document (PDF only, max 5MB). This will replace any existing attachment.</small>
+                    </div>
                 </div>
                 <div class="form-actions">
                     <button class="btn btn-secondary" onclick="closeEditLeaveModal()">Cancel</button>
@@ -5570,6 +5581,39 @@
             document.getElementById('editLeaveEndDate').value = leave.endDate;
             document.getElementById('editLeaveReason').value = leave.reason || '';
 
+            // Display current attachment if exists
+            const attachmentDisplay = document.getElementById('editLeaveCurrentAttachment');
+            if (leave.attachment) {
+                const fileSizeKB = (leave.attachment.size / 1024).toFixed(1);
+                attachmentDisplay.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 20px;">📄</span>
+                            <div>
+                                <div style="font-weight: 500; color: #1e293b;">${leave.attachment.filename}</div>
+                                <div style="font-size: 12px; color: #64748b;">${fileSizeKB} KB</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" onclick="downloadLeaveAttachment('${leave.id}')" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">
+                                📥 Download
+                            </button>
+                            <button type="button" onclick="removeEditLeaveAttachment()" class="btn" style="padding: 6px 12px; font-size: 12px; background: #ef4444; color: white;">
+                                🗑️ Remove
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                attachmentDisplay.innerHTML = '<span style="color: #64748b;">No attachment</span>';
+            }
+
+            // Clear file input
+            document.getElementById('editLeaveAttachment').value = '';
+
+            // Reset remove flag
+            window.editLeaveRemoveAttachment = false;
+
             // Show modal
             document.getElementById('editLeaveModal').classList.add('active');
         }
@@ -5578,6 +5622,14 @@
             document.getElementById('editLeaveModal').classList.remove('active');
             window.currentEditLeaveIndex = null;
             window.currentEditLeaveId = null;
+            window.editLeaveRemoveAttachment = false;
+        }
+
+        function removeEditLeaveAttachment() {
+            window.editLeaveRemoveAttachment = true;
+            const attachmentDisplay = document.getElementById('editLeaveCurrentAttachment');
+            attachmentDisplay.innerHTML = '<span style="color: #ef4444;">⚠️ Attachment will be removed when you save</span>';
+            document.getElementById('editLeaveAttachment').value = '';
         }
 
         async function saveEditLeave() {
@@ -5586,6 +5638,7 @@
             const startDate = document.getElementById('editLeaveStartDate').value;
             const endDate = document.getElementById('editLeaveEndDate').value;
             const reason = document.getElementById('editLeaveReason').value.trim();
+            const fileInput = document.getElementById('editLeaveAttachment');
 
             if (!staffId || !leaveType || !startDate || !endDate) {
                 showAlert('⚠️ Please fill in all required fields');
@@ -5606,6 +5659,38 @@
             }
 
             try {
+                // Handle attachment logic
+                let attachment = leaveRecords[index].attachment; // Keep existing by default
+
+                // If user selected a new file, process it
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+
+                    // Validate file size (5MB limit)
+                    if (file.size > 5 * 1024 * 1024) {
+                        showAlert('⚠️ File size must be less than 5MB');
+                        return;
+                    }
+
+                    // Convert PDF to base64
+                    try {
+                        const base64 = await fileToBase64(file);
+                        attachment = {
+                            filename: file.name,
+                            data: base64,
+                            size: file.size,
+                            uploadedAt: new Date().toISOString()
+                        };
+                    } catch (error) {
+                        console.error('Error reading file:', error);
+                        showAlert('⚠️ Failed to upload file');
+                        return;
+                    }
+                } else if (window.editLeaveRemoveAttachment) {
+                    // User wants to remove existing attachment
+                    attachment = null;
+                }
+
                 const updatedLeave = {
                     ...leaveRecords[index],
                     staffId,
@@ -5613,6 +5698,7 @@
                     startDate,
                     endDate,
                     reason,
+                    attachment,
                     status: getLeaveStatus(startDate, endDate),
                     updatedAt: new Date().toISOString()
                 };
