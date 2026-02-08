@@ -931,6 +931,182 @@
             display: block;
         }
 
+        /* PMAS Dashboard Styles */
+        .pmas-upload-area {
+            border: 3px dashed #cbd5e0;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+            cursor: pointer;
+        }
+
+        .pmas-upload-area:hover,
+        .pmas-upload-area.dragover {
+            border-color: #667eea;
+            background: #ebf4ff;
+        }
+
+        .pmas-upload-area input[type="file"] {
+            display: none;
+        }
+
+        .pmas-upload-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .pmas-employee-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .pmas-employee-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+        }
+
+        .pmas-employee-header:hover {
+            opacity: 0.95;
+        }
+
+        .pmas-employee-header h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .pmas-employee-header .dept-badge {
+            background: rgba(255,255,255,0.25);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .pmas-employee-body {
+            padding: 16px 20px;
+            display: none;
+        }
+
+        .pmas-employee-body.open {
+            display: block;
+        }
+
+        .pmas-doc-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .pmas-doc-card {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .pmas-doc-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .pmas-doc-card .doc-icon {
+            font-size: 36px;
+            margin-bottom: 8px;
+        }
+
+        .pmas-doc-card .doc-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #2d3748;
+            word-break: break-word;
+            margin-bottom: 4px;
+        }
+
+        .pmas-doc-card .doc-date {
+            font-size: 11px;
+            color: #a0aec0;
+        }
+
+        .pmas-doc-card .doc-delete {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 12px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .pmas-doc-card:hover .doc-delete {
+            display: flex;
+        }
+
+        .pmas-search-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .pmas-search-bar input,
+        .pmas-search-bar select {
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .pmas-search-bar input:focus,
+        .pmas-search-bar select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .pmas-upload-form {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .pmas-upload-form .form-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .pmas-upload-form .form-row > * {
+            flex: 1;
+            min-width: 200px;
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -2540,6 +2716,10 @@
                     <span>🔔</span>
                     <span>Reminders</span>
                 </button>
+                <button class="nav-tab" data-view="pmas">
+                    <span>📁</span>
+                    <span>PMAS</span>
+                </button>
             </div>
         </div>
 
@@ -3613,6 +3793,69 @@
             </div>
         </div>
 
+        <!-- PMAS (Performance Management System) View -->
+        <div id="pmasView" class="view-section">
+            <div class="header">
+                <h2 style="color: #1a202c; font-size: 24px; margin-bottom: 8px;">PMAS - Performance Management System</h2>
+                <p style="color: #718096; font-size: 14px;">Upload and manage PDF documents for employee performance reviews</p>
+            </div>
+
+            <div class="stats-grid" style="margin-bottom: 24px;">
+                <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="stat-value" id="pmasTotalDocs">0</div>
+                    <div class="stat-label">Total Documents</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);">
+                    <div class="stat-value" id="pmasEmployeesWithDocs">0</div>
+                    <div class="stat-label">Employees With Docs</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <div class="stat-value" id="pmasEmployeesWithoutDocs">0</div>
+                    <div class="stat-label">Employees Without Docs</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <div class="stat-value" id="pmasTotalEmployees">0</div>
+                    <div class="stat-label">Total Employees</div>
+                </div>
+            </div>
+
+            <!-- Upload Form -->
+            <div class="pmas-upload-form">
+                <h3 style="margin: 0 0 16px 0; color: #1a202c;">Upload PDF Document</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #4a5568; font-size: 14px;">Select Employee</label>
+                        <select id="pmasEmployeeSelect" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px;">
+                            <option value="">-- Select Employee --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #4a5568; font-size: 14px;">Document Label (optional)</label>
+                        <input type="text" id="pmasDocLabel" placeholder="e.g. 2026 Annual Review" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px;">
+                    </div>
+                </div>
+                <div class="pmas-upload-area" id="pmasUploadArea" onclick="document.getElementById('pmasFileInput').click();">
+                    <input type="file" id="pmasFileInput" accept=".pdf" multiple onchange="handlePmasFileSelect(event)">
+                    <div class="pmas-upload-icon">📄</div>
+                    <p style="font-weight: 600; color: #4a5568; margin-bottom: 4px;">Click to select PDF files or drag & drop here</p>
+                    <p style="color: #a0aec0; font-size: 13px;">PDF files only - Max 10MB per file</p>
+                </div>
+            </div>
+
+            <!-- Search / Filter -->
+            <div class="pmas-search-bar">
+                <input type="text" id="pmasSearch" placeholder="Search by employee name or TRN..." oninput="renderPmasDocuments()">
+                <select id="pmasDeptFilter" onchange="renderPmasDocuments()">
+                    <option value="">All Departments</option>
+                </select>
+            </div>
+
+            <!-- Documents by Employee -->
+            <div id="pmasDocumentsContainer">
+                <!-- Rendered dynamically -->
+            </div>
+        </div>
+
         <div id="printArea" class="print-area"></div>
     </div>
 
@@ -3687,6 +3930,9 @@
         let reminderCalendarMonth = new Date().getMonth();
         let reminderCalendarYear = new Date().getFullYear();
         let selectedReminderDate = null;
+
+        // PMAS variables
+        let pmasDocuments = [];
 
         // ============================================
         // INITIALIZATION
@@ -4081,6 +4327,13 @@
                 renderReminders();
                 updateReminderStats();
                 checkReminderNotifications();
+            } else if (view === 'pmas') {
+                document.getElementById('pmasView').classList.add('active');
+                loadPmasDocuments();
+                populatePmasEmployeeDropdown();
+                populatePmasDeptFilter();
+                renderPmasDocuments();
+                updatePmasStats();
             }
         }
 
@@ -7587,6 +7840,7 @@
                 saveLeaveRecordsToLocalStorage();
                 localStorage.setItem('hospitalScheduleData', JSON.stringify(scheduleData));
                 saveTimeTrackingRecordsToStorage();
+                savePmasDocuments();
                 showAlert('✅ All data saved successfully to browser storage!');
                 console.log('All data saved:', {
                     staff: staffData.length,
@@ -8171,6 +8425,290 @@
         window.addEventListener('DOMContentLoaded', () => {
             loadTimeTrackingRecords();
         });
+
+        // ============================================
+        // PMAS (Performance Management System) FUNCTIONS
+        // ============================================
+
+        function loadPmasDocuments() {
+            const stored = localStorage.getItem('pmasDocuments');
+            if (stored) {
+                try {
+                    pmasDocuments = JSON.parse(stored);
+                } catch (e) {
+                    console.error('Error loading PMAS documents:', e);
+                    pmasDocuments = [];
+                }
+            }
+        }
+
+        function savePmasDocuments() {
+            try {
+                localStorage.setItem('pmasDocuments', JSON.stringify(pmasDocuments));
+            } catch (e) {
+                console.error('Error saving PMAS documents:', e);
+                if (e.name === 'QuotaExceededError') {
+                    showAlert('Storage full. Try removing some documents before uploading more.');
+                }
+            }
+        }
+
+        function populatePmasEmployeeDropdown() {
+            const select = document.getElementById('pmasEmployeeSelect');
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">-- Select Employee --</option>';
+            const sorted = [...staffData].sort((a, b) => a.name.localeCompare(b.name));
+            sorted.forEach(staff => {
+                const opt = document.createElement('option');
+                opt.value = staff.trn;
+                opt.textContent = staff.name + ' (' + staff.trn + ') - ' + staff.department;
+                select.appendChild(opt);
+            });
+            if (currentVal) select.value = currentVal;
+        }
+
+        function populatePmasDeptFilter() {
+            const select = document.getElementById('pmasDeptFilter');
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">All Departments</option>';
+            const depts = [...new Set(staffData.map(s => s.department).filter(Boolean))].sort();
+            depts.forEach(dept => {
+                const opt = document.createElement('option');
+                opt.value = dept;
+                opt.textContent = dept;
+                select.appendChild(opt);
+            });
+            if (currentVal) select.value = currentVal;
+        }
+
+        function handlePmasFileSelect(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+
+            const employeeTrn = document.getElementById('pmasEmployeeSelect').value;
+            if (!employeeTrn) {
+                showAlert('Please select an employee before uploading.');
+                event.target.value = '';
+                return;
+            }
+
+            const label = document.getElementById('pmasDocLabel').value.trim();
+            let uploadCount = 0;
+
+            Array.from(files).forEach(file => {
+                if (file.type !== 'application/pdf') {
+                    showAlert('Only PDF files are allowed. Skipped: ' + file.name);
+                    return;
+                }
+                if (file.size > 10 * 1024 * 1024) {
+                    showAlert('File too large (max 10MB). Skipped: ' + file.name);
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const doc = {
+                        id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+                        staffId: employeeTrn,
+                        filename: file.name,
+                        label: label || file.name.replace('.pdf', ''),
+                        data: e.target.result,
+                        size: file.size,
+                        uploadedAt: new Date().toISOString()
+                    };
+                    pmasDocuments.push(doc);
+                    uploadCount++;
+
+                    if (uploadCount === files.length || uploadCount === Array.from(files).filter(f => f.type === 'application/pdf' && f.size <= 10*1024*1024).length) {
+                        savePmasDocuments();
+                        renderPmasDocuments();
+                        updatePmasStats();
+                        showAlert('Uploaded ' + uploadCount + ' document(s) successfully.');
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+
+            event.target.value = '';
+            document.getElementById('pmasDocLabel').value = '';
+        }
+
+        // Drag and drop support for PMAS upload area
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('pmasUploadArea');
+            if (uploadArea) {
+                uploadArea.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    uploadArea.classList.add('dragover');
+                });
+                uploadArea.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                });
+                uploadArea.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                    const fileInput = document.getElementById('pmasFileInput');
+                    fileInput.files = e.dataTransfer.files;
+                    handlePmasFileSelect({ target: fileInput });
+                });
+            }
+        });
+
+        function renderPmasDocuments() {
+            const container = document.getElementById('pmasDocumentsContainer');
+            const searchTerm = (document.getElementById('pmasSearch').value || '').toLowerCase();
+            const deptFilter = document.getElementById('pmasDeptFilter').value;
+
+            // Group documents by employee
+            const employeeMap = {};
+            staffData.forEach(staff => {
+                if (searchTerm && !staff.name.toLowerCase().includes(searchTerm) && !staff.trn.toLowerCase().includes(searchTerm)) return;
+                if (deptFilter && staff.department !== deptFilter) return;
+                employeeMap[staff.trn] = {
+                    staff: staff,
+                    docs: []
+                };
+            });
+
+            pmasDocuments.forEach(doc => {
+                if (employeeMap[doc.staffId]) {
+                    employeeMap[doc.staffId].docs.push(doc);
+                }
+            });
+
+            // Sort: employees with docs first, then alphabetical
+            const entries = Object.values(employeeMap).sort((a, b) => {
+                if (b.docs.length !== a.docs.length) return b.docs.length - a.docs.length;
+                return a.staff.name.localeCompare(b.staff.name);
+            });
+
+            if (entries.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:40px; color:#a0aec0;"><p style="font-size:18px;">No employees found</p><p style="font-size:14px; margin-top:8px;">Add staff members first or adjust your search filters.</p></div>';
+                return;
+            }
+
+            let html = '';
+            entries.forEach(entry => {
+                const staff = entry.staff;
+                const docs = entry.docs.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+                const docCountLabel = docs.length === 0 ? 'No documents' : docs.length + ' document' + (docs.length > 1 ? 's' : '');
+
+                html += '<div class="pmas-employee-section">';
+                html += '<div class="pmas-employee-header" onclick="togglePmasEmployee(this)">';
+                html += '<div style="display:flex; align-items:center; gap:12px;">';
+                html += '<span style="font-size:20px;">' + (docs.length > 0 ? '📂' : '📁') + '</span>';
+                html += '<div><h3>' + escapeHtml(staff.name) + ' <span style="opacity:0.7; font-weight:400;">(' + escapeHtml(staff.trn) + ')</span></h3>';
+                html += '<span style="font-size:12px; opacity:0.8;">' + docCountLabel + '</span></div>';
+                html += '</div>';
+                html += '<div style="display:flex; align-items:center; gap:10px;">';
+                html += '<span class="dept-badge">' + escapeHtml(staff.department) + '</span>';
+                html += '<span style="font-size:18px; transition: transform 0.3s;">&#9660;</span>';
+                html += '</div>';
+                html += '</div>';
+
+                html += '<div class="pmas-employee-body">';
+                if (docs.length === 0) {
+                    html += '<p style="color: #a0aec0; text-align:center; padding: 20px;">No PDF documents uploaded yet for this employee.</p>';
+                } else {
+                    html += '<div class="pmas-doc-list">';
+                    docs.forEach(doc => {
+                        const date = new Date(doc.uploadedAt);
+                        const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                        const sizeStr = (doc.size / 1024).toFixed(1) + ' KB';
+                        html += '<div class="pmas-doc-card" onclick="openPmasPrintPreview(\'' + doc.id + '\')" title="Click to open in print preview">';
+                        html += '<button class="doc-delete" onclick="event.stopPropagation(); deletePmasDocument(\'' + doc.id + '\')" title="Delete document">&times;</button>';
+                        html += '<div class="doc-icon">📄</div>';
+                        html += '<div class="doc-name">' + escapeHtml(doc.label || doc.filename) + '</div>';
+                        html += '<div class="doc-date">' + dateStr + '</div>';
+                        html += '<div class="doc-date">' + sizeStr + '</div>';
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                }
+                html += '</div>';
+                html += '</div>';
+            });
+
+            container.innerHTML = html;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function togglePmasEmployee(headerEl) {
+            const body = headerEl.nextElementSibling;
+            const arrow = headerEl.querySelector('span:last-child');
+            body.classList.toggle('open');
+            if (body.classList.contains('open')) {
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function openPmasPrintPreview(docId) {
+            const doc = pmasDocuments.find(d => d.id === docId);
+            if (!doc) {
+                showAlert('Document not found.');
+                return;
+            }
+
+            // Open PDF in a new window and trigger print
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                showAlert('Pop-up blocked. Please allow pop-ups for this site.');
+                return;
+            }
+
+            const staff = staffData.find(s => s.trn === doc.staffId);
+            const staffName = staff ? staff.name : 'Unknown';
+
+            printWindow.document.write(
+                '<!DOCTYPE html><html><head><title>PMAS - ' + escapeHtml(doc.label || doc.filename) + ' - ' + escapeHtml(staffName) + '</title>' +
+                '<style>' +
+                'body { margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; font-family: -apple-system, sans-serif; }' +
+                '.toolbar { background: #1a202c; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }' +
+                '.toolbar h3 { margin: 0; font-size: 14px; }' +
+                '.toolbar button { background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; }' +
+                '.toolbar button:hover { background: #5a6fd6; }' +
+                'iframe { flex: 1; border: none; width: 100%; }' +
+                '</style></head><body>' +
+                '<div class="toolbar">' +
+                '<h3>' + escapeHtml(staffName) + ' - ' + escapeHtml(doc.label || doc.filename) + '</h3>' +
+                '<button onclick="document.getElementById(\'pdfFrame\').contentWindow.print()">Print Document</button>' +
+                '</div>' +
+                '<iframe id="pdfFrame" src="' + doc.data + '"></iframe>' +
+                '<script>window.addEventListener("load", function() { setTimeout(function() { try { document.getElementById("pdfFrame").contentWindow.print(); } catch(e) { window.print(); } }, 800); });<\/script>' +
+                '</body></html>'
+            );
+            printWindow.document.close();
+        }
+
+        function deletePmasDocument(docId) {
+            if (!confirm('Are you sure you want to delete this document?')) return;
+            pmasDocuments = pmasDocuments.filter(d => d.id !== docId);
+            savePmasDocuments();
+            renderPmasDocuments();
+            updatePmasStats();
+            showAlert('Document deleted.');
+        }
+
+        function updatePmasStats() {
+            const totalDocs = pmasDocuments.length;
+            const employeesWithDocs = new Set(pmasDocuments.map(d => d.staffId)).size;
+            const totalEmployees = staffData.length;
+            const employeesWithoutDocs = totalEmployees - employeesWithDocs;
+
+            document.getElementById('pmasTotalDocs').textContent = totalDocs;
+            document.getElementById('pmasEmployeesWithDocs').textContent = employeesWithDocs;
+            document.getElementById('pmasEmployeesWithoutDocs').textContent = Math.max(0, employeesWithoutDocs);
+            document.getElementById('pmasTotalEmployees').textContent = totalEmployees;
+        }
 
     </script>
 
