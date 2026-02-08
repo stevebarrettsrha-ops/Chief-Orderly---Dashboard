@@ -8698,13 +8698,13 @@
                 '.toolbar button { background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; }' +
                 '.toolbar button:hover { background: #5a6fd6; }' +
                 'iframe { flex: 1; border: none; width: 100%; }' +
+                '@media print { .toolbar { display: none !important; } iframe { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; } }' +
                 '</style></head><body>' +
                 '<div class="toolbar">' +
                 '<h3>' + escapeHtml(staffName) + ' - ' + escapeHtml(doc.label || doc.filename) + '</h3>' +
-                '<button onclick="document.getElementById(\'pdfFrame\').contentWindow.print()">Print Document</button>' +
+                '<button onclick="window.print()">Print Document</button>' +
                 '</div>' +
                 '<iframe id="pdfFrame" src="' + doc.data + '"></iframe>' +
-                '<script>window.addEventListener("load", function() { setTimeout(function() { try { document.getElementById("pdfFrame").contentWindow.print(); } catch(e) { window.print(); } }, 800); });<\/script>' +
                 '</body></html>'
             );
             printWindow.document.close();
