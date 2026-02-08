@@ -8495,7 +8495,22 @@
             const label = document.getElementById('pmasDocLabel').value.trim();
             let uploadCount = 0;
 
-            Array.from(files).forEach(file => {
+            // Create a static copy of the FileList before clearing the input,
+            // since FileList is a live reference that empties when input is cleared
+            const fileArray = Array.from(files);
+            const validFiles = fileArray.filter(f => f.type === 'application/pdf' && f.size <= 10 * 1024 * 1024);
+            let expectedCount = validFiles.length;
+
+            // Clear input and label now (safe because we have a static copy)
+            event.target.value = '';
+            document.getElementById('pmasDocLabel').value = '';
+
+            if (expectedCount === 0) {
+                showAlert('No valid PDF files selected. Only PDF files under 10MB are accepted.');
+                return;
+            }
+
+            fileArray.forEach(file => {
                 if (file.type !== 'application/pdf') {
                     showAlert('Only PDF files are allowed. Skipped: ' + file.name);
                     return;
@@ -8519,7 +8534,16 @@
                     pmasDocuments.push(doc);
                     uploadCount++;
 
-                    if (uploadCount === files.length || uploadCount === Array.from(files).filter(f => f.type === 'application/pdf' && f.size <= 10*1024*1024).length) {
+                    if (uploadCount === expectedCount) {
+                        savePmasDocuments();
+                        renderPmasDocuments();
+                        updatePmasStats();
+                        showAlert('Uploaded ' + uploadCount + ' document(s) successfully.');
+                    }
+                };
+                reader.onerror = function() {
+                    expectedCount--;
+                    if (uploadCount === expectedCount) {
                         savePmasDocuments();
                         renderPmasDocuments();
                         updatePmasStats();
@@ -8528,9 +8552,6 @@
                 };
                 reader.readAsDataURL(file);
             });
-
-            event.target.value = '';
-            document.getElementById('pmasDocLabel').value = '';
         }
 
         // Drag and drop support for PMAS upload area
