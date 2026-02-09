@@ -8697,14 +8697,14 @@
                 '.toolbar h3 { margin: 0; font-size: 14px; }' +
                 '.toolbar button { background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; }' +
                 '.toolbar button:hover { background: #5a6fd6; }' +
-                'iframe { flex: 1; border: none; width: 100%; }' +
-                '@media print { .toolbar { display: none !important; } iframe { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; } }' +
+                'embed { flex: 1; border: none; width: 100%; height: 100%; }' +
+                '@media print { .toolbar { display: none !important; } embed { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; } }' +
                 '</style></head><body>' +
                 '<div class="toolbar">' +
                 '<h3>' + escapeHtml(staffName) + ' - ' + escapeHtml(doc.label || doc.filename) + '</h3>' +
                 '<button onclick="window.print()">Print Document</button>' +
                 '</div>' +
-                '<iframe id="pdfFrame" src="' + doc.data + '"></iframe>' +
+                '<embed id="pdfFrame" src="' + doc.data + '" type="application/pdf" />' +
                 '</body></html>'
             );
             printWindow.document.close();
