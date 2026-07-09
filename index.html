@@ -2622,6 +2622,348 @@
                 min-width: 100% !important;
             }
         }
+        /* ============================================
+           SIDEBAR LAYOUT
+           ============================================ */
+        body.app-mode {
+            padding: 0;
+        }
+
+        body.app-mode .container#dashboardContainer {
+            max-width: none;
+            margin: 0;
+            padding: 25px 30px 40px calc(272px + 30px);
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 272px;
+            background: #1e2536;
+            color: #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            z-index: 1500;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-brand .main-icon {
+            width: 42px;
+            height: 42px;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand h1 {
+            font-size: 17px;
+            color: white;
+            line-height: 1.2;
+        }
+
+        .sidebar-brand p {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 3px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 12px 20px;
+        }
+
+        .sidebar-section-label {
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #64748b;
+            font-weight: 700;
+            margin: 18px 8px 8px;
+        }
+
+        .sidebar .nav-tab {
+            width: 100%;
+            justify-content: flex-start;
+            padding: 12px 14px;
+            border-radius: 10px;
+            color: #cbd5e1;
+            background: transparent;
+            margin-bottom: 4px;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .sidebar .nav-tab:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
+
+        .sidebar .nav-tab.active {
+            background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+        }
+
+        .sidebar-footer {
+            padding: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .sidebar-user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .sidebar-user-role {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .sidebar-logout-btn {
+            width: 100%;
+            background: rgba(220, 53, 69, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(220, 53, 69, 0.35);
+            padding: 9px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-logout-btn:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1400;
+        }
+
+        /* TOP BAR */
+        .topbar {
+            background: white;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .topbar-left h2 {
+            font-size: 22px;
+            color: #1a202c;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .sidebar-toggle {
+            display: none;
+            border: none;
+            background: #1e2536;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* FISCAL PERIOD CONTROLS */
+        .fy-selector {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 4px;
+        }
+
+        .fy-selector button {
+            border: none;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .fy-selector button:hover {
+            transform: translateY(-1px);
+        }
+
+        .fy-selector .fy-label {
+            font-weight: 700;
+            color: #1a202c;
+            font-size: 14px;
+            min-width: 108px;
+            text-align: center;
+        }
+
+        .quarter-selector {
+            display: flex;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .quarter-btn {
+            border: none;
+            background: transparent;
+            color: #718096;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .quarter-btn:hover {
+            color: #1a202c;
+            background: #e2e8f0;
+        }
+
+        .quarter-btn.active {
+            background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+            color: white;
+        }
+
+        /* STAFF MONTHLY REPORTS VIEW */
+        .sr-controls {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        .sr-field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 6px;
+        }
+
+        .sr-field select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .sr-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .sr-preview-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .sr-empty {
+            background: white;
+            border-radius: 12px;
+            padding: 50px 20px;
+            text-align: center;
+            color: #718096;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 1024px) {
+            body.app-mode .container#dashboardContainer {
+                padding: 15px;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-backdrop.visible {
+                display: block;
+            }
+
+            .sidebar-toggle {
+                display: flex;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2662,43 +3004,29 @@
 
     <!-- DASHBOARD (Hidden until login) -->
     <div class="container" id="dashboardContainer" style="display: none;">
-        <!-- Main Navigation Header -->
-        <div class="nav-header">
-            <div class="nav-top">
-                <div class="nav-title">
-                    <div class="main-icon">🏥</div>
-                    <div>
-                        <h1>Hospital Orderlies Management System</h1>
-                        <p style="color: #718096; font-size: 14px; margin-top: 4px;">Complete Staff Monitoring & Analytics</p>
-                    </div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <button onclick="saveAllData()" class="save-data-btn" title="Save all data to browser storage">
-                        💾 Save
-                    </button>
-                    <button onclick="recalculateStaffCounters()" class="sync-data-btn" title="Recalculate staff counters from leave records">
-                        🔄 Sync
-                    </button>
-                    <div class="notification-bell" onclick="toggleNotifications()">
-                        <div class="notification-bell-icon">🔔</div>
-                        <div class="notification-badge" id="notificationBadge" style="display: none;">0</div>
-                    </div>
-                    <div class="user-info" id="userInfo"></div>
+        <!-- Side Panel Navigation -->
+        <aside class="sidebar" id="appSidebar">
+            <div class="sidebar-brand">
+                <div class="main-icon">🏥</div>
+                <div>
+                    <h1>Chief Orderly</h1>
+                    <p>Hospital Orderlies Management</p>
                 </div>
             </div>
-            
-            <div class="nav-tabs">
+            <nav class="sidebar-nav">
+                <div class="sidebar-section-label">Main</div>
                 <button class="nav-tab active" data-view="monitor">
                     <span>👥</span>
                     <span>Staff Monitor</span>
                 </button>
-                <button class="nav-tab" data-view="leaves">
-                    <span>📋</span>
-                    <span>Leave Management</span>
-                </button>
                 <button class="nav-tab" data-view="analytics">
                     <span>📊</span>
                     <span>Analytics</span>
+                </button>
+                <div class="sidebar-section-label">Management</div>
+                <button class="nav-tab" data-view="leaves">
+                    <span>📋</span>
+                    <span>Leave Management</span>
                 </button>
                 <button class="nav-tab" data-view="schedule">
                     <span>📅</span>
@@ -2708,10 +3036,16 @@
                     <span>⏰</span>
                     <span>Time Tracking</span>
                 </button>
+                <div class="sidebar-section-label">Reporting</div>
+                <button class="nav-tab" data-view="staffreports">
+                    <span>🧾</span>
+                    <span>Staff Monthly Reports</span>
+                </button>
                 <button class="nav-tab" data-view="reports">
                     <span>📄</span>
-                    <span>Reports</span>
+                    <span>Reports & Tools</span>
                 </button>
+                <div class="sidebar-section-label">Records</div>
                 <button class="nav-tab" data-view="reminders">
                     <span>🔔</span>
                     <span>Reminders</span>
@@ -2720,6 +3054,53 @@
                     <span>📁</span>
                     <span>PMAS</span>
                 </button>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar" id="sidebarUserAvatar">?</div>
+                    <div>
+                        <div class="sidebar-user-name" id="sidebarUserName">Not signed in</div>
+                        <div class="sidebar-user-role" id="sidebarUserRole"></div>
+                    </div>
+                </div>
+                <button class="sidebar-logout-btn" onclick="handleLogout()">Logout</button>
+            </div>
+        </aside>
+        <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar(false)"></div>
+
+        <!-- Top Bar -->
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="sidebar-toggle" onclick="toggleSidebar()" title="Menu">☰</button>
+                <div>
+                    <h2 id="topbarTitle">Staff Monitor</h2>
+                    <p id="topbarPeriodLabel" style="color: #718096; font-size: 12px; margin-top: 2px;"></p>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div class="fy-selector" title="Fiscal year (April – March)">
+                    <button onclick="changeFiscalYear(-1)" title="Previous fiscal year">◀</button>
+                    <span class="fy-label" id="fiscalYearLabel">FY</span>
+                    <button onclick="changeFiscalYear(1)" title="Next fiscal year">▶</button>
+                </div>
+                <div class="quarter-selector" id="quarterSelector">
+                    <button class="quarter-btn active" data-quarter="0" onclick="setQuarter(0)" title="Full fiscal year (Apr – Mar)">Full Year</button>
+                    <button class="quarter-btn" data-quarter="1" onclick="setQuarter(1)" title="Quarter 1 (Apr – Jun)">Q1</button>
+                    <button class="quarter-btn" data-quarter="2" onclick="setQuarter(2)" title="Quarter 2 (Jul – Sep)">Q2</button>
+                    <button class="quarter-btn" data-quarter="3" onclick="setQuarter(3)" title="Quarter 3 (Oct – Dec)">Q3</button>
+                    <button class="quarter-btn" data-quarter="4" onclick="setQuarter(4)" title="Quarter 4 (Jan – Mar)">Q4</button>
+                </div>
+                <button onclick="saveAllData()" class="save-data-btn" title="Save all data to browser storage">
+                    💾 Save
+                </button>
+                <button onclick="recalculateStaffCounters()" class="sync-data-btn" title="Recalculate staff counters from leave records">
+                    🔄 Sync
+                </button>
+                <div class="notification-bell" onclick="toggleNotifications()">
+                    <div class="notification-bell-icon">🔔</div>
+                    <div class="notification-badge" id="notificationBadge" style="display: none;">0</div>
+                </div>
+                <div class="user-info" id="userInfo"></div>
             </div>
         </div>
 
@@ -3578,6 +3959,50 @@
             <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="handleFileImport(event)">
         </div>
 
+        <!-- STAFF MONTHLY REPORTS VIEW -->
+        <div id="staffreportsView" class="view-section">
+            <div class="header">
+                <h2 style="color: #1a202c; font-size: 24px; margin-bottom: 8px;">Staff Monthly Reports</h2>
+                <p style="color: #718096; font-size: 14px;">Generate a monthly report for any staff member, or for all staff at once</p>
+            </div>
+
+            <div class="sr-controls">
+                <div class="sr-field">
+                    <label for="srStaffSelect">Staff Member</label>
+                    <select id="srStaffSelect">
+                        <option value="all">👥 All Staff</option>
+                    </select>
+                </div>
+                <div class="sr-field">
+                    <label for="srMonthSelect">Report Month</label>
+                    <select id="srMonthSelect"></select>
+                </div>
+                <div class="sr-field">
+                    <label for="srDeptSelect">Department</label>
+                    <select id="srDeptSelect">
+                        <option value="">All Departments</option>
+                    </select>
+                </div>
+                <div class="sr-actions">
+                    <button class="btn btn-primary" onclick="generateStaffMonthlyReport(false)">
+                        <span>📊</span>
+                        <span>Generate Report</span>
+                    </button>
+                    <button class="btn btn-success" onclick="generateStaffMonthlyReport(true)">
+                        <span>🖨️</span>
+                        <span>Generate & Print</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="staffReportPreview">
+                <div class="sr-empty">
+                    <div style="font-size: 40px; margin-bottom: 12px;">🧾</div>
+                    <p>Select a staff member (or All Staff) and a month, then click <strong>Generate Report</strong>.</p>
+                </div>
+            </div>
+        </div>
+
         <!-- TIME TRACKING VIEW -->
         <div id="timetrackingView" class="view-section">
             <div class="header">
@@ -3935,6 +4360,170 @@
         let pmasDocuments = [];
 
         // ============================================
+        // FISCAL YEAR / REPORTING PERIOD
+        // Fiscal year runs April 1 – March 31.
+        // Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar.
+        // ============================================
+
+        function getDefaultFiscalYearStart() {
+            const now = new Date();
+            return now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
+        }
+
+        let currentFiscalYearStart = parseInt(localStorage.getItem('fiscalYearStart'), 10);
+        if (isNaN(currentFiscalYearStart)) currentFiscalYearStart = getDefaultFiscalYearStart();
+        let currentQuarter = 0; // 0 = full fiscal year, 1-4 = fiscal quarter
+
+        function getFiscalYearLabel(startYear) {
+            return `FY ${startYear}/${startYear + 1}`;
+        }
+
+        function getPeriodRange() {
+            const fy = currentFiscalYearStart;
+            if (currentQuarter === 0) {
+                return {
+                    start: new Date(fy, 3, 1),
+                    end: new Date(fy + 1, 2, 31, 23, 59, 59, 999),
+                    label: `${getFiscalYearLabel(fy)} (Apr ${fy} – Mar ${fy + 1})`
+                };
+            }
+            const startMonth = 3 + (currentQuarter - 1) * 3;
+            const start = new Date(fy, startMonth, 1);
+            const end = new Date(fy, startMonth + 3, 0, 23, 59, 59, 999);
+            const quarterNames = ['Apr – Jun', 'Jul – Sep', 'Oct – Dec', 'Jan – Mar'];
+            return {
+                start,
+                end,
+                label: `${getFiscalYearLabel(fy)} • Q${currentQuarter} (${quarterNames[currentQuarter - 1]})`
+            };
+        }
+
+        function isDateInRange(dateStr, range) {
+            if (!dateStr) return false;
+            const d = parseLocalDate(dateStr);
+            return d >= range.start && d <= range.end;
+        }
+
+        // Number of leave days that fall inside the given range (clips
+        // leaves that only partially overlap the period)
+        function overlapDaysInRange(startDateStr, endDateStr, range) {
+            const start = parseLocalDate(startDateStr);
+            const end = parseLocalDate(endDateStr);
+            const s = start > range.start ? start : range.start;
+            const e = end < range.end ? end : range.end;
+            if (e < s) return 0;
+            return Math.ceil((e - s) / (1000 * 60 * 60 * 24)) + 1;
+        }
+
+        function hasDatedRecords() {
+            return leaveRecords.length > 0 || timeTrackingRecords.length > 0;
+        }
+
+        // Compute a staff member's counters for a date range from the dated
+        // leave and time-tracking records. Falls back to the stored lifetime
+        // counters when no dated records exist at all (legacy data).
+        function getStaffStatsForRange(staff, range) {
+            if (!hasDatedRecords()) {
+                const stats = {
+                    dayOff: staff.dayOff || 0,
+                    sickLeave: staff.sickLeave || 0,
+                    claims: staff.claims || 0,
+                    departmentalLeave: staff.departmentalLeave || 0,
+                    overTime: staff.overTime || 0,
+                    late: staff.late || 0,
+                    vacationLeave: staff.vacationLeave || 0
+                };
+                stats.total = stats.dayOff + stats.sickLeave + stats.departmentalLeave + stats.vacationLeave;
+                return stats;
+            }
+
+            const stats = { dayOff: 0, sickLeave: 0, claims: 0, departmentalLeave: 0, overTime: 0, late: 0, vacationLeave: 0 };
+
+            leaveRecords.forEach(leave => {
+                if (leave.staffId !== staff.trn) return;
+                const days = overlapDaysInRange(leave.startDate, leave.endDate, range);
+                if (days <= 0) return;
+                switch (leave.leaveType) {
+                    case 'sick': stats.sickLeave += days; break;
+                    case 'vacation': stats.vacationLeave += days; break;
+                    case 'dayoff': stats.dayOff += days; break;
+                    case 'dept': stats.departmentalLeave += days; break;
+                }
+            });
+
+            timeTrackingRecords.forEach(rec => {
+                if (rec.staffId !== staff.trn || !isDateInRange(rec.date, range)) return;
+                switch (rec.type) {
+                    case 'claims': stats.claims += 1; break;
+                    case 'late': stats.late += 1; break;
+                    case 'dayoff': stats.dayOff += 1; break;
+                    case 'overtime': stats.overTime += (rec.hours || 0); break;
+                }
+            });
+
+            stats.overTime = Math.round(stats.overTime * 10) / 10;
+            stats.total = stats.dayOff + stats.sickLeave + stats.departmentalLeave + stats.vacationLeave;
+            return stats;
+        }
+
+        // Staff stats for the currently selected fiscal year / quarter
+        function getStaffPeriodStats(staff) {
+            return getStaffStatsForRange(staff, getPeriodRange());
+        }
+
+        function getReportPeriodLabel() {
+            return hasDatedRecords() ? getPeriodRange().label : 'All-time totals';
+        }
+
+        function changeFiscalYear(delta) {
+            currentFiscalYearStart += delta;
+            localStorage.setItem('fiscalYearStart', currentFiscalYearStart);
+            updatePeriodUI();
+            refreshPeriodViews();
+        }
+
+        function setQuarter(quarter) {
+            currentQuarter = quarter;
+            document.querySelectorAll('.quarter-btn').forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.getAttribute('data-quarter'), 10) === quarter);
+            });
+            updatePeriodUI();
+            refreshPeriodViews();
+        }
+
+        function updatePeriodUI() {
+            const fyLabel = document.getElementById('fiscalYearLabel');
+            if (fyLabel) fyLabel.textContent = getFiscalYearLabel(currentFiscalYearStart);
+            const periodLabel = document.getElementById('topbarPeriodLabel');
+            if (periodLabel) {
+                periodLabel.textContent = hasDatedRecords()
+                    ? 'Showing data for ' + getPeriodRange().label
+                    : 'Showing all-time totals (no dated records yet — add leave or time tracking records to enable period filtering)';
+            }
+            populateSrMonthSelect();
+        }
+
+        function refreshPeriodViews() {
+            if (currentView === 'monitor') {
+                renderStaff();
+                updateMonitorStats();
+            } else if (currentView === 'analytics') {
+                updateAnalyticsMetrics();
+                createCharts();
+                renderDepartments();
+            }
+        }
+
+        function toggleSidebar(force) {
+            const sidebar = document.getElementById('appSidebar');
+            if (!sidebar) return;
+            const open = typeof force === 'boolean' ? force : !sidebar.classList.contains('open');
+            sidebar.classList.toggle('open', open);
+            const backdrop = document.getElementById('sidebarBackdrop');
+            if (backdrop) backdrop.classList.toggle('visible', open);
+        }
+
+        // ============================================
         // INITIALIZATION
         // ============================================
 
@@ -3964,7 +4553,9 @@
 
             loadScheduleData();
             loadLeaveRecords();
-            
+
+            updatePeriodUI();
+
             setInterval(checkNotifications, 60000);
         });
 
@@ -4168,6 +4759,16 @@
             const userInfo = document.getElementById('userInfo');
             if (userInfo) userInfo.innerHTML = userHTML;
 
+            // Sidebar user block + app layout
+            document.body.classList.add('app-mode');
+            const avatar = document.getElementById('sidebarUserAvatar');
+            const sidebarName = document.getElementById('sidebarUserName');
+            const sidebarRole = document.getElementById('sidebarUserRole');
+            if (avatar) avatar.textContent = (currentUser.displayName || '?').charAt(0).toUpperCase();
+            if (sidebarName) sidebarName.textContent = currentUser.displayName;
+            if (sidebarRole) sidebarRole.textContent = currentUser.role;
+            updatePeriodUI();
+
             const addStaffBtn = document.getElementById('addStaffBtn');
             if (addStaffBtn) {
                 if (!hasExportPrivileges()) {
@@ -4203,6 +4804,8 @@
                     comprehensive: null
                 };
 
+                document.body.classList.remove('app-mode');
+                toggleSidebar(false);
                 document.getElementById('dashboardContainer').style.display = 'none';
                 document.getElementById('loginPage').style.display = 'flex';
                 document.getElementById('loginForm').reset();
@@ -4230,9 +4833,25 @@
         // VIEW SWITCHING
         // ============================================
 
+        const VIEW_TITLES = {
+            monitor: 'Staff Monitor',
+            leaves: 'Leave Management',
+            analytics: 'Analytics',
+            schedule: 'Schedule',
+            timetracking: 'Time Tracking',
+            reports: 'Reports & Tools',
+            staffreports: 'Staff Monthly Reports',
+            reminders: 'Reminders',
+            pmas: 'PMAS Documents'
+        };
+
         function switchView(view) {
             currentView = view;
-            
+
+            const topbarTitle = document.getElementById('topbarTitle');
+            if (topbarTitle) topbarTitle.textContent = VIEW_TITLES[view] || '';
+            toggleSidebar(false);
+
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 if (tab.getAttribute('data-view') === view) {
                     tab.classList.add('active');
@@ -4334,6 +4953,9 @@
                 populatePmasDeptFilter();
                 renderPmasDocuments();
                 updatePmasStats();
+            } else if (view === 'staffreports') {
+                document.getElementById('staffreportsView').classList.add('active');
+                initStaffReportsView();
             }
         }
 
@@ -5406,9 +6028,10 @@
 
             grid.innerHTML = filteredData.map((staff, index) => {
                 const actualIndex = staffData.indexOf(staff);
-                const totalDays = calculateTotalDays(staff);
+                const stats = getStaffPeriodStats(staff);
+                const totalDays = stats.total;
                 const statusClass = getStatusClass(totalDays);
-                
+
                 return `
                     <div class="staff-card">
                         <div class="card-actions">
@@ -5432,18 +6055,18 @@
                             <div class="detail-row"><span class="detail-label">📞 Phone:</span><span class="detail-value">${staff.phone || 'Not provided'}</span></div>
                             <div class="detail-row"><span class="detail-label">🚨 Emergency:</span><span class="detail-value">${staff.emergencyContact || 'Not provided'}</span></div>
                             <div class="detail-row"><span class="detail-label">🏠 Address:</span><span class="detail-value" style="white-space: normal;">${staff.address || 'Not provided'}</span></div>
-                            <div class="detail-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e2e8f0;"><span class="detail-label" style="font-weight: bold;">Absence Tracking</span></div>
-                            <div class="detail-row"><span class="detail-label">Day Off:</span><span class="detail-value">${staff.dayOff}</span></div>
-                            <div class="detail-row"><span class="detail-label">Sick Leave:</span><span class="detail-value">${staff.sickLeave}</span></div>
-                            <div class="detail-row"><span class="detail-label">Claims:</span><span class="detail-value">${staff.claims}</span></div>
-                            <div class="detail-row"><span class="detail-label">Dept. Leave:</span><span class="detail-value">${staff.departmentalLeave}</span></div>
-                            <div class="detail-row"><span class="detail-label">Over-Time:</span><span class="detail-value">${staff.overTime}</span></div>
-                            <div class="detail-row"><span class="detail-label">Late:</span><span class="detail-value">${staff.late}</span></div>
-                            <div class="detail-row"><span class="detail-label">Vacation:</span><span class="detail-value">${staff.vacationLeave}</span></div>
+                            <div class="detail-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e2e8f0;"><span class="detail-label" style="font-weight: bold;">Absence Tracking (${getReportPeriodLabel()})</span></div>
+                            <div class="detail-row"><span class="detail-label">Day Off:</span><span class="detail-value">${stats.dayOff}</span></div>
+                            <div class="detail-row"><span class="detail-label">Sick Leave:</span><span class="detail-value">${stats.sickLeave}</span></div>
+                            <div class="detail-row"><span class="detail-label">Claims:</span><span class="detail-value">${stats.claims}</span></div>
+                            <div class="detail-row"><span class="detail-label">Dept. Leave:</span><span class="detail-value">${stats.departmentalLeave}</span></div>
+                            <div class="detail-row"><span class="detail-label">Over-Time:</span><span class="detail-value">${stats.overTime}</span></div>
+                            <div class="detail-row"><span class="detail-label">Late:</span><span class="detail-value">${stats.late}</span></div>
+                            <div class="detail-row"><span class="detail-label">Vacation:</span><span class="detail-value">${stats.vacationLeave}</span></div>
                         </div>
                         <div class="card-footer" onclick="toggleDetails(${actualIndex})">
                             <div class="footer-item"><span>📅</span><span>Total: ${totalDays}</span></div>
-                            <div class="footer-item"><span>⏰</span><span>OT: ${staff.overTime}</span></div>
+                            <div class="footer-item"><span>⏰</span><span>OT: ${stats.overTime}</span></div>
                         </div>
                     </div>
                 `;
@@ -5456,7 +6079,7 @@
 
         function updateMonitorStats() {
             const totalStaff = staffData.length;
-            const totalAbsences = staffData.reduce((sum, staff) => sum + calculateTotalDays(staff), 0);
+            const totalAbsences = staffData.reduce((sum, staff) => sum + getStaffPeriodStats(staff).total, 0);
             const avgAbsences = totalStaff > 0 ? Math.round(totalAbsences / totalStaff) : 0;
             document.getElementById('monitorTotalStaff').textContent = totalStaff;
             document.getElementById('monitorTotalAbsences').textContent = totalAbsences;
@@ -6740,9 +7363,8 @@
         function updateAnalyticsMetrics() {
             const totalStaff = staffData.length;
             const departments = [...new Set(staffData.map(s => s.department))];
-            const totalAbsences = staffData.reduce((sum, s) => 
-                sum + s.dayOff + s.sickLeave + s.departmentalLeave + s.vacationLeave, 0);
-            const totalOvertime = staffData.reduce((sum, s) => sum + s.overTime, 0);
+            const totalAbsences = staffData.reduce((sum, s) => sum + getStaffPeriodStats(s).total, 0);
+            const totalOvertime = Math.round(staffData.reduce((sum, s) => sum + getStaffPeriodStats(s).overTime, 0) * 10) / 10;
 
             document.getElementById('totalStaff').textContent = totalStaff;
             document.getElementById('totalDepartments').textContent = departments.length;
@@ -6789,8 +7411,7 @@
         function createAbsencesBarChart() {
             const deptAbsences = {};
             staffData.forEach(s => {
-                const total = s.dayOff + s.sickLeave + s.departmentalLeave + s.vacationLeave;
-                deptAbsences[s.department] = (deptAbsences[s.department] || 0) + total;
+                deptAbsences[s.department] = (deptAbsences[s.department] || 0) + getStaffPeriodStats(s).total;
             });
 
             const ctx = document.getElementById('absencesBarChart').getContext('2d');
@@ -6824,7 +7445,7 @@
         function createOvertimeBarChart() {
             const deptOvertime = {};
             staffData.forEach(s => {
-                deptOvertime[s.department] = (deptOvertime[s.department] || 0) + s.overTime;
+                deptOvertime[s.department] = (deptOvertime[s.department] || 0) + getStaffPeriodStats(s).overTime;
             });
 
             const ctx = document.getElementById('overtimeBarChart').getContext('2d');
@@ -6858,7 +7479,7 @@
         function createLateBarChart() {
             const deptLate = {};
             staffData.forEach(s => {
-                deptLate[s.department] = (deptLate[s.department] || 0) + s.late;
+                deptLate[s.department] = (deptLate[s.department] || 0) + getStaffPeriodStats(s).late;
             });
 
             const ctx = document.getElementById('lateBarChart').getContext('2d');
@@ -6891,31 +7512,33 @@
 
         function createComprehensiveChart() {
             const departments = [...new Set(staffData.map(s => s.department))];
+            const deptStats = departments.map(dept =>
+                staffData.filter(s => s.department === dept).map(s => getStaffPeriodStats(s)));
             const datasets = [
                 {
                     label: 'Days Off',
-                    data: departments.map(dept => staffData.filter(s => s.department === dept).reduce((sum, s) => sum + s.dayOff, 0)),
+                    data: deptStats.map(list => list.reduce((sum, st) => sum + st.dayOff, 0)),
                     backgroundColor: '#10b981',
                     borderColor: '#059669',
                     borderWidth: 2
                 },
                 {
                     label: 'Sick Leave',
-                    data: departments.map(dept => staffData.filter(s => s.department === dept).reduce((sum, s) => sum + s.sickLeave, 0)),
+                    data: deptStats.map(list => list.reduce((sum, st) => sum + st.sickLeave, 0)),
                     backgroundColor: '#ef4444',
                     borderColor: '#dc2626',
                     borderWidth: 2
                 },
                 {
                     label: 'Dept. Leave',
-                    data: departments.map(dept => staffData.filter(s => s.department === dept).reduce((sum, s) => sum + s.departmentalLeave, 0)),
+                    data: deptStats.map(list => list.reduce((sum, st) => sum + st.departmentalLeave, 0)),
                     backgroundColor: '#0ea5e9',
                     borderColor: '#0284c7',
                     borderWidth: 2
                 },
                 {
                     label: 'Vacation',
-                    data: departments.map(dept => staffData.filter(s => s.department === dept).reduce((sum, s) => sum + s.vacationLeave, 0)),
+                    data: deptStats.map(list => list.reduce((sum, st) => sum + st.vacationLeave, 0)),
                     backgroundColor: '#a855f7',
                     borderColor: '#9333ea',
                     borderWidth: 2
@@ -6948,9 +7571,10 @@
 
             grid.innerHTML = departments.map(dept => {
                 const deptStaff = staffData.filter(s => s.department === dept);
-                const totalAbsences = deptStaff.reduce((sum, s) => sum + s.dayOff + s.sickLeave + s.departmentalLeave + s.vacationLeave, 0);
-                const totalOvertime = deptStaff.reduce((sum, s) => sum + s.overTime, 0);
-                const totalLate = deptStaff.reduce((sum, s) => sum + s.late, 0);
+                const deptStats = deptStaff.map(s => getStaffPeriodStats(s));
+                const totalAbsences = deptStats.reduce((sum, st) => sum + st.total, 0);
+                const totalOvertime = Math.round(deptStats.reduce((sum, st) => sum + st.overTime, 0) * 10) / 10;
+                const totalLate = deptStats.reduce((sum, st) => sum + st.late, 0);
                 const avgAbsences = Math.round(totalAbsences / deptStaff.length);
 
                 return `
@@ -6984,9 +7608,10 @@
 
         function openDepartmentModal(departmentName) {
             const deptStaff = staffData.filter(s => s.department === departmentName);
-            const totalAbsences = deptStaff.reduce((sum, s) => sum + s.dayOff + s.sickLeave + s.departmentalLeave + s.vacationLeave, 0);
-            const totalOvertime = deptStaff.reduce((sum, s) => sum + s.overTime, 0);
-            const totalLate = deptStaff.reduce((sum, s) => sum + s.late, 0);
+            const deptStatsList = deptStaff.map(s => getStaffPeriodStats(s));
+            const totalAbsences = deptStatsList.reduce((sum, st) => sum + st.total, 0);
+            const totalOvertime = Math.round(deptStatsList.reduce((sum, st) => sum + st.overTime, 0) * 10) / 10;
+            const totalLate = deptStatsList.reduce((sum, st) => sum + st.late, 0);
             const avgAbsences = Math.round(totalAbsences / deptStaff.length);
 
             document.getElementById('departmentModalTitle').textContent = `${departmentName} - Detailed Overview`;
@@ -7020,19 +7645,20 @@
                 <div class="staff-list">
             `;
 
-            deptStaff.forEach(staff => {
-                const totalDays = staff.dayOff + staff.sickLeave + staff.departmentalLeave + staff.vacationLeave;
+            deptStaff.forEach((staff, i) => {
+                const st = deptStatsList[i];
+                const totalDays = st.total;
                 content += `
                     <div class="staff-list-item">
                         <h4>${staff.name} - TRN: ${staff.trn} <span style="background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; margin-left: 10px;">${staff.role || 'Staff'}</span></h4>
                         <div class="staff-detail-grid">
-                            <div class="staff-detail-item"><span style="color: #718096;">Day Off:</span><span style="font-weight: 600;">${staff.dayOff}</span></div>
-                            <div class="staff-detail-item"><span style="color: #718096;">Sick Leave:</span><span style="font-weight: 600;">${staff.sickLeave}</span></div>
-                            <div class="staff-detail-item"><span style="color: #718096;">Claims:</span><span style="font-weight: 600;">${staff.claims}</span></div>
-                            <div class="staff-detail-item"><span style="color: #718096;">Dept Leave:</span><span style="font-weight: 600;">${staff.departmentalLeave}</span></div>
-                            <div class="staff-detail-item"><span style="color: #718096;">Overtime:</span><span style="font-weight: 600;">${staff.overTime}</span></div>
-                            <div class="staff-detail-item"><span style="color: #718096;">Late:</span><span style="font-weight: 600;">${staff.late}</span></div>
-                            <div class="staff-detail-item"><span style="color: #718096;">Vacation:</span><span style="font-weight: 600;">${staff.vacationLeave}</span></div>
+                            <div class="staff-detail-item"><span style="color: #718096;">Day Off:</span><span style="font-weight: 600;">${st.dayOff}</span></div>
+                            <div class="staff-detail-item"><span style="color: #718096;">Sick Leave:</span><span style="font-weight: 600;">${st.sickLeave}</span></div>
+                            <div class="staff-detail-item"><span style="color: #718096;">Claims:</span><span style="font-weight: 600;">${st.claims}</span></div>
+                            <div class="staff-detail-item"><span style="color: #718096;">Dept Leave:</span><span style="font-weight: 600;">${st.departmentalLeave}</span></div>
+                            <div class="staff-detail-item"><span style="color: #718096;">Overtime:</span><span style="font-weight: 600;">${st.overTime}</span></div>
+                            <div class="staff-detail-item"><span style="color: #718096;">Late:</span><span style="font-weight: 600;">${st.late}</span></div>
+                            <div class="staff-detail-item"><span style="color: #718096;">Vacation:</span><span style="font-weight: 600;">${st.vacationLeave}</span></div>
                             <div class="staff-detail-item"><span style="color: #718096;">Total Days:</span><span style="font-weight: bold; color: ${totalDays > 50 ? '#ef4444' : totalDays > 30 ? '#f59e0b' : '#10b981'};">${totalDays}</span></div>
                         </div>
                     </div>
@@ -7410,25 +8036,25 @@
         function generateIndividualStaffReport(index) {
             closeStaffSelectionModal();
             const staff = staffData[index];
-            const totalDays = calculateTotalDays(staff);
+            const stats = getStaffPeriodStats(staff);
             document.getElementById('printArea').innerHTML = `
                 <div class="print-header">
                     <h1>🏥 Individual Staff Report</h1>
-                    <p>Generated on ${new Date().toLocaleDateString()}</p>
+                    <p>Generated on ${new Date().toLocaleDateString()} • Period: ${getReportPeriodLabel()}</p>
                 </div>
                 <h2>${staff.name}</h2>
                 <p><strong>TRN:</strong> ${staff.trn} | <strong>Department:</strong> ${staff.department} | <strong>Role:</strong> ${staff.role || 'Staff'}</p>
                 <table class="print-table">
                     <tr><th>Metric</th><th>Value</th></tr>
                     <tr><td>Role</td><td>${staff.role || 'Staff'}</td></tr>
-                    <tr><td>Days Off</td><td>${staff.dayOff}</td></tr>
-                    <tr><td>Sick Leave</td><td>${staff.sickLeave}</td></tr>
-                    <tr><td>Claims</td><td>${staff.claims}</td></tr>
-                    <tr><td>Departmental Leave</td><td>${staff.departmentalLeave}</td></tr>
-                    <tr><td>Overtime</td><td>${staff.overTime}</td></tr>
-                    <tr><td>Late</td><td>${staff.late}</td></tr>
-                    <tr><td>Vacation</td><td>${staff.vacationLeave}</td></tr>
-                    <tr><td><strong>Total Absence Days</strong></td><td><strong>${totalDays}</strong></td></tr>
+                    <tr><td>Days Off</td><td>${stats.dayOff}</td></tr>
+                    <tr><td>Sick Leave</td><td>${stats.sickLeave}</td></tr>
+                    <tr><td>Claims</td><td>${stats.claims}</td></tr>
+                    <tr><td>Departmental Leave</td><td>${stats.departmentalLeave}</td></tr>
+                    <tr><td>Overtime</td><td>${stats.overTime}</td></tr>
+                    <tr><td>Late</td><td>${stats.late}</td></tr>
+                    <tr><td>Vacation</td><td>${stats.vacationLeave}</td></tr>
+                    <tr><td><strong>Total Absence Days</strong></td><td><strong>${stats.total}</strong></td></tr>
                 </table>
             `;
             window.print();
@@ -7439,17 +8065,17 @@
                 showAlert('⚠️ No staff data available');
                 return;
             }
-            const totalAbsences = staffData.reduce((sum, s) => sum + calculateTotalDays(s), 0);
+            const totalAbsences = staffData.reduce((sum, s) => sum + getStaffPeriodStats(s).total, 0);
             document.getElementById('printArea').innerHTML = `
                 <div class="print-header">
                     <h1>📋 Total Staff Report</h1>
-                    <p>Generated on ${new Date().toLocaleDateString()}</p>
+                    <p>Generated on ${new Date().toLocaleDateString()} • Period: ${getReportPeriodLabel()}</p>
                 </div>
                 <p><strong>Total Staff:</strong> ${staffData.length} | <strong>Total Absences:</strong> ${totalAbsences}</p>
                 <table class="print-table">
                     <thead><tr><th>Name</th><th>TRN</th><th>Department</th><th>Role</th><th>Total Days</th></tr></thead>
                     <tbody>
-                        ${staffData.map(staff => `<tr><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td>${calculateTotalDays(staff)}</td></tr>`).join('')}
+                        ${staffData.map(staff => `<tr><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td>${getStaffPeriodStats(staff).total}</td></tr>`).join('')}
                     </tbody>
                 </table>
             `;
@@ -7466,15 +8092,16 @@
             let reportContent = `
                 <div class="print-header">
                     <h1>🏥 Departmental Performance Report</h1>
-                    <p>Generated on ${new Date().toLocaleDateString()}</p>
+                    <p>Generated on ${new Date().toLocaleDateString()} • Period: ${getReportPeriodLabel()}</p>
                 </div>
             `;
 
             departments.forEach(dept => {
                 const deptStaff = staffData.filter(s => s.department === dept);
-                const totalAbsences = deptStaff.reduce((sum, s) => sum + calculateTotalDays(s), 0);
-                const totalOvertime = deptStaff.reduce((sum, s) => sum + s.overTime, 0);
-                const totalLate = deptStaff.reduce((sum, s) => sum + s.late, 0);
+                const deptStats = deptStaff.map(s => getStaffPeriodStats(s));
+                const totalAbsences = deptStats.reduce((sum, st) => sum + st.total, 0);
+                const totalOvertime = Math.round(deptStats.reduce((sum, st) => sum + st.overTime, 0) * 10) / 10;
+                const totalLate = deptStats.reduce((sum, st) => sum + st.late, 0);
                 const avgAbsences = Math.round(totalAbsences / deptStaff.length);
 
                 reportContent += `
@@ -7494,7 +8121,7 @@
                         <table class="print-table">
                             <thead><tr><th>Name</th><th>TRN</th><th>Role</th><th>Total Absences</th><th>Overtime</th><th>Late</th></tr></thead>
                             <tbody>
-                                ${deptStaff.map(staff => `<tr><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.role || 'Staff'}</td><td>${calculateTotalDays(staff)}</td><td>${staff.overTime}</td><td>${staff.late}</td></tr>`).join('')}
+                                ${deptStaff.map((staff, i) => `<tr><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.role || 'Staff'}</td><td>${deptStats[i].total}</td><td>${deptStats[i].overTime}</td><td>${deptStats[i].late}</td></tr>`).join('')}
                             </tbody>
                         </table>
                     </div>
@@ -7511,12 +8138,13 @@
                 return;
             }
 
-            const staffWithSickLeave = staffData.filter(s => s.sickLeave > 0);
-            const totalSickLeave = staffData.reduce((sum, s) => sum + s.sickLeave, 0);
+            const rows = staffData.map(s => ({ staff: s, stats: getStaffPeriodStats(s) }));
+            const staffWithSickLeave = rows.filter(r => r.stats.sickLeave > 0);
+            const totalSickLeave = rows.reduce((sum, r) => sum + r.stats.sickLeave, 0);
             const avgSickLeave = Math.round(totalSickLeave / staffData.length);
 
             document.getElementById('printArea').innerHTML = `
-                <div class="print-header"><h1>🤒 Sick Leave Analysis Report</h1><p>Generated on ${new Date().toLocaleDateString()}</p></div>
+                <div class="print-header"><h1>🤒 Sick Leave Analysis Report</h1><p>Generated on ${new Date().toLocaleDateString()} • Period: ${getReportPeriodLabel()}</p></div>
                 <div class="print-summary">
                     <div class="print-summary-item"><div class="print-summary-value">${staffData.length}</div><div class="print-summary-label">Total Staff</div></div>
                     <div class="print-summary-item"><div class="print-summary-value">${staffWithSickLeave.length}</div><div class="print-summary-label">Staff with Sick Leave</div></div>
@@ -7525,7 +8153,7 @@
                 </div>
                 <table class="print-table">
                     <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Role</th><th>Sick Leave Days</th></tr></thead>
-                    <tbody>${staffData.sort((a, b) => b.sickLeave - a.sickLeave).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td style="font-weight: bold; color: ${staff.sickLeave > 10 ? '#ef4444' : '#10b981'};">${staff.sickLeave}</td></tr>`).join('')}</tbody>
+                    <tbody>${rows.sort((a, b) => b.stats.sickLeave - a.stats.sickLeave).map(({ staff, stats }, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td style="font-weight: bold; color: ${stats.sickLeave > 10 ? '#ef4444' : '#10b981'};">${stats.sickLeave}</td></tr>`).join('')}</tbody>
                 </table>
             `;
             window.print();
@@ -7537,12 +8165,13 @@
                 return;
             }
 
-            const staffWithVacation = staffData.filter(s => s.vacationLeave > 0);
-            const totalVacation = staffData.reduce((sum, s) => sum + s.vacationLeave, 0);
+            const rows = staffData.map(s => ({ staff: s, stats: getStaffPeriodStats(s) }));
+            const staffWithVacation = rows.filter(r => r.stats.vacationLeave > 0);
+            const totalVacation = rows.reduce((sum, r) => sum + r.stats.vacationLeave, 0);
             const avgVacation = Math.round(totalVacation / staffData.length);
 
             document.getElementById('printArea').innerHTML = `
-                <div class="print-header"><h1>🏖️ Vacation Leave Report</h1><p>Generated on ${new Date().toLocaleDateString()}</p></div>
+                <div class="print-header"><h1>🏖️ Vacation Leave Report</h1><p>Generated on ${new Date().toLocaleDateString()} • Period: ${getReportPeriodLabel()}</p></div>
                 <div class="print-summary">
                     <div class="print-summary-item"><div class="print-summary-value">${staffData.length}</div><div class="print-summary-label">Total Staff</div></div>
                     <div class="print-summary-item"><div class="print-summary-value">${staffWithVacation.length}</div><div class="print-summary-label">Staff on Vacation</div></div>
@@ -7551,7 +8180,7 @@
                 </div>
                 <table class="print-table">
                     <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Role</th><th>Vacation Days</th></tr></thead>
-                    <tbody>${staffData.sort((a, b) => b.vacationLeave - a.vacationLeave).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td style="font-weight: bold; color: #0ea5e9;">${staff.vacationLeave}</td></tr>`).join('')}</tbody>
+                    <tbody>${rows.sort((a, b) => b.stats.vacationLeave - a.stats.vacationLeave).map(({ staff, stats }, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td style="font-weight: bold; color: #0ea5e9;">${stats.vacationLeave}</td></tr>`).join('')}</tbody>
                 </table>
             `;
             window.print();
@@ -7563,12 +8192,13 @@
                 return;
             }
 
-            const staffWithOT = staffData.filter(s => s.overTime > 0);
-            const totalOT = staffData.reduce((sum, s) => sum + s.overTime, 0);
+            const rows = staffData.map(s => ({ staff: s, stats: getStaffPeriodStats(s) }));
+            const staffWithOT = rows.filter(r => r.stats.overTime > 0);
+            const totalOT = Math.round(rows.reduce((sum, r) => sum + r.stats.overTime, 0) * 10) / 10;
             const avgOT = Math.round(totalOT / staffData.length);
 
             document.getElementById('printArea').innerHTML = `
-                <div class="print-header"><h1>⏰ Overtime Hours Report</h1><p>Generated on ${new Date().toLocaleDateString()}</p></div>
+                <div class="print-header"><h1>⏰ Overtime Hours Report</h1><p>Generated on ${new Date().toLocaleDateString()} • Period: ${getReportPeriodLabel()}</p></div>
                 <div class="print-summary">
                     <div class="print-summary-item"><div class="print-summary-value">${staffData.length}</div><div class="print-summary-label">Total Staff</div></div>
                     <div class="print-summary-item"><div class="print-summary-value">${staffWithOT.length}</div><div class="print-summary-label">Staff with OT</div></div>
@@ -7577,7 +8207,7 @@
                 </div>
                 <table class="print-table">
                     <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Role</th><th>Overtime Hours</th></tr></thead>
-                    <tbody>${staffData.sort((a, b) => b.overTime - a.overTime).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td style="font-weight: bold; color: ${staff.overTime > 20 ? '#ef4444' : '#10b981'};">${staff.overTime}</td></tr>`).join('')}</tbody>
+                    <tbody>${rows.sort((a, b) => b.stats.overTime - a.stats.overTime).map(({ staff, stats }, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td style="font-weight: bold; color: ${stats.overTime > 20 ? '#ef4444' : '#10b981'};">${stats.overTime}</td></tr>`).join('')}</tbody>
                 </table>
             `;
             window.print();
@@ -7589,12 +8219,13 @@
                 return;
             }
 
-            const staffWithLate = staffData.filter(s => s.late > 0);
-            const totalLate = staffData.reduce((sum, s) => sum + s.late, 0);
+            const rows = staffData.map(s => ({ staff: s, stats: getStaffPeriodStats(s) }));
+            const staffWithLate = rows.filter(r => r.stats.late > 0);
+            const totalLate = rows.reduce((sum, r) => sum + r.stats.late, 0);
             const avgLate = Math.round(totalLate / staffData.length);
 
             document.getElementById('printArea').innerHTML = `
-                <div class="print-header"><h1>⏱️ Late Arrivals Report</h1><p>Generated on ${new Date().toLocaleDateString()}</p></div>
+                <div class="print-header"><h1>⏱️ Late Arrivals Report</h1><p>Generated on ${new Date().toLocaleDateString()} • Period: ${getReportPeriodLabel()}</p></div>
                 <div class="print-summary">
                     <div class="print-summary-item"><div class="print-summary-value">${staffData.length}</div><div class="print-summary-label">Total Staff</div></div>
                     <div class="print-summary-item"><div class="print-summary-value">${staffWithLate.length}</div><div class="print-summary-label">Staff with Late Arrivals</div></div>
@@ -7603,7 +8234,7 @@
                 </div>
                 <table class="print-table">
                     <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Role</th><th>Late Incidents</th></tr></thead>
-                    <tbody>${staffData.sort((a, b) => b.late - a.late).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td style="font-weight: bold; color: ${staff.late > 5 ? '#ef4444' : '#10b981'};">${staff.late}</td></tr>`).join('')}</tbody>
+                    <tbody>${rows.sort((a, b) => b.stats.late - a.stats.late).map(({ staff, stats }, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td style="font-weight: bold; color: ${stats.late > 5 ? '#ef4444' : '#10b981'};">${stats.late}</td></tr>`).join('')}</tbody>
                 </table>
             `;
             window.print();
@@ -7615,12 +8246,13 @@
                 return;
             }
 
-            const staffWithClaims = staffData.filter(s => s.claims > 0);
-            const totalClaims = staffData.reduce((sum, s) => sum + s.claims, 0);
+            const rows = staffData.map(s => ({ staff: s, stats: getStaffPeriodStats(s) }));
+            const staffWithClaims = rows.filter(r => r.stats.claims > 0);
+            const totalClaims = rows.reduce((sum, r) => sum + r.stats.claims, 0);
             const avgClaims = Math.round(totalClaims / staffData.length);
 
             document.getElementById('printArea').innerHTML = `
-                <div class="print-header"><h1>💰 Staff Claims Report</h1><p>Generated on ${new Date().toLocaleDateString()}</p></div>
+                <div class="print-header"><h1>💰 Staff Claims Report</h1><p>Generated on ${new Date().toLocaleDateString()} • Period: ${getReportPeriodLabel()}</p></div>
                 <div class="print-summary">
                     <div class="print-summary-item"><div class="print-summary-value">${staffData.length}</div><div class="print-summary-label">Total Staff</div></div>
                     <div class="print-summary-item"><div class="print-summary-value">${staffWithClaims.length}</div><div class="print-summary-label">Staff with Claims</div></div>
@@ -7629,7 +8261,7 @@
                 </div>
                 <table class="print-table">
                     <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Role</th><th>Claims</th></tr></thead>
-                    <tbody>${staffData.sort((a, b) => b.claims - a.claims).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td style="font-weight: bold; color: #a855f7;">${staff.claims}</td></tr>`).join('')}</tbody>
+                    <tbody>${rows.sort((a, b) => b.stats.claims - a.stats.claims).map(({ staff, stats }, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td style="font-weight: bold; color: #a855f7;">${stats.claims}</td></tr>`).join('')}</tbody>
                 </table>
             `;
             window.print();
@@ -7641,12 +8273,13 @@
                 return;
             }
 
-            const staffWithDayOff = staffData.filter(s => s.dayOff > 0);
-            const totalDayOff = staffData.reduce((sum, s) => sum + s.dayOff, 0);
+            const rows = staffData.map(s => ({ staff: s, stats: getStaffPeriodStats(s) }));
+            const staffWithDayOff = rows.filter(r => r.stats.dayOff > 0);
+            const totalDayOff = rows.reduce((sum, r) => sum + r.stats.dayOff, 0);
             const avgDayOff = Math.round(totalDayOff / staffData.length);
 
             document.getElementById('printArea').innerHTML = `
-                <div class="print-header"><h1>📅 Day Off Report</h1><p>Generated on ${new Date().toLocaleDateString()}</p></div>
+                <div class="print-header"><h1>📅 Day Off Report</h1><p>Generated on ${new Date().toLocaleDateString()} • Period: ${getReportPeriodLabel()}</p></div>
                 <div class="print-summary">
                     <div class="print-summary-item"><div class="print-summary-value">${staffData.length}</div><div class="print-summary-label">Total Staff</div></div>
                     <div class="print-summary-item"><div class="print-summary-value">${staffWithDayOff.length}</div><div class="print-summary-label">Staff with Days Off</div></div>
@@ -7655,7 +8288,7 @@
                 </div>
                 <table class="print-table">
                     <thead><tr><th>Rank</th><th>Name</th><th>TRN</th><th>Department</th><th>Role</th><th>Days Off</th></tr></thead>
-                    <tbody>${staffData.sort((a, b) => b.dayOff - a.dayOff).map((staff, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td style="font-weight: bold; color: #f97316;">${staff.dayOff}</td></tr>`).join('')}</tbody>
+                    <tbody>${rows.sort((a, b) => b.stats.dayOff - a.stats.dayOff).map(({ staff, stats }, index) => `<tr><td>${index + 1}</td><td>${staff.name}</td><td>${staff.trn}</td><td>${staff.department}</td><td>${staff.role || 'Staff'}</td><td style="font-weight: bold; color: #f97316;">${stats.dayOff}</td></tr>`).join('')}</tbody>
                 </table>
             `;
             window.print();
@@ -7667,14 +8300,16 @@
                 return;
             }
 
-            const activeLeaves = leaveRecords.filter(l => getLeaveStatus(l.startDate, l.endDate) === 'active').length;
-            const upcomingLeaves = leaveRecords.filter(l => getLeaveStatus(l.startDate, l.endDate) === 'upcoming').length;
-            const completedLeaves = leaveRecords.filter(l => getLeaveStatus(l.startDate, l.endDate) === 'completed').length;
+            const range = getPeriodRange();
+            const periodLeaves = leaveRecords.filter(l => overlapDaysInRange(l.startDate, l.endDate, range) > 0);
+            const activeLeaves = periodLeaves.filter(l => getLeaveStatus(l.startDate, l.endDate) === 'active').length;
+            const upcomingLeaves = periodLeaves.filter(l => getLeaveStatus(l.startDate, l.endDate) === 'upcoming').length;
+            const completedLeaves = periodLeaves.filter(l => getLeaveStatus(l.startDate, l.endDate) === 'completed').length;
 
             document.getElementById('printArea').innerHTML = `
-                <div class="print-header"><h1>📊 Leave Records Report</h1><p>Generated on ${new Date().toLocaleDateString()}</p></div>
+                <div class="print-header"><h1>📊 Leave Records Report</h1><p>Generated on ${new Date().toLocaleDateString()} • Period: ${getPeriodRange().label}</p></div>
                 <div class="print-summary">
-                    <div class="print-summary-item"><div class="print-summary-value">${leaveRecords.length}</div><div class="print-summary-label">Total Records</div></div>
+                    <div class="print-summary-item"><div class="print-summary-value">${periodLeaves.length}</div><div class="print-summary-label">Total Records</div></div>
                     <div class="print-summary-item"><div class="print-summary-value">${activeLeaves}</div><div class="print-summary-label">Active Leaves</div></div>
                     <div class="print-summary-item"><div class="print-summary-value">${upcomingLeaves}</div><div class="print-summary-label">Upcoming Leaves</div></div>
                     <div class="print-summary-item"><div class="print-summary-value">${completedLeaves}</div><div class="print-summary-label">Completed Leaves</div></div>
@@ -7682,7 +8317,7 @@
                 <table class="print-table">
                     <thead><tr><th>Staff Name</th><th>Department</th><th>Role</th><th>Leave Type</th><th>Start Date</th><th>End Date</th><th>Status</th></tr></thead>
                     <tbody>
-                        ${leaveRecords.map(leave => {
+                        ${periodLeaves.map(leave => {
                             const staff = staffData.find(s => s.trn === leave.staffId);
                             if (!staff) return '';
                             const status = getLeaveStatus(leave.startDate, leave.endDate);
@@ -7691,6 +8326,233 @@
                     </tbody>
                 </table>
             `;
+            window.print();
+        }
+
+        // ============================================
+        // STAFF MONTHLY REPORTS
+        // ============================================
+
+        function initStaffReportsView() {
+            populateSrStaffSelect();
+            populateSrDeptSelect();
+            populateSrMonthSelect();
+        }
+
+        function populateSrStaffSelect() {
+            const sel = document.getElementById('srStaffSelect');
+            if (!sel) return;
+            const prev = sel.value;
+            sel.innerHTML = '<option value="all">👥 All Staff</option>' +
+                staffData.map(s => `<option value="${s.trn}">${s.name} — ${s.department}</option>`).join('');
+            if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
+        }
+
+        function populateSrDeptSelect() {
+            const sel = document.getElementById('srDeptSelect');
+            if (!sel) return;
+            const prev = sel.value;
+            const departments = [...new Set(staffData.map(s => s.department))];
+            sel.innerHTML = '<option value="">All Departments</option>' +
+                departments.map(d => `<option value="${d}">${d}</option>`).join('');
+            if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
+        }
+
+        // Months of the currently selected fiscal year (Apr – Mar)
+        function populateSrMonthSelect() {
+            const sel = document.getElementById('srMonthSelect');
+            if (!sel) return;
+            const prev = sel.value;
+            const fy = currentFiscalYearStart;
+            const options = [];
+            for (let i = 0; i < 12; i++) {
+                const monthIndex = (3 + i) % 12;
+                const year = monthIndex >= 3 ? fy : fy + 1;
+                const value = `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
+                const name = new Date(year, monthIndex, 1).toLocaleString('default', { month: 'long' });
+                options.push(`<option value="${value}">${name} ${year}</option>`);
+            }
+            sel.innerHTML = options.join('');
+            const now = new Date();
+            const currentMonthValue = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            if (prev && [...sel.options].some(o => o.value === prev)) {
+                sel.value = prev;
+            } else if ([...sel.options].some(o => o.value === currentMonthValue)) {
+                sel.value = currentMonthValue;
+            }
+        }
+
+        function getStaffMonthlyDetail(staff, range) {
+            const detail = {
+                stats: getStaffStatsForRange(staff, range),
+                leaves: [],
+                tracking: []
+            };
+            leaveRecords.forEach(leave => {
+                if (leave.staffId !== staff.trn) return;
+                const days = overlapDaysInRange(leave.startDate, leave.endDate, range);
+                if (days > 0) detail.leaves.push({ leave, days });
+            });
+            timeTrackingRecords.forEach(rec => {
+                if (rec.staffId === staff.trn && isDateInRange(rec.date, range)) detail.tracking.push(rec);
+            });
+            detail.leaves.sort((a, b) => a.leave.startDate.localeCompare(b.leave.startDate));
+            detail.tracking.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+            detail.hasActivity = detail.leaves.length > 0 || detail.tracking.length > 0;
+            return detail;
+        }
+
+        function buildStaffMonthlySection(staff, detail) {
+            const { stats, leaves, tracking } = detail;
+            let html = `
+                <div style="margin-bottom: 35px; page-break-inside: avoid;">
+                    <h2 style="color: #1a202c; border-bottom: 3px solid #10b981; padding-bottom: 10px; margin-bottom: 15px;">
+                        ${staff.name} <span style="font-size: 14px; color: #718096; font-weight: 400;">TRN: ${staff.trn} • ${staff.department} • ${staff.role || 'Staff'}</span>
+                    </h2>
+                    <div class="print-summary">
+                        <div class="print-summary-item"><div class="print-summary-value">${stats.total}</div><div class="print-summary-label">Total Absence Days</div></div>
+                        <div class="print-summary-item"><div class="print-summary-value">${stats.sickLeave}</div><div class="print-summary-label">Sick Leave</div></div>
+                        <div class="print-summary-item"><div class="print-summary-value">${stats.vacationLeave}</div><div class="print-summary-label">Vacation</div></div>
+                        <div class="print-summary-item"><div class="print-summary-value">${stats.dayOff}</div><div class="print-summary-label">Days Off</div></div>
+                        <div class="print-summary-item"><div class="print-summary-value">${stats.departmentalLeave}</div><div class="print-summary-label">Dept. Leave</div></div>
+                        <div class="print-summary-item"><div class="print-summary-value">${stats.late}</div><div class="print-summary-label">Late Arrivals</div></div>
+                        <div class="print-summary-item"><div class="print-summary-value">${stats.overTime}</div><div class="print-summary-label">Overtime Hrs</div></div>
+                        <div class="print-summary-item"><div class="print-summary-value">${stats.claims}</div><div class="print-summary-label">Claims</div></div>
+                    </div>
+            `;
+
+            if (leaves.length > 0) {
+                html += `
+                    <h3 style="color: #1a202c; margin: 20px 0 8px;">📋 Leave Records</h3>
+                    <table class="print-table">
+                        <thead><tr><th>Leave Type</th><th>Start Date</th><th>End Date</th><th>Days in Month</th><th>Status</th></tr></thead>
+                        <tbody>
+                            ${leaves.map(({ leave, days }) => `<tr><td>${getLeaveTypeName(leave.leaveType)}</td><td>${formatDate(leave.startDate)}</td><td>${formatDate(leave.endDate)}</td><td>${days}</td><td style="text-transform: uppercase;">${getLeaveStatus(leave.startDate, leave.endDate)}</td></tr>`).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            if (tracking.length > 0) {
+                html += `
+                    <h3 style="color: #1a202c; margin: 20px 0 8px;">⏰ Time Tracking Records</h3>
+                    <table class="print-table">
+                        <thead><tr><th>Type</th><th>Date</th><th>Hours</th><th>Notes</th></tr></thead>
+                        <tbody>
+                            ${tracking.map(rec => `<tr><td>${getTimeTrackingTypeName(rec.type)}</td><td>${formatDate(rec.date)}</td><td>${rec.hours ? (Math.round(rec.hours * 10) / 10) : '—'}</td><td>${rec.notes || '—'}</td></tr>`).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            if (!detail.hasActivity) {
+                html += '<p style="color: #718096; padding: 10px 0;">No leave or time tracking activity recorded for this month.</p>';
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        function generateStaffMonthlyReport(printIt) {
+            if (staffData.length === 0) {
+                showAlert('⚠️ No staff data available');
+                return;
+            }
+
+            const staffValue = document.getElementById('srStaffSelect').value;
+            const monthValue = document.getElementById('srMonthSelect').value;
+            const deptValue = document.getElementById('srDeptSelect').value;
+            if (!monthValue) {
+                showAlert('⚠️ Please select a report month');
+                return;
+            }
+
+            const [year, month] = monthValue.split('-').map(Number);
+            const range = {
+                start: new Date(year, month - 1, 1),
+                end: new Date(year, month, 0, 23, 59, 59, 999)
+            };
+            const monthLabel = new Date(year, month - 1, 1).toLocaleString('default', { month: 'long', year: 'numeric' });
+
+            let targets = staffValue === 'all'
+                ? staffData.slice()
+                : staffData.filter(s => String(s.trn) === staffValue);
+            if (deptValue) targets = targets.filter(s => s.department === deptValue);
+
+            if (targets.length === 0) {
+                showAlert('⚠️ No staff match the selected filters');
+                return;
+            }
+
+            const details = targets.map(staff => ({ staff, detail: getStaffMonthlyDetail(staff, range) }));
+
+            let html = `
+                <div class="print-header">
+                    <h1>🧾 ${staffValue === 'all' ? 'All Staff' : details[0].staff.name} — Monthly Report</h1>
+                    <p>${monthLabel}${deptValue ? ' • ' + deptValue + ' Department' : ''} • Generated on ${new Date().toLocaleDateString()} by ${currentUser ? currentUser.displayName : 'Chief Orderly'}</p>
+                </div>
+            `;
+
+            if (staffValue === 'all') {
+                const totals = { total: 0, sickLeave: 0, vacationLeave: 0, dayOff: 0, departmentalLeave: 0, late: 0, overTime: 0, claims: 0 };
+                details.forEach(({ detail }) => {
+                    Object.keys(totals).forEach(k => { totals[k] += detail.stats[k]; });
+                });
+                totals.overTime = Math.round(totals.overTime * 10) / 10;
+
+                html += `
+                    <div class="print-summary">
+                        <div class="print-summary-item"><div class="print-summary-value">${details.length}</div><div class="print-summary-label">Staff Members</div></div>
+                        <div class="print-summary-item"><div class="print-summary-value">${totals.total}</div><div class="print-summary-label">Total Absence Days</div></div>
+                        <div class="print-summary-item"><div class="print-summary-value">${totals.late}</div><div class="print-summary-label">Late Arrivals</div></div>
+                        <div class="print-summary-item"><div class="print-summary-value">${totals.overTime}</div><div class="print-summary-label">Overtime Hours</div></div>
+                    </div>
+                    <h3 style="color: #1a202c; margin: 20px 0 8px;">Monthly Summary — All Staff</h3>
+                    <table class="print-table">
+                        <thead><tr><th>Name</th><th>Department</th><th>Sick</th><th>Vacation</th><th>Day Off</th><th>Dept. Leave</th><th>Late</th><th>OT Hrs</th><th>Claims</th><th>Total Days</th></tr></thead>
+                        <tbody>
+                            ${details.map(({ staff, detail }) => `<tr><td>${staff.name}</td><td>${staff.department}</td><td>${detail.stats.sickLeave}</td><td>${detail.stats.vacationLeave}</td><td>${detail.stats.dayOff}</td><td>${detail.stats.departmentalLeave}</td><td>${detail.stats.late}</td><td>${detail.stats.overTime}</td><td>${detail.stats.claims}</td><td><strong>${detail.stats.total}</strong></td></tr>`).join('')}
+                        </tbody>
+                    </table>
+                    <h3 style="color: #1a202c; margin: 30px 0 8px;">Detailed Activity (staff with records this month)</h3>
+                `;
+
+                const activeDetails = details.filter(({ detail }) => detail.hasActivity);
+                if (activeDetails.length === 0) {
+                    html += '<p style="color: #718096; padding: 10px 0;">No leave or time tracking activity recorded for any staff member this month.</p>';
+                } else {
+                    activeDetails.forEach(({ staff, detail }) => {
+                        html += buildStaffMonthlySection(staff, detail);
+                    });
+                }
+            } else {
+                html += buildStaffMonthlySection(details[0].staff, details[0].detail);
+            }
+
+            const preview = document.getElementById('staffReportPreview');
+            if (preview) {
+                preview.innerHTML = `
+                    <div class="sr-preview-card">
+                        <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+                            <button class="btn btn-success" onclick="printStaffMonthlyReport()">
+                                <span>🖨️</span>
+                                <span>Print This Report</span>
+                            </button>
+                        </div>
+                        ${html}
+                    </div>
+                `;
+            }
+
+            document.getElementById('printArea').innerHTML = html;
+            if (printIt) window.print();
+        }
+
+        function printStaffMonthlyReport() {
+            if (!document.getElementById('printArea').innerHTML.trim()) {
+                showAlert('⚠️ Generate a report first');
+                return;
+            }
             window.print();
         }
 
