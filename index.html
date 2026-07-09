@@ -4229,7 +4229,7 @@
                         <input type="text" id="driveBackupFileIdInput" placeholder="leave empty to search by name" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 13px;">
                     </div>
                 </div>
-                <p style="font-size: 12px; color: #718096; margin-top: 12px;">Defaults are the Asset Dashboard project (same Client ID and Drive folder) — this app saves to its own file <strong>CHIEF_ORDERLY_BACKUP.json</strong>, so it never touches the asset backup. See GOOGLE-DRIVE-SETUP.md.</p>
+                <p style="font-size: 12px; color: #718096; margin-top: 12px;">Data is saved as <strong>CHIEF_ORDERLY_BACKUP.json</strong> in the <a href="https://drive.google.com/drive/folders/1s8t6WQgnYUqOuhOOaz3Kz3JT8BJa-iGT" target="_blank" rel="noopener">Chief Orderly Dashboard folder</a>. The Client ID defaults to the Asset Dashboard project so the same Google sign-in works. See GOOGLE-DRIVE-SETUP.md.</p>
                 <button class="btn btn-primary" style="margin-top: 12px;" onclick="saveDriveSettings()">Save Settings</button>
             </div>
         </div>
@@ -8954,7 +8954,9 @@
             // All values can be overridden from the Google Drive Sync settings page.
             const CONFIG = {
                 CLIENT_ID:        '438550085155-noiuiem0qtikha3l6ssup2r41qidfuo4.apps.googleusercontent.com',
-                FOLDER_ID:        '1Vocl734yPgv9F36zgjo1DsCB2HCLSNyr',
+                // Chief Orderly Dashboard folder:
+                // https://drive.google.com/drive/folders/1s8t6WQgnYUqOuhOOaz3Kz3JT8BJa-iGT
+                FOLDER_ID:        '1s8t6WQgnYUqOuhOOaz3Kz3JT8BJa-iGT',
                 BACKUP_FILE_NAME: 'CHIEF_ORDERLY_BACKUP.json',
                 SCOPES:           'https://www.googleapis.com/auth/drive.file',
 
@@ -9564,6 +9566,13 @@
         function initGDriveSync() {
             let overrides = {};
             try { overrides = JSON.parse(localStorage.getItem('gdriveConfigOverrides')) || {}; } catch (e) { /* ignore */ }
+            // Migration: drop a saved override still pointing at the old
+            // (Asset Dashboard) folder so the new default folder applies
+            if (overrides.FOLDER_ID === '1Vocl734yPgv9F36zgjo1DsCB2HCLSNyr') {
+                delete overrides.FOLDER_ID;
+                localStorage.setItem('gdriveConfigOverrides', JSON.stringify(overrides));
+                localStorage.removeItem('gdriveCloudFileId');
+            }
             GDriveSync.init({
                 config: overrides,
                 collectData: collectDashboardData,

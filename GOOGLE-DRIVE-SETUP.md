@@ -9,13 +9,13 @@ The dashboard uses the **same Google Drive save/sync module as the May Pen Hospi
 
 ## Out-of-the-box defaults
 
-The settings default to the **Asset Dashboard's Google Cloud project**:
-
 | Setting | Default |
 |---|---|
-| Client ID | `438550085155-…qidfuo4.apps.googleusercontent.com` (Asset Dashboard) |
-| Drive Folder ID | `1Vocl734yPgv9F36zgjo1DsCB2HCLSNyr` (the Asset Dashboard folder) |
-| Backup file | `CHIEF_ORDERLY_BACKUP.json` — its **own file**, it never touches `ASSET_DASHBOARD_BACKUP.json` |
+| Client ID | `438550085155-…qidfuo4.apps.googleusercontent.com` (Asset Dashboard project — same Google sign-in) |
+| Drive Folder | [Chief Orderly Dashboard folder](https://drive.google.com/drive/folders/1s8t6WQgnYUqOuhOOaz3Kz3JT8BJa-iGT) (`1s8t6WQgnYUqOuhOOaz3Kz3JT8BJa-iGT`) |
+| Backup file | `CHIEF_ORDERLY_BACKUP.json` |
+
+> The connected Google account must be able to **edit** that folder (own it, or have it shared with Editor rights) — otherwise the first upload fails with a 404/403.
 
 So if you host this dashboard on the **same web address** as the asset dashboard (same authorized origin), you can just open **Google Drive Sync** in the sidebar and click **🔑 Connect Google Drive** — pick the Google account you want the app to use, approve, done. The pill in the top bar turns green: **☁️ Connected**.
 
