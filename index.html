@@ -6,6 +6,8 @@
     <title>Hospital Orderlies Management System</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Google Identity Services - sign in with a Google account to write data straight to Drive -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         * {
             margin: 0;
@@ -2943,6 +2945,101 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
+        /* GOOGLE DRIVE BACKUP */
+        .drive-status-pill {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .drive-status-pill:hover {
+            border-color: #10b981;
+        }
+
+        .drive-status-pill.connected {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #047857;
+        }
+
+        .drive-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 6px rgba(16, 185, 129, 0.7);
+            flex-shrink: 0;
+        }
+
+        .drive-dot.off {
+            background: #a0aec0;
+            box-shadow: none;
+        }
+
+        .drive-card {
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .drive-status-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .drive-conn {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .drive-conn small {
+            display: block;
+            font-size: 12px;
+            font-weight: 400;
+            color: #718096;
+            margin-top: 3px;
+        }
+
+        .drive-backup-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .drive-backup-item .backup-name {
+            font-weight: 600;
+            color: #1a202c;
+            font-size: 14px;
+        }
+
+        .drive-backup-item .backup-meta {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 3px;
+        }
+
         /* Clickable totals in staff monthly report */
         .sr-metric {
             cursor: pointer;
@@ -3102,6 +3199,11 @@
                     <span>📁</span>
                     <span>PMAS</span>
                 </button>
+                <div class="sidebar-section-label">Tools</div>
+                <button class="nav-tab" data-view="drive">
+                    <span>☁️</span>
+                    <span>Google Drive Sync</span>
+                </button>
             </nav>
             <div class="sidebar-footer">
                 <div class="sidebar-user">
@@ -3138,7 +3240,10 @@
                     <button class="quarter-btn" data-quarter="3" onclick="setQuarter(3)" title="Quarter 3 (Oct – Dec)">Q3</button>
                     <button class="quarter-btn" data-quarter="4" onclick="setQuarter(4)" title="Quarter 4 (Jan – Mar)">Q4</button>
                 </div>
-                <button onclick="saveAllData()" class="save-data-btn" title="Save all data to browser storage">
+                <div class="drive-status-pill" id="driveStatusPill" onclick="switchView('drive')" title="Google Drive backup — click to manage">
+                    ☁️ <span class="drive-dot off"></span> <span id="driveStatusText">Drive</span>
+                </div>
+                <button onclick="saveAllData()" class="save-data-btn" title="Save all data to browser storage (and back up to Google Drive)">
                     💾 Save
                 </button>
                 <button onclick="recalculateStaffCounters()" class="sync-data-btn" title="Recalculate staff counters from leave records">
@@ -3978,6 +4083,12 @@
                     <div class="report-description" style="color: rgba(255,255,255,0.9);">Restore data from backup file</div>
                 </div>
 
+                <div class="report-card" onclick="switchView('drive')" style="background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);">
+                    <div class="report-icon">☁️</div>
+                    <div class="report-title" style="color: white;">Google Drive Sync</div>
+                    <div class="report-description" style="color: rgba(255,255,255,0.9);">Live sync and backups straight to your Drive folder</div>
+                </div>
+
                 <div class="report-card" onclick="exportStaffData()">
                     <div class="report-icon">👥</div>
                     <div class="report-title">Export Staff Data</div>
@@ -4048,6 +4159,78 @@
                     <div style="font-size: 40px; margin-bottom: 12px;">🧾</div>
                     <p>Select a staff member (or All Staff) and a month, then click <strong>Generate Report</strong>.</p>
                 </div>
+            </div>
+        </div>
+
+        <!-- GOOGLE DRIVE SYNC VIEW -->
+        <div id="driveView" class="view-section">
+            <div class="header">
+                <h2 style="color: #1a202c; font-size: 24px; margin-bottom: 8px;">☁️ Google Drive Sync</h2>
+                <p style="color: #718096; font-size: 14px;">Sign in with a Google account and the dashboard writes data straight to your Drive — same system as the Asset Dashboard</p>
+            </div>
+
+            <div class="drive-card">
+                <div class="drive-status-row">
+                    <div class="drive-conn" id="driveConnectionState">⚪ Not connected<small>Connect a Google account to get started</small></div>
+                    <div style="flex: 1;"></div>
+                    <button class="btn btn-primary" id="driveConnectBtn" onclick="GDriveSync.connect()">
+                        <span>🔑</span>
+                        <span>Connect Google Drive</span>
+                    </button>
+                    <button class="btn btn-secondary" id="driveDisconnectBtn" onclick="GDriveSync.disconnect()" style="display: none;">
+                        <span>⏏️</span>
+                        <span>Disconnect</span>
+                    </button>
+                    <button class="btn btn-success" onclick="GDriveSync.saveToCloud()">
+                        <span>☁️</span>
+                        <span>Save to Cloud</span>
+                    </button>
+                    <button class="btn btn-success" onclick="GDriveSync.syncFromCloud()">
+                        <span>🔄</span>
+                        <span>Sync from Cloud</span>
+                    </button>
+                    <a id="driveFolderLink" class="btn btn-secondary" target="_blank" rel="noopener" style="display: none; text-decoration: none;">
+                        <span>📂</span>
+                        <span>Open Drive Folder</span>
+                    </a>
+                </div>
+
+                <div id="driveSyncInfo" style="margin-top: 15px; font-size: 13px; color: #718096;">
+                    ⚡ Auto-sync: after any change, the dashboard downloads the cloud backup, merges it in (union, newest wins) and saves back to Drive on the next 2-minute cycle. It also pulls the cloud data when you sign in.
+                    <span id="driveLastSync" style="display: block; margin-top: 4px; font-weight: 600; color: #4a5568;"></span>
+                </div>
+
+                <div class="sr-field" style="margin-top: 20px;">
+                    <label>Manual token <span style="font-weight: 400; color: #718096;">(fallback if the Google popup is blocked — paste an OAuth access token)</span></label>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <input type="password" id="driveManualTokenInput" placeholder="ya29.…" style="flex: 1; min-width: 260px; padding: 10px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 13px;">
+                        <button class="btn btn-secondary" onclick="connectManualToken()">Connect with Token</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="drive-card">
+                <h3 style="color: #1a202c; font-size: 17px; margin-bottom: 15px;">⚙️ Settings</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+                    <div class="sr-field">
+                        <label for="driveClientIdInput">Google OAuth Client ID</label>
+                        <input type="text" id="driveClientIdInput" placeholder="1234567890-xxxx.apps.googleusercontent.com" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 13px;">
+                    </div>
+                    <div class="sr-field">
+                        <label for="driveFolderIdInput">Drive Folder ID <span style="font-weight: 400; color: #718096;">(from the folder's URL)</span></label>
+                        <input type="text" id="driveFolderIdInput" placeholder="folder ID from drive.google.com/drive/folders/…" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 13px;">
+                    </div>
+                    <div class="sr-field">
+                        <label for="driveApiKeyInput">API Key <span style="font-weight: 400; color: #718096;">(optional — cross-account read)</span></label>
+                        <input type="text" id="driveApiKeyInput" placeholder="AIzaSy…" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 13px;">
+                    </div>
+                    <div class="sr-field">
+                        <label for="driveBackupFileIdInput">Backup File ID <span style="font-weight: 400; color: #718096;">(optional — fixed shared backup)</span></label>
+                        <input type="text" id="driveBackupFileIdInput" placeholder="leave empty to search by name" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 13px;">
+                    </div>
+                </div>
+                <p style="font-size: 12px; color: #718096; margin-top: 12px;">Data is saved as <strong>CHIEF_ORDERLY_BACKUP.json</strong> in the <a href="https://drive.google.com/drive/folders/1s8t6WQgnYUqOuhOOaz3Kz3JT8BJa-iGT" target="_blank" rel="noopener">Chief Orderly Dashboard folder</a>. The Client ID defaults to the Asset Dashboard project so the same Google sign-in works. See GOOGLE-DRIVE-SETUP.md.</p>
+                <button class="btn btn-primary" style="margin-top: 12px;" onclick="saveDriveSettings()">Save Settings</button>
             </div>
         </div>
 
@@ -4603,6 +4786,7 @@
             loadLeaveRecords();
 
             updatePeriodUI();
+            initGDriveSync();
 
             setInterval(checkNotifications, 60000);
         });
@@ -4816,6 +5000,7 @@
             if (sidebarName) sidebarName.textContent = currentUser.displayName;
             if (sidebarRole) sidebarRole.textContent = currentUser.role;
             updatePeriodUI();
+            performAutoSyncOnLogin();
 
             const addStaffBtn = document.getElementById('addStaffBtn');
             if (addStaffBtn) {
@@ -4828,6 +5013,11 @@
 
         function handleLogout() {
             if (confirm('Are you sure you want to logout?')) {
+                // Push any unsynced changes to Drive before clearing memory
+                if (GDriveSync.isConnected()) {
+                    GDriveSync.saveToCloud({ confirm: false, silent: true });
+                }
+
                 currentUser = null;
 
                 // Clear session storage cache
@@ -4890,7 +5080,8 @@
             reports: 'Reports & Tools',
             staffreports: 'Staff Monthly Reports',
             reminders: 'Reminders',
-            pmas: 'PMAS Documents'
+            pmas: 'PMAS Documents',
+            drive: 'Google Drive Sync'
         };
 
         function switchView(view) {
@@ -5004,6 +5195,9 @@
             } else if (view === 'staffreports') {
                 document.getElementById('staffreportsView').classList.add('active');
                 initStaffReportsView();
+            } else if (view === 'drive') {
+                document.getElementById('driveView').classList.add('active');
+                initDriveView();
             }
         }
 
@@ -5361,6 +5555,7 @@
         }
 
         function saveReminders() {
+            markDataDirty();
             localStorage.setItem('hospitalReminders', JSON.stringify(reminders));
         }
 
@@ -6980,6 +7175,7 @@
 
         function saveLeaveRecordsToLocalStorage() {
             try {
+                markDataDirty();
                 localStorage.setItem('hospitalLeaveRecords', JSON.stringify(leaveRecords));
             } catch (error) {
                 console.error('Error saving leave records to localStorage:', error);
@@ -7950,6 +8146,7 @@
 
         function saveScheduleData() {
             try {
+                markDataDirty();
                 localStorage.setItem('hospitalScheduleData', JSON.stringify(scheduleData));
                 console.log('Schedule data saved to localStorage');
                 
@@ -8736,6 +8933,726 @@
             window.print();
         }
 
+        /* ============================================================================
+         * GDriveSync — Google Drive save / sync module
+         *
+         * Extracted and consolidated from the May Pen Hospital Asset Dashboard.
+         * Same auth flow, same endpoints, same cross-account public-read fallback,
+         * same multipart-create / media-PATCH upload pattern, same 2-minute auto-sync.
+         *
+         * App-specific bits (what to serialize on save, what to do with the
+         * downloaded data on restore) are supplied via callbacks in init().
+         * ========================================================================== */
+
+        const GDriveSync = (function () {
+            'use strict';
+
+            // ---- Configuration -----------------------------------------------------
+            // CLIENT_ID / FOLDER_ID default to the May Pen Hospital Asset Dashboard
+            // project so the same Google account works out of the box. The backup
+            // file name is different so this NEVER overwrites the asset backup.
+            // All values can be overridden from the Google Drive Sync settings page.
+            const CONFIG = {
+                CLIENT_ID:        '438550085155-noiuiem0qtikha3l6ssup2r41qidfuo4.apps.googleusercontent.com',
+                // Chief Orderly Dashboard folder:
+                // https://drive.google.com/drive/folders/1s8t6WQgnYUqOuhOOaz3Kz3JT8BJa-iGT
+                FOLDER_ID:        '1s8t6WQgnYUqOuhOOaz3Kz3JT8BJa-iGT',
+                BACKUP_FILE_NAME: 'CHIEF_ORDERLY_BACKUP.json',
+                SCOPES:           'https://www.googleapis.com/auth/drive.file',
+
+                // Cross-account (public) read. The 'drive.file' scope only exposes files
+                // the signed-in account created with this app, so a *different* account
+                // cannot see the main account's backup. To let any authenticated user
+                // sync FROM the main account's Drive:
+                //   1. Share the backup file "Anyone with the link -> Viewer".
+                //   2. Create a Drive API key in the SAME project as CLIENT_ID,
+                //      restrict it to the Drive API + your referrer, and paste below.
+                // The owner keeps writing via OAuth; everyone else reads publicly.
+                API_KEY:          '',   // e.g. 'AIzaSy...'
+                BACKUP_FILE_ID:   ''    // fixed ID of the shared backup, for non-owners
+            };
+
+            // ---- State -------------------------------------------------------------
+            let accessToken   = null;
+            let connected     = false;
+            let cloudFileId   = null;
+            let tokenClient   = null;
+            let lastSyncTime  = null;
+
+            let autoSyncInterval   = null;
+            let autoSyncInProgress = false;
+            const AUTO_SYNC_INTERVAL_MS = 120000; // 2 minutes
+
+            // ---- Callbacks (supplied by the host app) ------------------------------
+            let collectData = () => ({});      // returns the object stored under .data
+            let applyData   = () => {};        // receives the restored .data object
+            let onStatus    = () => {};        // 'connected' | 'disconnected' |
+                                               // 'syncing' | 'synced'
+
+            // Storage keys (namespaced so multiple apps can coexist)
+            const K_TOKEN   = 'gdriveAccessToken';
+            const K_EXPIRY  = 'gdriveTokenExpiry';
+            const K_FILEID  = 'gdriveCloudFileId';
+            const K_LASTSYNC = 'gdriveLastSyncTime';
+
+            // ========================================================================
+            // INIT
+            // ========================================================================
+            function init(opts) {
+                opts = opts || {};
+                if (opts.config)      Object.assign(CONFIG, opts.config);
+                if (opts.collectData) collectData = opts.collectData;
+                if (opts.applyData)   applyData   = opts.applyData;
+                if (opts.onStatus)    onStatus    = opts.onStatus;
+
+                initGoogleAuth();
+                restoreSession();
+            }
+
+            // Initialize the GIS token client (call once GIS script has loaded).
+            function initGoogleAuth() {
+                if (typeof google !== 'undefined' && google.accounts && google.accounts.oauth2) {
+                    tokenClient = google.accounts.oauth2.initTokenClient({
+                        client_id: CONFIG.CLIENT_ID,
+                        scope: CONFIG.SCOPES,
+                        callback: handleAuthCallback,
+                        error_callback: handleAuthError
+                    });
+                }
+            }
+
+            // Restore a still-valid token from the previous session.
+            function restoreSession() {
+                const savedToken  = sessionStorage.getItem(K_TOKEN);
+                const savedExpiry = sessionStorage.getItem(K_EXPIRY);
+                const savedFileId = localStorage.getItem(K_FILEID);
+                const savedSync   = localStorage.getItem(K_LASTSYNC);
+
+                if (savedSync)   lastSyncTime = new Date(savedSync);
+                if (savedFileId) cloudFileId  = savedFileId;
+
+                if (savedToken && savedExpiry && new Date(savedExpiry) > new Date()) {
+                    accessToken = savedToken;
+                    connected   = true;
+                    onStatus('connected');
+                    startAutoSync();
+                    return true;
+                }
+                onStatus('disconnected');
+                return false;
+            }
+
+            // ========================================================================
+            // AUTH
+            // ========================================================================
+            function connect() {
+                if (tokenClient) {
+                    tokenClient.requestAccessToken();
+                } else {
+                    initGoogleAuth();
+                    setTimeout(() => {
+                        if (tokenClient) tokenClient.requestAccessToken();
+                        else alert('Google Sign-In is unavailable. Use a manual token instead.');
+                    }, 500);
+                }
+            }
+
+            async function handleAuthCallback(tokenResponse) {
+                accessToken = tokenResponse.access_token;
+                connected   = true;
+
+                const expiry = new Date();
+                expiry.setSeconds(expiry.getSeconds() + (tokenResponse.expires_in || 3600));
+                sessionStorage.setItem(K_TOKEN, accessToken);
+                sessionStorage.setItem(K_EXPIRY, expiry.toISOString());
+
+                onStatus('connected');
+                startAutoSync();
+                await findExistingBackupFile();
+            }
+
+            function handleAuthError(error) {
+                console.error('Google auth error:', error);
+                if (error && error.type === 'popup_closed') return;
+                alert('Failed to authenticate with Google. Try the manual token method.');
+            }
+
+            // Manual fallback: verify a pasted OAuth token, then connect.
+            async function connectWithToken(token) {
+                token = (token || '').trim();
+                if (!token) { alert('Please enter an access token'); return false; }
+
+                try {
+                    const resp = await fetch(
+                        'https://www.googleapis.com/drive/v3/about?fields=user',
+                        { headers: { 'Authorization': `Bearer ${token}` } }
+                    );
+                    if (!resp.ok) throw new Error('Invalid token');
+                    const data = await resp.json();
+
+                    accessToken = token;
+                    connected   = true;
+
+                    const expiry = new Date();
+                    expiry.setHours(expiry.getHours() + 1);
+                    sessionStorage.setItem(K_TOKEN, token);
+                    sessionStorage.setItem(K_EXPIRY, expiry.toISOString());
+
+                    onStatus('connected');
+                    startAutoSync();
+                    await findExistingBackupFile();
+                    alert(`Connected to Google Drive as ${data.user.displayName || data.user.emailAddress}`);
+                    return true;
+                } catch (e) {
+                    console.error('Token verification failed:', e);
+                    alert('Invalid access token. Please copy the correct token.');
+                    return false;
+                }
+            }
+
+            function disconnect() {
+                if (accessToken && typeof google !== 'undefined' && google.accounts) {
+                    try { google.accounts.oauth2.revoke(accessToken, () => {}); } catch (e) {}
+                }
+                accessToken = null;
+                connected   = false;
+                stopAutoSync();
+                sessionStorage.removeItem(K_TOKEN);
+                sessionStorage.removeItem(K_EXPIRY);
+                localStorage.removeItem(K_FILEID);
+                cloudFileId = null;
+                onStatus('disconnected');
+            }
+
+            function isConnected() { return connected && !!accessToken; }
+
+            // ========================================================================
+            // CROSS-ACCOUNT (PUBLIC) READ HELPERS
+            // Try the signed-in user's OAuth token first (owner path); fall back to a
+            // public read with CONFIG.API_KEY so any account can read a link-shared
+            // backup.
+            // ========================================================================
+            function hasPublicKey() {
+                return !!(CONFIG.API_KEY && CONFIG.API_KEY.trim());
+            }
+
+            // GET a file's contents. Returns the fetch Response, or null if no path.
+            async function fetchBackupMediaResponse(fileId) {
+                if (accessToken) {
+                    try {
+                        const resp = await fetch(
+                            `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+                            { headers: { 'Authorization': `Bearer ${accessToken}` } }
+                        );
+                        if (resp.status === 401) return resp;   // surface expired token
+                        if (resp.ok) return resp;
+                        // 403/404 under drive.file → fall through to public path
+                    } catch (e) { /* network error → try public */ }
+                }
+                if (hasPublicKey()) {
+                    return await fetch(
+                        `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${encodeURIComponent(CONFIG.API_KEY.trim())}`
+                    );
+                }
+                return null;
+            }
+
+            async function fetchCloudBackupData(fileId) {
+                const resp = await fetchBackupMediaResponse(fileId);
+                if (!resp) {
+                    throw new Error('Failed to download backup. To sync from a different Google account, set CONFIG.API_KEY and share the backup "Anyone with the link".');
+                }
+                if (resp.status === 401) throw new Error('invalid_token');
+                if (!resp.ok) {
+                    throw new Error(`Failed to download backup (HTTP ${resp.status}). Ensure the file is shared "Anyone with the link -> Viewer".`);
+                }
+                return await resp.json();
+            }
+
+            // List files matching a query (OAuth first, then public key).
+            async function driveListFiles(query, extraParams) {
+                const params = `q=${encodeURIComponent(query)}&fields=files(id,name,modifiedTime)${extraParams || ''}`;
+                if (accessToken) {
+                    try {
+                        const resp = await fetch(
+                            `https://www.googleapis.com/drive/v3/files?${params}`,
+                            { headers: { 'Authorization': `Bearer ${accessToken}` } }
+                        );
+                        if (resp.ok) {
+                            const data = await resp.json();
+                            if (data.files && data.files.length > 0) return data;
+                        }
+                    } catch (e) { /* fall through */ }
+                }
+                if (hasPublicKey()) {
+                    try {
+                        const resp = await fetch(
+                            `https://www.googleapis.com/drive/v3/files?${params}&key=${encodeURIComponent(CONFIG.API_KEY.trim())}`
+                        );
+                        if (resp.ok) return await resp.json();
+                    } catch (e) { /* fall through */ }
+                }
+                return { files: [] };
+            }
+
+            // Resolve the backup file's ID (fixed ID wins; else search the folder).
+            async function findExistingBackupFile() {
+                try {
+                    if (CONFIG.BACKUP_FILE_ID && CONFIG.BACKUP_FILE_ID.trim()) {
+                        cloudFileId = CONFIG.BACKUP_FILE_ID.trim();
+                        localStorage.setItem(K_FILEID, cloudFileId);
+                        return cloudFileId;
+                    }
+                    const query = `name='${CONFIG.BACKUP_FILE_NAME}' and '${CONFIG.FOLDER_ID}' in parents and trashed=false`;
+                    const data = await driveListFiles(query);
+                    if (data.files && data.files.length > 0) {
+                        cloudFileId = data.files[0].id;
+                        localStorage.setItem(K_FILEID, cloudFileId);
+                    }
+                    return cloudFileId;
+                } catch (e) {
+                    console.error('Error finding backup file:', e);
+                    return null;
+                }
+            }
+
+            // ========================================================================
+            // SAVE  (upload current state — create or PATCH)
+            // ========================================================================
+            function buildBackupEnvelope() {
+                return {
+                    version: '1.4',
+                    timestamp: new Date().toISOString(),
+                    savedBy: (typeof currentUser !== 'undefined' && currentUser)
+                        ? currentUser.username : 'Unknown',
+                    data: collectData()
+                };
+            }
+
+            async function uploadEnvelope(envelope, pretty) {
+                const json = JSON.stringify(envelope, null, pretty ? 2 : undefined);
+                const blob = new Blob([json], { type: 'application/json' });
+
+                if (cloudFileId) {
+                    // Update existing file (media upload).
+                    return await fetch(
+                        `https://www.googleapis.com/upload/drive/v3/files/${cloudFileId}?uploadType=media`,
+                        {
+                            method: 'PATCH',
+                            headers: {
+                                'Authorization': `Bearer ${accessToken}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: blob
+                        }
+                    );
+                }
+                // Create new file (multipart: metadata + content).
+                const metadata = {
+                    name: CONFIG.BACKUP_FILE_NAME,
+                    parents: [CONFIG.FOLDER_ID],
+                    mimeType: 'application/json'
+                };
+                const form = new FormData();
+                form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+                form.append('file', blob);
+
+                const resp = await fetch(
+                    'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name',
+                    { method: 'POST', headers: { 'Authorization': `Bearer ${accessToken}` }, body: form }
+                );
+                if (resp.ok) {
+                    const result = await resp.json();
+                    cloudFileId = result.id;
+                    localStorage.setItem(K_FILEID, cloudFileId);
+                }
+                return resp;
+            }
+
+            async function saveToCloud(opts) {
+                opts = opts || {};
+                if (!isConnected()) { alert('Please connect to Google Drive first'); return false; }
+                if (opts.confirm !== false &&
+                    !confirm('This will save your current data to the cloud. Continue?')) return false;
+
+                onStatus('syncing');
+                try {
+                    const resp = await uploadEnvelope(buildBackupEnvelope(), true);
+                    if (!resp.ok) {
+                        const err = await resp.json().catch(() => ({}));
+                        throw new Error((err.error && err.error.message) || 'Upload failed');
+                    }
+                    lastSyncTime = new Date();
+                    localStorage.setItem(K_LASTSYNC, lastSyncTime.toISOString());
+                    onStatus('synced');
+                    if (opts.silent !== true) alert('Data saved to Google Drive successfully!');
+                    return true;
+                } catch (e) {
+                    console.error('Error saving to cloud:', e);
+                    onStatus('connected');
+                    if (/invalid_token|Invalid Credentials/.test(e.message)) {
+                        alert('Your session has expired. Please reconnect to Google Drive.');
+                        disconnect();
+                    } else {
+                        alert(`Failed to save to cloud: ${e.message}`);
+                    }
+                    return false;
+                }
+            }
+
+            // ========================================================================
+            // SYNC  (download + restore)
+            // ========================================================================
+            async function syncFromCloud(opts) {
+                opts = opts || {};
+                if (!isConnected()) { alert('Please connect to Google Drive first'); return false; }
+
+                if (!cloudFileId) await findExistingBackupFile();
+                if (!cloudFileId) {
+                    if (opts.silent !== true) alert('No backup file found. Save your data first to create one.');
+                    return false;
+                }
+                if (opts.confirm !== false &&
+                    !confirm('This will replace your local data with the cloud backup. Continue?')) return false;
+
+                onStatus('syncing');
+                try {
+                    const envelope = await fetchCloudBackupData(cloudFileId);
+                    if (!envelope.data || !envelope.version) {
+                        throw new Error('Invalid backup file format');
+                    }
+
+                    applyData(envelope.data, envelope);   // host app restores its state
+
+                    lastSyncTime = new Date();
+                    localStorage.setItem(K_LASTSYNC, lastSyncTime.toISOString());
+                    onStatus('synced');
+                    if (opts.silent !== true) {
+                        const when = new Date(envelope.timestamp).toLocaleString();
+                        alert(`Data synced from cloud successfully!\n\nBackup created: ${when}\nSaved by: ${envelope.savedBy || 'Unknown'}`);
+                    }
+                    return envelope;
+                } catch (e) {
+                    console.error('Error syncing from cloud:', e);
+                    onStatus('connected');
+                    if (/invalid_token|Invalid Credentials/.test(e.message)) {
+                        alert('Your session has expired. Please reconnect to Google Drive.');
+                        disconnect();
+                    } else {
+                        if (opts.silent !== true) alert(`Failed to sync from cloud: ${e.message}`);
+                    }
+                    return false;
+                }
+            }
+
+            // ========================================================================
+            // AUTO-SYNC  (download → merge → upload, every 2 minutes)
+            // Only fires while connected. Call GDriveSync.markDirty() after local edits
+            // so a no-change cycle is skipped.
+            // ========================================================================
+            let dataIsDirty = false;
+            function markDirty() { dataIsDirty = true; }
+
+            function startAutoSync() {
+                if (autoSyncInterval) return;
+                autoSyncInterval = setInterval(performAutoSync, AUTO_SYNC_INTERVAL_MS);
+            }
+
+            function stopAutoSync() {
+                if (autoSyncInterval) { clearInterval(autoSyncInterval); autoSyncInterval = null; }
+            }
+
+            async function performAutoSync() {
+                if (autoSyncInProgress || !isConnected() || !dataIsDirty) return;
+                dataIsDirty = false;
+                autoSyncInProgress = true;
+                try {
+                    if (!cloudFileId) await findExistingBackupFile();
+
+                    // Pull remote first so concurrent edits from other clients survive.
+                    if (cloudFileId) {
+                        try {
+                            const dl = await fetchBackupMediaResponse(cloudFileId);
+                            if (dl && dl.status === 401) { stopAutoSync(); return; }
+                            if (dl && dl.ok) {
+                                const remote = await dl.json();
+                                if (remote && remote.data) applyData(remote.data, remote);
+                            }
+                        } catch (e) { autoSyncInProgress = false; return; }
+                    }
+
+                    const resp = await uploadEnvelope(buildBackupEnvelope(), false);
+                    if (resp && resp.ok) {
+                        lastSyncTime = new Date();
+                        localStorage.setItem(K_LASTSYNC, lastSyncTime.toISOString());
+                        onStatus('synced');
+                    } else if (resp && resp.status === 401) {
+                        stopAutoSync();
+                    }
+                } catch (e) {
+                    console.log('[AutoSync] Error:', e.message);
+                } finally {
+                    autoSyncInProgress = false;
+                }
+            }
+
+            // ---- Public surface ----------------------------------------------------
+            return {
+                init,
+                connect,
+                connectWithToken,
+                disconnect,
+                isConnected,
+                saveToCloud,
+                syncFromCloud,
+                findExistingBackupFile,
+                startAutoSync,
+                stopAutoSync,
+                markDirty,
+                performAutoSync,
+                get cloudFileId() { return cloudFileId; },
+                get lastSyncTime() { return lastSyncTime; },
+                CONFIG
+            };
+        })();
+
+        // Expose globally for inline onclick="GDriveSync.saveToCloud()" etc.
+        if (typeof window !== 'undefined') window.GDriveSync = GDriveSync;
+
+        // ============================================
+        // GDriveSync ←→ dashboard integration
+        // ============================================
+
+        let suppressDirtyFlag = false;
+
+        // Every save in the app calls this; the auto-sync cycle only
+        // talks to Drive when something actually changed
+        function markDataDirty() {
+            if (!suppressDirtyFlag) GDriveSync.markDirty();
+        }
+
+        // What gets stored under the backup envelope's .data
+        function collectDashboardData() {
+            return {
+                staffData: staffData,
+                leaveRecords: leaveRecords,
+                scheduleData: scheduleData,
+                timeTrackingRecords: timeTrackingRecords,
+                reminders: reminders,
+                pmasDocuments: pmasDocuments
+            };
+        }
+
+        function buildFullBackup() {
+            return {
+                exportDate: new Date().toISOString(),
+                version: '2.0',
+                savedBy: currentUser ? currentUser.displayName : '',
+                ...collectDashboardData()
+            };
+        }
+
+        // ---- Merge (union, newest wins) ----
+
+        function mergeById(localArr, cloudArr, keyFn) {
+            const ts = item => new Date(item.updatedAt || item.timestamp || item.createdAt || 0).getTime();
+            const map = new Map();
+            (cloudArr || []).forEach(item => map.set(keyFn(item), item));
+            (localArr || []).forEach(item => {
+                const key = keyFn(item);
+                const existing = map.get(key);
+                if (!existing || ts(item) >= ts(existing)) map.set(key, item);
+            });
+            return Array.from(map.values());
+        }
+
+        // applyData callback: merge the downloaded cloud data into local
+        // state (union, newest wins — nothing from either side is lost),
+        // persist, and refresh whatever view is on screen
+        function applyCloudData(data) {
+            suppressDirtyFlag = true;
+            try {
+                staffData = mergeById(staffData, data.staffData, s => String(s.trn));
+                leaveRecords = mergeById(leaveRecords, data.leaveRecords, l => String(l.id));
+                timeTrackingRecords = mergeById(timeTrackingRecords, data.timeTrackingRecords, r => String(r.id));
+                reminders = mergeById(reminders, data.reminders, r => String(r.id));
+                pmasDocuments = mergeById(pmasDocuments, data.pmasDocuments, d => String(d.id));
+                // Per-day union — a day scheduled locally wins over the cloud copy
+                scheduleData = Object.assign({}, data.scheduleData || {}, scheduleData || {});
+
+                localStorage.setItem('staffData', JSON.stringify(staffData));
+                saveLeaveRecordsToLocalStorage();
+                localStorage.setItem('hospitalScheduleData', JSON.stringify(scheduleData));
+                saveTimeTrackingRecordsToStorage();
+                localStorage.setItem('hospitalReminders', JSON.stringify(reminders));
+                savePmasDocuments();
+
+                refreshAfterDataChange();
+            } finally {
+                suppressDirtyFlag = false;
+            }
+        }
+
+        function refreshAfterDataChange() {
+            if (currentView === 'monitor') {
+                renderStaff();
+                updateMonitorStats();
+            } else if (currentView === 'leaves') {
+                populateLeaveFilterDropdowns();
+                if (leaveCalendarView) {
+                    renderLeaveCalendar();
+                } else {
+                    renderLeaves();
+                    updateLeaveStats();
+                }
+            } else if (currentView === 'analytics') {
+                updateAnalyticsMetrics();
+                createCharts();
+                renderDepartments();
+            } else if (currentView === 'schedule') {
+                renderCalendar();
+            } else if (currentView === 'timetracking') {
+                renderTimeTrackingRecords();
+                updateTimeTrackingStats();
+            } else if (currentView === 'pmas') {
+                renderPmasDocuments();
+                updatePmasStats();
+            }
+            updatePeriodUI();
+        }
+
+        // ---- Status pill / Drive page UI ----
+
+        function handleDriveStatus(state) {
+            const pill = document.getElementById('driveStatusPill');
+            const text = document.getElementById('driveStatusText');
+            const connected = state === 'connected' || state === 'synced' || state === 'syncing';
+            if (pill) {
+                pill.classList.toggle('connected', connected);
+                const dot = pill.querySelector('.drive-dot');
+                if (dot) dot.classList.toggle('off', !connected);
+                pill.title = connected
+                    ? 'Google Drive connected — click to manage'
+                    : 'Google Drive not connected — click to set up';
+            }
+            if (text) {
+                text.textContent = state === 'syncing' ? 'Syncing…' : (connected ? 'Connected' : 'Drive');
+            }
+            updateDrivePageStatus(connected, state);
+        }
+
+        function updateDrivePageStatus(connected, state) {
+            const stateEl = document.getElementById('driveConnectionState');
+            if (stateEl) {
+                stateEl.innerHTML = connected
+                    ? `🟢 Connected to Google Drive<small>Backup file: "${GDriveSync.CONFIG.BACKUP_FILE_NAME}"${state === 'syncing' ? ' • Syncing…' : ''}</small>`
+                    : '⚪ Not connected<small>Connect a Google account to get started</small>';
+            }
+            const connectBtn = document.getElementById('driveConnectBtn');
+            const disconnectBtn = document.getElementById('driveDisconnectBtn');
+            if (connectBtn) connectBtn.style.display = connected ? 'none' : 'inline-flex';
+            if (disconnectBtn) disconnectBtn.style.display = connected ? 'inline-flex' : 'none';
+            const lastSyncLabel = document.getElementById('driveLastSync');
+            if (lastSyncLabel && GDriveSync.lastSyncTime) {
+                lastSyncLabel.textContent = '✅ Last synced: ' + GDriveSync.lastSyncTime.toLocaleString();
+            }
+            const folderLink = document.getElementById('driveFolderLink');
+            if (folderLink && GDriveSync.CONFIG.FOLDER_ID) {
+                folderLink.href = 'https://drive.google.com/drive/folders/' + GDriveSync.CONFIG.FOLDER_ID;
+                folderLink.style.display = 'inline-flex';
+            }
+        }
+
+        function initGDriveSync() {
+            let overrides = {};
+            try { overrides = JSON.parse(localStorage.getItem('gdriveConfigOverrides')) || {}; } catch (e) { /* ignore */ }
+            // Migration: drop a saved override still pointing at the old
+            // (Asset Dashboard) folder so the new default folder applies
+            if (overrides.FOLDER_ID === '1Vocl734yPgv9F36zgjo1DsCB2HCLSNyr') {
+                delete overrides.FOLDER_ID;
+                localStorage.setItem('gdriveConfigOverrides', JSON.stringify(overrides));
+                localStorage.removeItem('gdriveCloudFileId');
+            }
+            GDriveSync.init({
+                config: overrides,
+                collectData: collectDashboardData,
+                applyData: applyCloudData,
+                onStatus: handleDriveStatus
+            });
+        }
+
+        function initDriveView() {
+            const cfg = GDriveSync.CONFIG;
+            const set = (id, value) => { const el = document.getElementById(id); if (el) el.value = value || ''; };
+            set('driveClientIdInput', cfg.CLIENT_ID);
+            set('driveFolderIdInput', cfg.FOLDER_ID);
+            set('driveApiKeyInput', cfg.API_KEY);
+            set('driveBackupFileIdInput', cfg.BACKUP_FILE_ID);
+            handleDriveStatus(GDriveSync.isConnected() ? 'connected' : 'disconnected');
+        }
+
+        function saveDriveSettings() {
+            const get = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+            const overrides = {
+                CLIENT_ID: get('driveClientIdInput') || GDriveSync.CONFIG.CLIENT_ID,
+                FOLDER_ID: get('driveFolderIdInput') || GDriveSync.CONFIG.FOLDER_ID,
+                API_KEY: get('driveApiKeyInput'),
+                BACKUP_FILE_ID: get('driveBackupFileIdInput')
+            };
+            localStorage.setItem('gdriveConfigOverrides', JSON.stringify(overrides));
+            Object.assign(GDriveSync.CONFIG, overrides);
+            showAlert('✅ Google Drive settings saved');
+            updateDrivePageStatus(GDriveSync.isConnected());
+        }
+
+        function connectManualToken() {
+            const el = document.getElementById('driveManualTokenInput');
+            GDriveSync.connectWithToken(el ? el.value : '').then(ok => {
+                if (ok && el) el.value = '';
+            });
+        }
+
+        // Runs when you sign in to the dashboard: if Drive is still
+        // connected from this browser session, pull the cloud backup and
+        // merge it in so you never start from stale data
+        function performAutoSyncOnLogin() {
+            if (GDriveSync.isConnected()) {
+                GDriveSync.syncFromCloud({ confirm: false, silent: true });
+            }
+        }
+
+        // Replace all dashboard data with the contents of a backup
+        // (used by both Drive restore and file import)
+        function applyBackupData(importedData) {
+            staffData = importedData.staffData || [];
+            leaveRecords = importedData.leaveRecords || [];
+            scheduleData = importedData.scheduleData || {};
+            timeTrackingRecords = importedData.timeTrackingRecords || [];
+
+            localStorage.setItem('staffData', JSON.stringify(staffData));
+            saveLeaveRecordsToLocalStorage();
+            localStorage.setItem('hospitalScheduleData', JSON.stringify(scheduleData));
+            saveTimeTrackingRecordsToStorage();
+
+            if (importedData.reminders) {
+                reminders = importedData.reminders;
+                localStorage.setItem('hospitalReminders', JSON.stringify(reminders));
+            }
+            if (importedData.pmasDocuments) {
+                pmasDocuments = importedData.pmasDocuments;
+                savePmasDocuments();
+            }
+
+            renderStaff();
+            updateMonitorStats();
+            renderLeaves();
+            updateLeaveStats();
+            renderCalendar();
+            renderTimeTrackingRecords();
+            updateTimeTrackingStats();
+            updatePeriodUI();
+        }
+
         // ============================================
         // DATA EXPORT/IMPORT FUNCTIONS
         // ============================================
@@ -8831,26 +9748,8 @@
                             return;
                         }
 
-                        // Import all data
-                        staffData = importedData.staffData || [];
-                        leaveRecords = importedData.leaveRecords || [];
-                        scheduleData = importedData.scheduleData || {};
-                        timeTrackingRecords = importedData.timeTrackingRecords || [];
-
-                        // Save to localStorage
-                        localStorage.setItem('staffData', JSON.stringify(staffData));
-                        saveLeaveRecordsToLocalStorage();
-                        localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
-                        saveTimeTrackingRecordsToStorage();
-
-                        // Refresh displays
-                        renderStaff();
-                        updateMonitorStats();
-                        renderLeaves();
-                        updateLeaveStats();
-                        renderCalendar();
-                        renderTimeTrackingRecords();
-                        updateTimeTrackingStats();
+                        // Import all data (shared with Google Drive restore)
+                        applyBackupData(importedData);
 
                         showAlert(`✅ Successfully imported all data!\n` +
                                 `Staff: ${staffData.length} | Leaves: ${leaveRecords.length} | ` +
@@ -8872,18 +9771,25 @@
 
         // Ensure staff data is saved to localStorage
         function saveStaffDataToLocalStorage() {
+            markDataDirty();
             localStorage.setItem('staffData', JSON.stringify(staffData));
         }
 
         // Save all data to localStorage (manual save button)
         function saveAllData() {
             try {
+                markDataDirty();
                 localStorage.setItem('staffData', JSON.stringify(staffData));
                 saveLeaveRecordsToLocalStorage();
                 localStorage.setItem('hospitalScheduleData', JSON.stringify(scheduleData));
                 saveTimeTrackingRecordsToStorage();
                 savePmasDocuments();
                 showAlert('✅ All data saved successfully to browser storage!');
+
+                // Push to Google Drive right away instead of waiting for the next cycle
+                if (GDriveSync.isConnected()) {
+                    GDriveSync.saveToCloud({ confirm: false, silent: true });
+                }
                 console.log('All data saved:', {
                     staff: staffData.length,
                     leaves: leaveRecords.length,
@@ -8995,6 +9901,7 @@
         }
 
         function saveTimeTrackingRecordsToStorage() {
+            markDataDirty();
             localStorage.setItem('timeTrackingRecords', JSON.stringify(timeTrackingRecords));
         }
 
@@ -9486,6 +10393,7 @@
 
         function savePmasDocuments() {
             try {
+                markDataDirty();
                 localStorage.setItem('pmasDocuments', JSON.stringify(pmasDocuments));
             } catch (e) {
                 console.error('Error saving PMAS documents:', e);
