@@ -2943,6 +2943,54 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
+        /* Clickable totals in staff monthly report */
+        .sr-metric {
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.15s ease, transform 0.15s ease;
+        }
+
+        .sr-metric:hover {
+            background: #e6fffa;
+            transform: translateY(-2px);
+        }
+
+        .sr-metric.active {
+            background: #d1fae5;
+            box-shadow: inset 0 0 0 2px #10b981;
+        }
+
+        .sr-click-hint {
+            font-size: 12px;
+            color: #718096;
+            margin: 10px 0 0;
+        }
+
+        .sr-breakdown {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px 18px;
+            margin-top: 12px;
+        }
+
+        .sr-breakdown h4 {
+            color: #1a202c;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        @media print {
+            .sr-click-hint,
+            .sr-breakdown {
+                display: none !important;
+            }
+
+            .sr-metric {
+                cursor: default;
+            }
+        }
+
         @media (max-width: 1024px) {
             body.app-mode .container#dashboardContainer {
                 padding: 15px;
@@ -8404,30 +8452,34 @@
 
         function buildStaffMonthlySection(staff, detail) {
             const { stats, leaves, tracking } = detail;
+            const metricTile = (metric, value, label) => `
+                        <div class="print-summary-item sr-metric" data-trn="${staff.trn}" data-metric="${metric}" onclick="srToggleBreakdown(this)" title="Click to see the exact days and comments"><div class="print-summary-value">${value}</div><div class="print-summary-label">${label}</div></div>`;
             let html = `
                 <div style="margin-bottom: 35px; page-break-inside: avoid;">
                     <h2 style="color: #1a202c; border-bottom: 3px solid #10b981; padding-bottom: 10px; margin-bottom: 15px;">
                         ${staff.name} <span style="font-size: 14px; color: #718096; font-weight: 400;">TRN: ${staff.trn} • ${staff.department} • ${staff.role || 'Staff'}</span>
                     </h2>
                     <div class="print-summary">
-                        <div class="print-summary-item"><div class="print-summary-value">${stats.total}</div><div class="print-summary-label">Total Absence Days</div></div>
-                        <div class="print-summary-item"><div class="print-summary-value">${stats.sickLeave}</div><div class="print-summary-label">Sick Leave</div></div>
-                        <div class="print-summary-item"><div class="print-summary-value">${stats.vacationLeave}</div><div class="print-summary-label">Vacation</div></div>
-                        <div class="print-summary-item"><div class="print-summary-value">${stats.dayOff}</div><div class="print-summary-label">Days Off</div></div>
-                        <div class="print-summary-item"><div class="print-summary-value">${stats.departmentalLeave}</div><div class="print-summary-label">Dept. Leave</div></div>
-                        <div class="print-summary-item"><div class="print-summary-value">${stats.late}</div><div class="print-summary-label">Late Arrivals</div></div>
-                        <div class="print-summary-item"><div class="print-summary-value">${stats.overTime}</div><div class="print-summary-label">Overtime Hrs</div></div>
-                        <div class="print-summary-item"><div class="print-summary-value">${stats.claims}</div><div class="print-summary-label">Claims</div></div>
+                        ${metricTile('total', stats.total, 'Total Absence Days')}
+                        ${metricTile('sickLeave', stats.sickLeave, 'Sick Leave')}
+                        ${metricTile('vacationLeave', stats.vacationLeave, 'Vacation')}
+                        ${metricTile('dayOff', stats.dayOff, 'Days Off')}
+                        ${metricTile('departmentalLeave', stats.departmentalLeave, 'Dept. Leave')}
+                        ${metricTile('late', stats.late, 'Late Arrivals')}
+                        ${metricTile('overTime', stats.overTime, 'Overtime Hrs')}
+                        ${metricTile('claims', stats.claims, 'Claims')}
                     </div>
+                    <p class="sr-click-hint">💡 Click any total above to see exactly which days, along with comments</p>
+                    <div class="sr-breakdown" style="display: none;"></div>
             `;
 
             if (leaves.length > 0) {
                 html += `
                     <h3 style="color: #1a202c; margin: 20px 0 8px;">📋 Leave Records</h3>
                     <table class="print-table">
-                        <thead><tr><th>Leave Type</th><th>Start Date</th><th>End Date</th><th>Days in Month</th><th>Status</th></tr></thead>
+                        <thead><tr><th>Leave Type</th><th>Start Date</th><th>End Date</th><th>Days in Month</th><th>Status</th><th>Comments</th></tr></thead>
                         <tbody>
-                            ${leaves.map(({ leave, days }) => `<tr><td>${getLeaveTypeName(leave.leaveType)}</td><td>${formatDate(leave.startDate)}</td><td>${formatDate(leave.endDate)}</td><td>${days}</td><td style="text-transform: uppercase;">${getLeaveStatus(leave.startDate, leave.endDate)}</td></tr>`).join('')}
+                            ${leaves.map(({ leave, days }) => `<tr><td>${getLeaveTypeName(leave.leaveType)}</td><td>${formatDate(leave.startDate)}</td><td>${formatDate(leave.endDate)}</td><td>${days}</td><td style="text-transform: uppercase;">${getLeaveStatus(leave.startDate, leave.endDate)}</td><td>${leave.reason || '—'}</td></tr>`).join('')}
                         </tbody>
                     </table>
                 `;
@@ -8451,6 +8503,129 @@
 
             html += '</div>';
             return html;
+        }
+
+        // Data behind the last generated monthly report, keyed by staff TRN,
+        // so clicking a total can show the day-by-day breakdown
+        let srReportDetails = {};
+
+        const SR_METRIC_LABELS = {
+            total: 'Total Absence Days',
+            sickLeave: 'Sick Leave',
+            vacationLeave: 'Vacation',
+            dayOff: 'Days Off',
+            departmentalLeave: 'Departmental Leave',
+            late: 'Late Arrivals',
+            overTime: 'Overtime',
+            claims: 'Claims'
+        };
+
+        const SR_LEAVE_TYPES_BY_METRIC = {
+            total: ['sick', 'vacation', 'dayoff', 'dept'],
+            sickLeave: ['sick'],
+            vacationLeave: ['vacation'],
+            dayOff: ['dayoff'],
+            departmentalLeave: ['dept']
+        };
+
+        const SR_TRACKING_TYPE_BY_METRIC = {
+            late: 'late',
+            overTime: 'overtime',
+            claims: 'claims'
+        };
+
+        function srToggleBreakdown(tile) {
+            const trn = tile.getAttribute('data-trn');
+            const metric = tile.getAttribute('data-metric');
+            const data = srReportDetails[trn];
+            const summary = tile.closest('.print-summary');
+            if (!data || !summary) return;
+            const section = summary.parentElement;
+            const panel = section ? section.querySelector('.sr-breakdown') : null;
+            if (!panel) return;
+
+            const alreadyOpen = panel.style.display !== 'none' && panel.getAttribute('data-metric') === metric;
+            summary.querySelectorAll('.sr-metric').forEach(t => t.classList.remove('active'));
+
+            if (alreadyOpen) {
+                panel.style.display = 'none';
+                panel.removeAttribute('data-metric');
+                return;
+            }
+
+            tile.classList.add('active');
+            panel.setAttribute('data-metric', metric);
+            panel.innerHTML = buildSrBreakdownHtml(data, metric);
+            panel.style.display = 'block';
+        }
+
+        function buildSrBreakdownHtml(data, metric) {
+            const { detail, range } = data;
+            const rows = [];
+
+            const leaveTypes = SR_LEAVE_TYPES_BY_METRIC[metric];
+            if (leaveTypes) {
+                detail.leaves.forEach(({ leave }) => {
+                    if (!leaveTypes.includes(leave.leaveType)) return;
+                    // Enumerate each day of the leave that falls inside the month
+                    let day = parseLocalDate(leave.startDate);
+                    const leaveEnd = parseLocalDate(leave.endDate);
+                    if (day < range.start) day = new Date(range.start.getFullYear(), range.start.getMonth(), range.start.getDate());
+                    const end = leaveEnd < range.end ? leaveEnd : range.end;
+                    while (day <= end) {
+                        rows.push({
+                            date: new Date(day),
+                            category: getLeaveTypeName(leave.leaveType),
+                            hours: '—',
+                            comments: leave.reason || '—'
+                        });
+                        day.setDate(day.getDate() + 1);
+                    }
+                });
+                // Day-off entries can also come from time tracking
+                if (metric === 'dayOff' || metric === 'total') {
+                    detail.tracking.forEach(rec => {
+                        if (rec.type !== 'dayoff') return;
+                        rows.push({
+                            date: parseLocalDate(rec.date),
+                            category: 'Day Off',
+                            hours: '—',
+                            comments: rec.notes || '—'
+                        });
+                    });
+                }
+            } else {
+                const trackingType = SR_TRACKING_TYPE_BY_METRIC[metric];
+                detail.tracking.forEach(rec => {
+                    if (rec.type !== trackingType) return;
+                    rows.push({
+                        date: parseLocalDate(rec.date),
+                        category: getTimeTrackingTypeName(rec.type),
+                        hours: rec.hours ? Math.round(rec.hours * 10) / 10 : '—',
+                        comments: rec.notes || '—'
+                    });
+                });
+            }
+
+            const title = SR_METRIC_LABELS[metric] || metric;
+            if (rows.length === 0) {
+                return `
+                    <h4>📅 ${title} — Day-by-Day</h4>
+                    <p style="color: #718096;">No ${title.toLowerCase()} recorded for this month.</p>
+                `;
+            }
+
+            rows.sort((a, b) => a.date - b.date);
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            return `
+                <h4>📅 ${title} — Day-by-Day (${rows.length} ${rows.length === 1 ? 'entry' : 'entries'})</h4>
+                <table class="print-table" style="margin-top: 0;">
+                    <thead><tr><th>Date</th><th>Day</th><th>Category</th><th>Hours</th><th>Comments</th></tr></thead>
+                    <tbody>
+                        ${rows.map(r => `<tr><td>${r.date.toLocaleDateString()}</td><td>${dayNames[r.date.getDay()]}</td><td>${r.category}</td><td>${r.hours}</td><td>${r.comments}</td></tr>`).join('')}
+                    </tbody>
+                </table>
+            `;
         }
 
         function generateStaffMonthlyReport(printIt) {
@@ -8485,6 +8660,11 @@
             }
 
             const details = targets.map(staff => ({ staff, detail: getStaffMonthlyDetail(staff, range) }));
+
+            srReportDetails = {};
+            details.forEach(({ staff, detail }) => {
+                srReportDetails[String(staff.trn)] = { detail, range };
+            });
 
             let html = `
                 <div class="print-header">
