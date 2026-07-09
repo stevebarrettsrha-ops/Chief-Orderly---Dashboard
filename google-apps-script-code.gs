@@ -34,19 +34,6 @@ const SHEET_IDS = {
 };
 
 // ============================================
-// GOOGLE DRIVE BACKUP CONFIGURATION
-// ============================================
-
-const DRIVE_BACKUP = {
-  // Backups are saved into this folder in the Google Drive of the
-  // account that deployed this script (created automatically)
-  FOLDER_NAME: 'Chief Orderly Backups',
-
-  // Oldest backups beyond this count are moved to trash automatically
-  MAX_BACKUPS: 30
-};
-
-// ============================================
 // MAIN HANDLER - Processes all requests
 // ============================================
 
@@ -63,10 +50,6 @@ function doGet(e) {
         return getTimeTrackingFromSheet();
       case 'getStaff':
         return getStaffFromSheet();
-      case 'listDriveBackups':
-        return listDriveBackups();
-      case 'getDriveBackup':
-        return getDriveBackup(e.parameter.fileId);
       default:
         // Default action: return staff data (for backwards compatibility)
         return getStaffFromSheet();
@@ -108,10 +91,6 @@ function doPost(e) {
       // Time Tracking Actions (NEW)
       case 'addTimeTracking':
         return addTimeTrackingRecord(data.timeTrackingData);
-
-      // Google Drive Backup Actions
-      case 'saveBackupToDrive':
-        return saveBackupToDrive(data.backupData);
 
       default:
         return ContentService.createTextOutput(JSON.stringify({
@@ -494,88 +473,6 @@ function getTimeTrackingFromSheet() {
   return ContentService.createTextOutput(JSON.stringify({
     status: 'success',
     timeTrackingData: records
-  })).setMimeType(ContentService.MimeType.JSON);
-}
-
-// ============================================
-// GOOGLE DRIVE BACKUP FUNCTIONS
-// ============================================
-
-function getOrCreateBackupFolder() {
-  const folders = DriveApp.getFoldersByName(DRIVE_BACKUP.FOLDER_NAME);
-  return folders.hasNext() ? folders.next() : DriveApp.createFolder(DRIVE_BACKUP.FOLDER_NAME);
-}
-
-function saveBackupToDrive(backupData) {
-  const folder = getOrCreateBackupFolder();
-  const timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd_HH-mm-ss');
-  const fileName = 'chief-orderly-backup-' + timestamp + '.json';
-  const file = folder.createFile(fileName, JSON.stringify(backupData, null, 2), 'application/json');
-
-  pruneOldBackups(folder);
-
-  return ContentService.createTextOutput(JSON.stringify({
-    status: 'success',
-    fileName: fileName,
-    fileUrl: file.getUrl(),
-    folderName: DRIVE_BACKUP.FOLDER_NAME,
-    folderUrl: folder.getUrl()
-  })).setMimeType(ContentService.MimeType.JSON);
-}
-
-function pruneOldBackups(folder) {
-  const files = [];
-  const iterator = folder.getFiles();
-  while (iterator.hasNext()) {
-    const f = iterator.next();
-    if (f.getName().indexOf('chief-orderly-backup-') === 0) files.push(f);
-  }
-  if (files.length <= DRIVE_BACKUP.MAX_BACKUPS) return;
-  files.sort(function(a, b) { return b.getDateCreated() - a.getDateCreated(); });
-  for (let i = DRIVE_BACKUP.MAX_BACKUPS; i < files.length; i++) {
-    files[i].setTrashed(true);
-  }
-}
-
-function listDriveBackups() {
-  const folder = getOrCreateBackupFolder();
-  const backups = [];
-  const iterator = folder.getFiles();
-  while (iterator.hasNext()) {
-    const f = iterator.next();
-    if (f.getName().indexOf('chief-orderly-backup-') !== 0) continue;
-    backups.push({
-      id: f.getId(),
-      name: f.getName(),
-      createdAt: f.getDateCreated().toISOString(),
-      size: f.getSize(),
-      url: f.getUrl()
-    });
-  }
-  backups.sort(function(a, b) { return b.createdAt.localeCompare(a.createdAt); });
-
-  return ContentService.createTextOutput(JSON.stringify({
-    status: 'success',
-    folderName: DRIVE_BACKUP.FOLDER_NAME,
-    folderUrl: folder.getUrl(),
-    backups: backups
-  })).setMimeType(ContentService.MimeType.JSON);
-}
-
-function getDriveBackup(fileId) {
-  if (!fileId) {
-    return ContentService.createTextOutput(JSON.stringify({
-      status: 'error',
-      message: 'Missing fileId parameter'
-    })).setMimeType(ContentService.MimeType.JSON);
-  }
-  const file = DriveApp.getFileById(fileId);
-  const backup = JSON.parse(file.getBlob().getDataAsString());
-
-  return ContentService.createTextOutput(JSON.stringify({
-    status: 'success',
-    fileName: file.getName(),
-    backup: backup
   })).setMimeType(ContentService.MimeType.JSON);
 }
 
