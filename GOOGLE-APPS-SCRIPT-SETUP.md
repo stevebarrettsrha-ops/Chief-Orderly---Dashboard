@@ -190,6 +190,24 @@ If you make changes to the Google Apps Script code:
 
 ---
 
+## ☁️ Google Drive Backups
+
+The dashboard can save full backups (staff, leaves, schedule, time tracking, reminders, PMAS documents) as JSON files into a Google Drive folder called **"Chief Orderly Backups"**. The folder is created automatically in the Drive of the account that deployed the Apps Script.
+
+**Setup:**
+
+1. Make sure the latest `google-apps-script-code.gs` is deployed (it includes the `saveBackupToDrive`, `listDriveBackups`, and `getDriveBackup` actions). If you deployed an older version, redeploy — see "Redeploying After Code Changes" above.
+2. The first time a backup runs, Google will ask the script for permission to access Google Drive — approve it.
+3. In the dashboard, open **Google Drive Backup** in the sidebar (under Tools):
+   - Paste your Web App URL into the settings field and click **Save Settings**
+   - Click **Test Connection** — the top bar pill turns green: **☁️ Connected**
+   - Click **Back Up Now** to create a backup, or leave **auto-backup** enabled so every 💾 Save also pushes a backup to Drive
+4. Use **Restore** next to any backup in the list to load that snapshot back into the dashboard, or **Open Drive Folder** to see the files in Google Drive.
+
+The 30 most recent backups are kept; older ones are moved to the Drive trash automatically (adjust `DRIVE_BACKUP.MAX_BACKUPS` in the script).
+
+---
+
 ## 🎉 You're All Set!
 
 After completing these steps, your dashboard should work perfectly. All data will sync across dashboards and to Google Sheets!

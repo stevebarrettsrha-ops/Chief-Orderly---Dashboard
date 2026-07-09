@@ -2943,6 +2943,101 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
+        /* GOOGLE DRIVE BACKUP */
+        .drive-status-pill {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .drive-status-pill:hover {
+            border-color: #10b981;
+        }
+
+        .drive-status-pill.connected {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #047857;
+        }
+
+        .drive-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 6px rgba(16, 185, 129, 0.7);
+            flex-shrink: 0;
+        }
+
+        .drive-dot.off {
+            background: #a0aec0;
+            box-shadow: none;
+        }
+
+        .drive-card {
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .drive-status-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .drive-conn {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .drive-conn small {
+            display: block;
+            font-size: 12px;
+            font-weight: 400;
+            color: #718096;
+            margin-top: 3px;
+        }
+
+        .drive-backup-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .drive-backup-item .backup-name {
+            font-weight: 600;
+            color: #1a202c;
+            font-size: 14px;
+        }
+
+        .drive-backup-item .backup-meta {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 3px;
+        }
+
         /* Clickable totals in staff monthly report */
         .sr-metric {
             cursor: pointer;
@@ -3102,6 +3197,11 @@
                     <span>📁</span>
                     <span>PMAS</span>
                 </button>
+                <div class="sidebar-section-label">Tools</div>
+                <button class="nav-tab" data-view="drive">
+                    <span>☁️</span>
+                    <span>Google Drive Backup</span>
+                </button>
             </nav>
             <div class="sidebar-footer">
                 <div class="sidebar-user">
@@ -3138,7 +3238,10 @@
                     <button class="quarter-btn" data-quarter="3" onclick="setQuarter(3)" title="Quarter 3 (Oct – Dec)">Q3</button>
                     <button class="quarter-btn" data-quarter="4" onclick="setQuarter(4)" title="Quarter 4 (Jan – Mar)">Q4</button>
                 </div>
-                <button onclick="saveAllData()" class="save-data-btn" title="Save all data to browser storage">
+                <div class="drive-status-pill" id="driveStatusPill" onclick="switchView('drive')" title="Google Drive backup — click to manage">
+                    ☁️ <span class="drive-dot off"></span> <span id="driveStatusText">Drive</span>
+                </div>
+                <button onclick="saveAllData()" class="save-data-btn" title="Save all data to browser storage (and back up to Google Drive)">
                     💾 Save
                 </button>
                 <button onclick="recalculateStaffCounters()" class="sync-data-btn" title="Recalculate staff counters from leave records">
@@ -3978,6 +4081,12 @@
                     <div class="report-description" style="color: rgba(255,255,255,0.9);">Restore data from backup file</div>
                 </div>
 
+                <div class="report-card" onclick="switchView('drive')" style="background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);">
+                    <div class="report-icon">☁️</div>
+                    <div class="report-title" style="color: white;">Google Drive Backup</div>
+                    <div class="report-description" style="color: rgba(255,255,255,0.9);">Save and restore backups from your Drive folder</div>
+                </div>
+
                 <div class="report-card" onclick="exportStaffData()">
                     <div class="report-icon">👥</div>
                     <div class="report-title">Export Staff Data</div>
@@ -4048,6 +4157,54 @@
                     <div style="font-size: 40px; margin-bottom: 12px;">🧾</div>
                     <p>Select a staff member (or All Staff) and a month, then click <strong>Generate Report</strong>.</p>
                 </div>
+            </div>
+        </div>
+
+        <!-- GOOGLE DRIVE BACKUP VIEW -->
+        <div id="driveView" class="view-section">
+            <div class="header">
+                <h2 style="color: #1a202c; font-size: 24px; margin-bottom: 8px;">☁️ Google Drive Backup</h2>
+                <p style="color: #718096; font-size: 14px;">Save the entire dashboard (staff, leaves, schedule, time tracking, reminders, PMAS) to a folder in your Google Drive, and restore from any backup</p>
+            </div>
+
+            <div class="drive-card">
+                <div class="drive-status-row">
+                    <div class="drive-conn" id="driveConnectionState">⚪ Not connected<small>Test the connection to get started</small></div>
+                    <div style="flex: 1;"></div>
+                    <button class="btn btn-secondary" onclick="checkDriveConnection(true)">
+                        <span>🔄</span>
+                        <span>Test Connection</span>
+                    </button>
+                    <button class="btn btn-success" onclick="saveBackupToDrive()">
+                        <span>☁️</span>
+                        <span>Back Up Now</span>
+                    </button>
+                    <a id="driveFolderLink" class="btn btn-primary" target="_blank" rel="noopener" style="display: none; text-decoration: none;">
+                        <span>📂</span>
+                        <span>Open Drive Folder</span>
+                    </a>
+                </div>
+
+                <div class="sr-field" style="margin-top: 20px;">
+                    <label for="driveScriptUrlInput">Google Apps Script Web App URL <span style="font-weight: 400; color: #718096;">(from your deployment — see GOOGLE-APPS-SCRIPT-SETUP.md)</span></label>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <input type="text" id="driveScriptUrlInput" placeholder="https://script.google.com/macros/s/…/exec" style="flex: 1; min-width: 260px; padding: 10px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 13px;">
+                        <button class="btn btn-primary" onclick="saveDriveSettings()">Save Settings</button>
+                    </div>
+                </div>
+
+                <label style="display: flex; align-items: center; gap: 10px; margin-top: 18px; font-size: 14px; color: #4a5568; cursor: pointer;">
+                    <input type="checkbox" id="driveAutoBackupToggle" onchange="toggleDriveAutoBackup()" style="width: 18px; height: 18px;">
+                    Automatically back up to Google Drive every time data is saved (💾 Save button)
+                </label>
+            </div>
+
+            <div class="header">
+                <h2 style="color: #1a202c; font-size: 20px; margin-bottom: 8px;">📦 Backups in Drive Folder</h2>
+                <p style="color: #718096; font-size: 13px;">The 30 most recent backups are kept — older ones are trashed automatically</p>
+            </div>
+            <div id="driveBackupsList">
+                <div class="sr-empty">☁️ Connect to Google Drive to see your backups</div>
             </div>
         </div>
 
@@ -4346,7 +4503,10 @@
             SYNC_LEAVES_TO_SHEETS: false,
             SYNC_TIME_TRACKING_TO_SHEETS: false,
             USE_FALLBACK_CREDENTIALS: true,
-            USE_LOCAL_STORAGE: true  // Enable local storage mode
+            USE_LOCAL_STORAGE: true,  // Enable local storage mode
+            // Also push a full JSON backup to a Google Drive folder
+            // (via the Apps Script web app) every time data is saved
+            SYNC_BACKUPS_TO_DRIVE: true
         };
 
         const FALLBACK_CREDENTIALS = {
@@ -4816,6 +4976,7 @@
             if (sidebarName) sidebarName.textContent = currentUser.displayName;
             if (sidebarRole) sidebarRole.textContent = currentUser.role;
             updatePeriodUI();
+            checkDriveConnection(false);
 
             const addStaffBtn = document.getElementById('addStaffBtn');
             if (addStaffBtn) {
@@ -4890,7 +5051,8 @@
             reports: 'Reports & Tools',
             staffreports: 'Staff Monthly Reports',
             reminders: 'Reminders',
-            pmas: 'PMAS Documents'
+            pmas: 'PMAS Documents',
+            drive: 'Google Drive Backup'
         };
 
         function switchView(view) {
@@ -5004,6 +5166,9 @@
             } else if (view === 'staffreports') {
                 document.getElementById('staffreportsView').classList.add('active');
                 initStaffReportsView();
+            } else if (view === 'drive') {
+                document.getElementById('driveView').classList.add('active');
+                initDriveView();
             }
         }
 
@@ -8737,6 +8902,222 @@
         }
 
         // ============================================
+        // GOOGLE DRIVE BACKUP
+        // Backups are pushed to the Apps Script web app, which stores
+        // them as JSON files in a Drive folder ("Chief Orderly Backups")
+        // ============================================
+
+        let driveBackupsCache = [];
+        let driveConnected = false;
+
+        function getDriveScriptUrl() {
+            return localStorage.getItem('driveScriptUrl') || CONFIG.SCRIPT_URL || '';
+        }
+
+        function isDriveAutoBackupEnabled() {
+            const stored = localStorage.getItem('driveAutoBackup');
+            return stored === null ? CONFIG.SYNC_BACKUPS_TO_DRIVE : stored === 'true';
+        }
+
+        function buildFullBackup() {
+            return {
+                exportDate: new Date().toISOString(),
+                version: '1.1',
+                savedBy: currentUser ? currentUser.displayName : '',
+                staffData: staffData,
+                leaveRecords: leaveRecords,
+                scheduleData: scheduleData,
+                timeTrackingRecords: timeTrackingRecords,
+                reminders: reminders,
+                pmasDocuments: pmasDocuments
+            };
+        }
+
+        function setDriveStatus(connected, message) {
+            driveConnected = connected;
+            const pill = document.getElementById('driveStatusPill');
+            if (pill) {
+                pill.classList.toggle('connected', connected);
+                const dot = pill.querySelector('.drive-dot');
+                if (dot) dot.classList.toggle('off', !connected);
+                const text = document.getElementById('driveStatusText');
+                if (text) text.textContent = connected ? 'Connected' : 'Drive';
+            }
+            const state = document.getElementById('driveConnectionState');
+            if (state) {
+                state.innerHTML = connected
+                    ? `🟢 Connected to Google Drive<small>${message || 'Backups are saved to your Drive folder'}</small>`
+                    : `⚪ Not connected<small>${message || 'Test the connection to get started'}</small>`;
+            }
+        }
+
+        async function checkDriveConnection(showResult) {
+            const url = getDriveScriptUrl();
+            if (!url) {
+                setDriveStatus(false, 'No Apps Script URL configured — paste it below and Save Settings');
+                renderDriveBackupsList();
+                if (showResult) showAlert('⚠️ Set your Google Apps Script URL first');
+                return false;
+            }
+            try {
+                const response = await fetch(url + '?action=listDriveBackups');
+                const result = await response.json();
+                if (result.status !== 'success') throw new Error(result.message || 'Unexpected response from script');
+                driveBackupsCache = result.backups || [];
+                const link = document.getElementById('driveFolderLink');
+                if (link && result.folderUrl) {
+                    link.href = result.folderUrl;
+                    link.style.display = 'inline-flex';
+                }
+                setDriveStatus(true, `Folder: "${result.folderName || 'Chief Orderly Backups'}" • ${driveBackupsCache.length} backup(s)`);
+                renderDriveBackupsList();
+                if (showResult) showAlert(`✅ Connected to Google Drive — ${driveBackupsCache.length} backup(s) found`);
+                return true;
+            } catch (error) {
+                console.error('Drive connection failed:', error);
+                setDriveStatus(false, 'Connection failed — check the script URL and deployment (see GOOGLE-APPS-SCRIPT-SETUP.md)');
+                renderDriveBackupsList();
+                if (showResult) showAlert('❌ Could not connect to Google Drive: ' + error.message);
+                return false;
+            }
+        }
+
+        async function saveBackupToDrive(silent) {
+            const url = getDriveScriptUrl();
+            if (!url) {
+                if (!silent) showAlert('⚠️ Set your Google Apps Script URL on the Google Drive Backup page first');
+                return false;
+            }
+            try {
+                if (!silent) showAlert('☁️ Backing up to Google Drive…');
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({
+                        action: 'saveBackupToDrive',
+                        backupData: buildFullBackup()
+                    })
+                });
+                const result = await response.json();
+                if (result.status !== 'success') throw new Error(result.message || 'Backup failed');
+                setDriveStatus(true);
+                showAlert('✅ Backup saved to Google Drive: ' + result.fileName);
+                if (currentView === 'drive') checkDriveConnection(false);
+                return true;
+            } catch (error) {
+                console.error('Drive backup failed:', error);
+                setDriveStatus(false);
+                if (!silent) showAlert('❌ Google Drive backup failed: ' + error.message);
+                return false;
+            }
+        }
+
+        function initDriveView() {
+            const input = document.getElementById('driveScriptUrlInput');
+            if (input) input.value = getDriveScriptUrl();
+            const toggle = document.getElementById('driveAutoBackupToggle');
+            if (toggle) toggle.checked = isDriveAutoBackupEnabled();
+            renderDriveBackupsList();
+            checkDriveConnection(false);
+        }
+
+        function saveDriveSettings() {
+            const input = document.getElementById('driveScriptUrlInput');
+            const url = input.value.trim();
+            if (url) {
+                localStorage.setItem('driveScriptUrl', url);
+            } else {
+                localStorage.removeItem('driveScriptUrl');
+            }
+            showAlert('✅ Google Drive settings saved');
+            checkDriveConnection(true);
+        }
+
+        function toggleDriveAutoBackup() {
+            const toggle = document.getElementById('driveAutoBackupToggle');
+            localStorage.setItem('driveAutoBackup', toggle.checked ? 'true' : 'false');
+            showAlert(toggle.checked
+                ? '✅ Auto-backup enabled — data is backed up to Drive on every save'
+                : 'ℹ️ Auto-backup disabled — use "Back Up Now" to back up manually');
+        }
+
+        function renderDriveBackupsList() {
+            const container = document.getElementById('driveBackupsList');
+            if (!container) return;
+            if (!driveConnected) {
+                container.innerHTML = '<div class="sr-empty">☁️ Connect to Google Drive to see your backups</div>';
+                return;
+            }
+            if (driveBackupsCache.length === 0) {
+                container.innerHTML = '<div class="sr-empty">📦 No backups in the Drive folder yet — click <strong>Back Up Now</strong> to create the first one</div>';
+                return;
+            }
+            container.innerHTML = driveBackupsCache.map(b => {
+                const created = new Date(b.createdAt);
+                const sizeKb = (b.size / 1024).toFixed(1);
+                return `
+                    <div class="drive-backup-item">
+                        <div>
+                            <div class="backup-name">📄 ${b.name}</div>
+                            <div class="backup-meta">${created.toLocaleDateString()} ${created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • ${sizeKb} KB</div>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <a class="btn btn-secondary" href="${b.url}" target="_blank" rel="noopener" style="text-decoration: none;">👁️ View in Drive</a>
+                            <button class="btn btn-success" onclick="restoreDriveBackup('${b.id}')">♻️ Restore</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function restoreDriveBackup(fileId) {
+            if (!confirm('Restore this backup from Google Drive?\n\nThis will REPLACE all current data in the dashboard (staff, leaves, schedule, time tracking, reminders, PMAS).')) return;
+            try {
+                showAlert('☁️ Downloading backup from Google Drive…');
+                const response = await fetch(getDriveScriptUrl() + '?action=getDriveBackup&fileId=' + encodeURIComponent(fileId));
+                const result = await response.json();
+                if (result.status !== 'success' || !result.backup) throw new Error(result.message || 'Could not load backup file');
+                applyBackupData(result.backup);
+                showAlert('✅ Backup restored from Google Drive: ' + result.fileName);
+            } catch (error) {
+                console.error('Drive restore failed:', error);
+                showAlert('❌ Restore failed: ' + error.message);
+            }
+        }
+
+        // Replace all dashboard data with the contents of a backup
+        // (used by both Drive restore and file import)
+        function applyBackupData(importedData) {
+            staffData = importedData.staffData || [];
+            leaveRecords = importedData.leaveRecords || [];
+            scheduleData = importedData.scheduleData || {};
+            timeTrackingRecords = importedData.timeTrackingRecords || [];
+
+            localStorage.setItem('staffData', JSON.stringify(staffData));
+            saveLeaveRecordsToLocalStorage();
+            localStorage.setItem('hospitalScheduleData', JSON.stringify(scheduleData));
+            saveTimeTrackingRecordsToStorage();
+
+            if (importedData.reminders) {
+                reminders = importedData.reminders;
+                localStorage.setItem('hospitalReminders', JSON.stringify(reminders));
+            }
+            if (importedData.pmasDocuments) {
+                pmasDocuments = importedData.pmasDocuments;
+                savePmasDocuments();
+            }
+
+            renderStaff();
+            updateMonitorStats();
+            renderLeaves();
+            updateLeaveStats();
+            renderCalendar();
+            renderTimeTrackingRecords();
+            updateTimeTrackingStats();
+            updatePeriodUI();
+        }
+
+        // ============================================
         // DATA EXPORT/IMPORT FUNCTIONS
         // ============================================
 
@@ -8831,26 +9212,8 @@
                             return;
                         }
 
-                        // Import all data
-                        staffData = importedData.staffData || [];
-                        leaveRecords = importedData.leaveRecords || [];
-                        scheduleData = importedData.scheduleData || {};
-                        timeTrackingRecords = importedData.timeTrackingRecords || [];
-
-                        // Save to localStorage
-                        localStorage.setItem('staffData', JSON.stringify(staffData));
-                        saveLeaveRecordsToLocalStorage();
-                        localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
-                        saveTimeTrackingRecordsToStorage();
-
-                        // Refresh displays
-                        renderStaff();
-                        updateMonitorStats();
-                        renderLeaves();
-                        updateLeaveStats();
-                        renderCalendar();
-                        renderTimeTrackingRecords();
-                        updateTimeTrackingStats();
+                        // Import all data (shared with Google Drive restore)
+                        applyBackupData(importedData);
 
                         showAlert(`✅ Successfully imported all data!\n` +
                                 `Staff: ${staffData.length} | Leaves: ${leaveRecords.length} | ` +
@@ -8884,6 +9247,11 @@
                 saveTimeTrackingRecordsToStorage();
                 savePmasDocuments();
                 showAlert('✅ All data saved successfully to browser storage!');
+
+                // Also push a backup to the Google Drive folder
+                if (isDriveAutoBackupEnabled() && getDriveScriptUrl()) {
+                    saveBackupToDrive(true);
+                }
                 console.log('All data saved:', {
                     staff: staffData.length,
                     leaves: leaveRecords.length,
