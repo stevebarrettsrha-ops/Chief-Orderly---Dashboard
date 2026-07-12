@@ -3109,6 +3109,44 @@
                 display: flex;
             }
         }
+        /* Google Drive status popup (token expiry / disconnect / offline) */
+        .drive-popup {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 4000;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            max-width: 400px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-left: 5px solid #f59e0b;
+            border-radius: 12px;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.22);
+            padding: 16px 34px 16px 18px;
+            animation: drivePopupIn 0.25s ease-out;
+        }
+        @keyframes drivePopupIn {
+            from { transform: translateY(16px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .drive-popup-icon { font-size: 26px; line-height: 1.2; }
+        .drive-popup-title { font-weight: 700; color: #1a202c; margin-bottom: 4px; font-size: 15px; }
+        .drive-popup-message { font-size: 13px; color: #4a5568; line-height: 1.5; }
+        .drive-popup-actions { margin-top: 12px; display: flex; gap: 8px; }
+        .drive-popup-actions .btn { padding: 6px 14px; font-size: 13px; }
+        .drive-popup-close {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #a0aec0;
+            font-size: 14px;
+        }
+        .drive-popup-close:hover { color: #4a5568; }
     </style>
 </head>
 <body>
@@ -3322,6 +3360,20 @@
 
         <!-- Alert -->
         <div id="alertBox" class="alert"></div>
+
+        <!-- Google Drive status popup (token expiry / disconnect / offline) -->
+        <div id="drivePopup" class="drive-popup" style="display: none;">
+            <div class="drive-popup-icon" id="drivePopupIcon">⚠️</div>
+            <div class="drive-popup-body">
+                <div class="drive-popup-title" id="drivePopupTitle"></div>
+                <div class="drive-popup-message" id="drivePopupMessage"></div>
+                <div class="drive-popup-actions">
+                    <button class="btn btn-primary" id="drivePopupReconnectBtn" onclick="reconnectDriveFromPopup()">🔄 Reconnect</button>
+                    <button class="btn btn-secondary" onclick="hideDrivePopup()">Dismiss</button>
+                </div>
+            </div>
+            <button class="drive-popup-close" onclick="hideDrivePopup()" title="Dismiss">✕</button>
+        </div>
 
         <!-- Edit Staff Modal -->
         <div id="editModal" class="modal">
@@ -4591,6 +4643,131 @@
         let pmasDocuments = [];
 
         // ============================================
+        // OFFLINE STORAGE (IndexedDB + localStorage)
+        //
+        // Every store is written to BOTH IndexedDB and localStorage.
+        // IndexedDB has far more room (hundreds of MB vs ~5MB), so large
+        // PDF attachments survive even when localStorage is full, and all
+        // data stays available offline. Reads prefer whichever copy is
+        // newer, so nothing is lost if one of the two ever fails.
+        // ============================================
+
+        const OFFLINE_DB_NAME = 'ChiefOrderlyDashboard';
+        const OFFLINE_DB_STORE = 'stores';
+        const OFFLINE_STORE_KEYS = ['staffData', 'hospitalLeaveRecords', 'hospitalScheduleData',
+            'timeTrackingRecords', 'hospitalReminders', 'pmasDocuments', 'deletedTombstones'];
+
+        let idbDatabase = null;
+        let idbCache = {};              // key -> { value, savedAt }
+        let storageFullWarned = false;
+
+        function openOfflineDb() {
+            return new Promise(resolve => {
+                if (typeof indexedDB === 'undefined') { resolve(null); return; }
+                if (idbDatabase) { resolve(idbDatabase); return; }
+                try {
+                    const req = indexedDB.open(OFFLINE_DB_NAME, 1);
+                    req.onupgradeneeded = () => {
+                        if (!req.result.objectStoreNames.contains(OFFLINE_DB_STORE)) {
+                            req.result.createObjectStore(OFFLINE_DB_STORE);
+                        }
+                    };
+                    req.onsuccess = () => { idbDatabase = req.result; resolve(idbDatabase); };
+                    req.onerror = () => { console.error('IndexedDB open failed:', req.error); resolve(null); };
+                } catch (e) {
+                    console.error('IndexedDB unavailable:', e);
+                    resolve(null);
+                }
+            });
+        }
+
+        function idbWrite(key, record) {
+            return openOfflineDb().then(db => new Promise(resolve => {
+                if (!db) { resolve(false); return; }
+                try {
+                    const tx = db.transaction(OFFLINE_DB_STORE, 'readwrite');
+                    tx.objectStore(OFFLINE_DB_STORE).put(record, key);
+                    tx.oncomplete = () => resolve(true);
+                    tx.onerror = tx.onabort = () => resolve(false);
+                } catch (e) {
+                    resolve(false);
+                }
+            }));
+        }
+
+        // Load everything IndexedDB holds into the in-memory cache so the
+        // synchronous readStore() calls can use it. Started immediately at
+        // script load; awaited before any data is read.
+        function hydrateOfflineStore() {
+            return openOfflineDb().then(db => new Promise(resolve => {
+                if (!db) { resolve(false); return; }
+                try {
+                    const tx = db.transaction(OFFLINE_DB_STORE, 'readonly');
+                    const store = tx.objectStore(OFFLINE_DB_STORE);
+                    let pending = OFFLINE_STORE_KEYS.length;
+                    OFFLINE_STORE_KEYS.forEach(key => {
+                        const req = store.get(key);
+                        req.onsuccess = () => {
+                            if (req.result && typeof req.result === 'object' && 'value' in req.result) {
+                                idbCache[key] = req.result;
+                            }
+                            if (--pending === 0) resolve(true);
+                        };
+                        req.onerror = () => { if (--pending === 0) resolve(true); };
+                    });
+                } catch (e) {
+                    resolve(false);
+                }
+            }));
+        }
+        const offlineHydration = hydrateOfflineStore();
+
+        // Write a store to IndexedDB + localStorage. Returns true if at
+        // least one of the two succeeded.
+        function persistStore(key, value) {
+            const record = { value: value, savedAt: new Date().toISOString() };
+            idbCache[key] = record;
+            idbWrite(key, record);   // async, best effort
+            try {
+                localStorage.setItem(key, JSON.stringify(value));
+                localStorage.setItem(key + '__savedAt', record.savedAt);
+                return true;
+            } catch (e) {
+                console.error('localStorage write failed for "' + key + '":', e);
+                if (typeof indexedDB === 'undefined') {
+                    showAlert('⚠️ Could not save data — browser storage is full and no offline database is available. Export a backup now.');
+                    return false;
+                }
+                if (!storageFullWarned) {
+                    storageFullWarned = true;
+                    showAlert('ℹ️ Browser storage is full — your data is now kept in the offline database (IndexedDB), which has much more room.');
+                }
+                return true;
+            }
+        }
+
+        // Read a store, preferring whichever copy (IndexedDB or
+        // localStorage) was saved most recently.
+        function readStore(key) {
+            const cached = idbCache[key];
+            let lsValue = null;
+            let lsAt = null;
+            const raw = localStorage.getItem(key);
+            if (raw !== null) {
+                try {
+                    lsValue = JSON.parse(raw);
+                    lsAt = localStorage.getItem(key + '__savedAt');
+                } catch (e) {
+                    console.error('Corrupt localStorage entry for "' + key + '":', e);
+                }
+            }
+            if (cached && (lsValue === null || !lsAt || new Date(cached.savedAt) >= new Date(lsAt))) {
+                return cached.value;
+            }
+            return lsValue;
+        }
+
+        // ============================================
         // DATA CONSISTENCY HELPERS
         // ============================================
 
@@ -4611,7 +4788,7 @@
 
         function loadTombstones() {
             let stored = {};
-            try { stored = JSON.parse(localStorage.getItem('deletedTombstones')) || {}; } catch (e) { /* ignore */ }
+            try { stored = readStore('deletedTombstones') || {}; } catch (e) { /* ignore */ }
             const cutoff = Date.now() - TOMBSTONE_MAX_AGE_MS;
             const result = {};
             ['staff', 'leave', 'timeTracking', 'reminder', 'pmas'].forEach(kind => {
@@ -4624,11 +4801,7 @@
         }
 
         function saveTombstones() {
-            try {
-                localStorage.setItem('deletedTombstones', JSON.stringify(deletedTombstones));
-            } catch (e) {
-                console.error('Error saving tombstones:', e);
-            }
+            persistStore('deletedTombstones', deletedTombstones);
         }
 
         function registerTombstone(kind, key) {
@@ -4880,9 +5053,14 @@
         // INITIALIZATION
         // ============================================
 
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Enforce the login gate before anything else: the dashboard
+            // stays hidden until a successful sign-in
+            document.getElementById('dashboardContainer').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'flex';
+
             const loginInfo = document.getElementById('loginInfo');
-            
+
             credentialsPromise = loadCredentials().then(success => {
                 if (success) {
                     loginInfo.className = 'login-info ready';
@@ -4904,11 +5082,34 @@
                 });
             });
 
+            // Wait for the IndexedDB copy of the data before reading any
+            // store, so the newest local copy wins even when localStorage
+            // was full or cleared
+            await offlineHydration;
+            deletedTombstones = loadTombstones();
+
             loadScheduleData();
             loadLeaveRecords();
+            loadReminders();
+            loadPmasDocuments();
 
             updatePeriodUI();
             initGDriveSync();
+
+            // Offline/online awareness: everything keeps saving locally
+            // while offline; when the connection returns, push to Drive
+            window.addEventListener('offline', () => {
+                showDrivePopup('Working offline', 'Internet connection lost. Your changes are being saved on this device (offline database + browser storage) and will sync to Google Drive when the connection returns.', false, '📴');
+                addNotification('Internet connection lost — working offline, all changes saved locally', 'System');
+            });
+            window.addEventListener('online', () => {
+                hideDrivePopup();
+                showAlert('🌐 Back online');
+                if (GDriveSync.isConnected()) {
+                    GDriveSync.markDirty();
+                    GDriveSync.performAutoSync();
+                }
+            });
 
             setInterval(checkNotifications, 60000);
         });
@@ -4938,6 +5139,19 @@
                 return false;
             }
             return true;
+        }
+
+        // Hard login gate: nothing on the dashboard may run without a
+        // signed-in user. Any attempt bounces back to the login screen.
+        function requireLogin() {
+            if (currentUser) return true;
+            document.body.classList.remove('app-mode');
+            const dashboard = document.getElementById('dashboardContainer');
+            const loginPage = document.getElementById('loginPage');
+            if (dashboard) dashboard.style.display = 'none';
+            if (loginPage) loginPage.style.display = 'flex';
+            showAlert('🔒 Please sign in first');
+            return false;
         }
 
         // ============================================
@@ -5038,7 +5252,8 @@
                         showAlert('⚠️ Failed to load staff data. Please refresh.');
                     });
                 } else {
-                    loadStaffDataFromLocalStorage();  // Load from localStorage
+                    await offlineHydration;           // ensure IndexedDB copy is available
+                    loadStaffDataFromLocalStorage();  // Load from offline storage
                     loadLeaveRecords();  // Load leave records
                     loadScheduleData();  // Load schedule data
                     loadTimeTrackingRecords();  // Load time tracking records
@@ -5083,7 +5298,8 @@
                         showAlert('⚠️ Failed to load staff data. Please refresh.');
                     });
                 } else {
-                    loadStaffDataFromLocalStorage();  // Load from localStorage
+                    await offlineHydration;           // ensure IndexedDB copy is available
+                    loadStaffDataFromLocalStorage();  // Load from offline storage
                     loadLeaveRecords();  // Load leave records
                     loadScheduleData();  // Load schedule data
                     loadTimeTrackingRecords();  // Load time tracking records
@@ -5178,6 +5394,7 @@
         }
 
         function refreshData() {
+            if (!requireLogin()) return;
             sessionStorage.removeItem('staffDataCache');
             sessionStorage.removeItem('staffDataCacheTime');
             
@@ -5207,6 +5424,7 @@
         };
 
         function switchView(view) {
+            if (!requireLogin()) return;
             currentView = view;
 
             const topbarTitle = document.getElementById('topbarTitle');
@@ -5669,20 +5887,15 @@
         // ============================================
 
         function loadReminders() {
-            const stored = localStorage.getItem('hospitalReminders');
-            if (stored) {
-                try {
-                    reminders = JSON.parse(stored);
-                } catch (e) {
-                    console.error('Failed to load reminders:', e);
-                    reminders = [];
-                }
+            const stored = readStore('hospitalReminders');
+            if (Array.isArray(stored)) {
+                reminders = stored;
             }
         }
 
         function saveReminders() {
             markDataDirty();
-            localStorage.setItem('hospitalReminders', JSON.stringify(reminders));
+            persistStore('hospitalReminders', reminders);
         }
 
         function openReminderForm(reminderId = null) {
@@ -7234,15 +7447,10 @@
                 }
             }
             
-            const saved = localStorage.getItem('hospitalLeaveRecords');
-            if (saved) {
-                try {
-                    leaveRecords = JSON.parse(saved);
-                    console.log('Leave records loaded from localStorage');
-                } catch (e) {
-                    console.error('Error loading leave records:', e);
-                    leaveRecords = [];
-                }
+            const saved = readStore('hospitalLeaveRecords');
+            if (Array.isArray(saved)) {
+                leaveRecords = saved;
+                console.log('Leave records loaded from offline storage');
             }
             
             if (currentView === 'leaves') {
@@ -7253,15 +7461,9 @@
         }
 
         function saveLeaveRecordsToLocalStorage() {
-            try {
-                markDataDirty();
-                localStorage.setItem('hospitalLeaveRecords', JSON.stringify(leaveRecords));
-            } catch (error) {
-                // Don't fail silently — an unsaved record disappears on the
-                // next reload. Attachments are the usual cause (browser
-                // storage is limited to a few MB).
-                console.error('Error saving leave records to localStorage:', error);
-                showAlert('⚠️ Could not save leave records to browser storage — it may be full. Remove some attachments or export a backup, then try again.');
+            markDataDirty();
+            if (!persistStore('hospitalLeaveRecords', leaveRecords)) {
+                showAlert('⚠️ Could not save leave records — storage is full. Remove some attachments or export a backup, then try again.');
             }
         }
 
@@ -8236,17 +8438,13 @@
         }
 
         function saveScheduleData() {
-            try {
-                markDataDirty();
-                localStorage.setItem('hospitalScheduleData', JSON.stringify(scheduleData));
-                console.log('Schedule data saved to localStorage');
-                
-                if (CONFIG.SYNC_SCHEDULES_TO_SHEETS) {
-                    saveScheduleToSheets();
-                }
-            } catch (error) {
-                console.error('Error saving schedule data:', error);
+            markDataDirty();
+            if (!persistStore('hospitalScheduleData', scheduleData)) {
                 showAlert('⚠️ Failed to save schedule data');
+                return;
+            }
+            if (CONFIG.SYNC_SCHEDULES_TO_SHEETS) {
+                saveScheduleToSheets();
             }
         }
 
@@ -8279,7 +8477,7 @@
                         const result = await response.json();
                         if (result.status === 'success' && result.scheduleData) {
                             scheduleData = result.scheduleData;
-                            localStorage.setItem('hospitalScheduleData', JSON.stringify(scheduleData));
+                            persistStore('hospitalScheduleData', scheduleData);
                             console.log('Schedule data loaded from Google Sheets');
                             if (currentView === 'schedule') {
                                 renderCalendar();
@@ -8292,17 +8490,12 @@
                 }
             }
             
-            const saved = localStorage.getItem('hospitalScheduleData');
-            if (saved) {
-                try {
-                    scheduleData = JSON.parse(saved);
-                    console.log('Schedule data loaded from localStorage');
-                } catch (e) {
-                    console.error('Error loading schedule data from localStorage:', e);
-                    scheduleData = {};
-                }
+            const saved = readStore('hospitalScheduleData');
+            if (saved && typeof saved === 'object') {
+                scheduleData = saved;
+                console.log('Schedule data loaded from offline storage');
             }
-            
+
             if (currentView === 'schedule') {
                 renderCalendar();
             }
@@ -8312,8 +8505,8 @@
             showAlert('🔄 Syncing schedule data...');
 
             try {
-                // Save current schedule data to localStorage
-                localStorage.setItem('hospitalScheduleData', JSON.stringify(scheduleData));
+                // Save current schedule data to offline storage
+                saveScheduleData();
 
                 // Refresh the calendar view
                 renderCalendar();
@@ -9074,6 +9267,12 @@
             let autoSyncInProgress = false;
             const AUTO_SYNC_INTERVAL_MS = 120000; // 2 minutes
 
+            // Token lifetime watch — warns shortly before the OAuth token
+            // expires and raises 'token_expired' the moment it does
+            let expiryTimer     = null;
+            let expiryWarnTimer = null;
+            const EXPIRY_WARNING_MS = 5 * 60 * 1000;
+
             // ---- Callbacks (supplied by the host app) ------------------------------
             let collectData = () => ({});      // returns the object stored under .data
             let applyData   = () => {};        // receives the restored .data object
@@ -9126,11 +9325,50 @@
                     accessToken = savedToken;
                     connected   = true;
                     onStatus('connected');
+                    scheduleTokenExpiryWatch(new Date(savedExpiry));
                     startAutoSync();
                     return true;
                 }
+                // A token that expired while the page was closed still means
+                // the user *was* connected — tell them instead of silently
+                // dropping cloud backup
+                if (savedToken && savedExpiry) {
+                    sessionStorage.removeItem(K_TOKEN);
+                    sessionStorage.removeItem(K_EXPIRY);
+                    onStatus('token_expired');
+                    return false;
+                }
                 onStatus('disconnected');
                 return false;
+            }
+
+            // ---- Token expiry watch ------------------------------------------------
+            function clearExpiryTimers() {
+                if (expiryTimer)     { clearTimeout(expiryTimer);     expiryTimer = null; }
+                if (expiryWarnTimer) { clearTimeout(expiryWarnTimer); expiryWarnTimer = null; }
+            }
+
+            function scheduleTokenExpiryWatch(expiryDate) {
+                clearExpiryTimers();
+                const msLeft = expiryDate - new Date();
+                if (msLeft <= 0) { handleTokenExpired(); return; }
+                if (msLeft > EXPIRY_WARNING_MS) {
+                    expiryWarnTimer = setTimeout(() => onStatus('token_expiring'), msLeft - EXPIRY_WARNING_MS);
+                }
+                expiryTimer = setTimeout(handleTokenExpired, msLeft);
+            }
+
+            // The token is dead (timer fired or the API answered 401):
+            // stop syncing, clear the stale token and notify the app so it
+            // can show a reconnect prompt
+            function handleTokenExpired() {
+                clearExpiryTimers();
+                accessToken = null;
+                connected   = false;
+                stopAutoSync();
+                sessionStorage.removeItem(K_TOKEN);
+                sessionStorage.removeItem(K_EXPIRY);
+                onStatus('token_expired');
             }
 
             // ========================================================================
@@ -9158,6 +9396,7 @@
                 sessionStorage.setItem(K_EXPIRY, expiry.toISOString());
 
                 onStatus('connected');
+                scheduleTokenExpiryWatch(expiry);
                 startAutoSync();
                 await findExistingBackupFile();
             }
@@ -9190,6 +9429,7 @@
                     sessionStorage.setItem(K_EXPIRY, expiry.toISOString());
 
                     onStatus('connected');
+                    scheduleTokenExpiryWatch(expiry);
                     startAutoSync();
                     await findExistingBackupFile();
                     alert(`Connected to Google Drive as ${data.user.displayName || data.user.emailAddress}`);
@@ -9208,6 +9448,7 @@
                 accessToken = null;
                 connected   = false;
                 stopAutoSync();
+                clearExpiryTimers();
                 sessionStorage.removeItem(K_TOKEN);
                 sessionStorage.removeItem(K_EXPIRY);
                 localStorage.removeItem(K_FILEID);
@@ -9360,6 +9601,69 @@
                 return resp;
             }
 
+            // ---- Individual document upload (staff PDFs etc.) ----------------------
+            function dataUrlToBlob(dataUrl) {
+                const parts = String(dataUrl || '').split(',');
+                if (parts.length < 2) return null;
+                const mimeMatch = parts[0].match(/^data:([^;]+)/);
+                const mime = mimeMatch ? mimeMatch[1] : 'application/pdf';
+                try {
+                    const binary = atob(parts[1]);
+                    const bytes = new Uint8Array(binary.length);
+                    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                    return new Blob([bytes], { type: mime });
+                } catch (e) {
+                    console.error('Invalid data URL for upload:', e);
+                    return null;
+                }
+            }
+
+            // Upload one document (a data: URL) into the configured Drive
+            // folder as its own file. Updates in place when existingFileId
+            // is given; returns the Drive file id, or null on failure.
+            async function uploadDocument(name, dataUrl, existingFileId) {
+                if (!isConnected()) return null;
+                const blob = dataUrlToBlob(dataUrl);
+                if (!blob) return null;
+                try {
+                    if (existingFileId) {
+                        const resp = await fetch(
+                            `https://www.googleapis.com/upload/drive/v3/files/${existingFileId}?uploadType=media`,
+                            {
+                                method: 'PATCH',
+                                headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': blob.type },
+                                body: blob
+                            }
+                        );
+                        if (resp.status === 401) { handleTokenExpired(); return null; }
+                        if (resp.ok) return existingFileId;
+                        // File may have been deleted in Drive — fall through and create anew
+                    }
+                    const metadata = {
+                        name: name,
+                        parents: [CONFIG.FOLDER_ID],
+                        mimeType: blob.type
+                    };
+                    const form = new FormData();
+                    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+                    form.append('file', blob);
+                    const resp = await fetch(
+                        'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name',
+                        { method: 'POST', headers: { 'Authorization': `Bearer ${accessToken}` }, body: form }
+                    );
+                    if (resp.status === 401) { handleTokenExpired(); return null; }
+                    if (!resp.ok) {
+                        console.error('Document upload failed:', resp.status);
+                        return null;
+                    }
+                    const result = await resp.json();
+                    return result.id || null;
+                } catch (e) {
+                    console.error('Document upload error:', e);
+                    return null;
+                }
+            }
+
             async function saveToCloud(opts) {
                 opts = opts || {};
                 if (!isConnected()) { alert('Please connect to Google Drive first'); return false; }
@@ -9380,11 +9684,10 @@
                     return true;
                 } catch (e) {
                     console.error('Error saving to cloud:', e);
-                    onStatus('connected');
                     if (/invalid_token|Invalid Credentials/.test(e.message)) {
-                        alert('Your session has expired. Please reconnect to Google Drive.');
-                        disconnect();
+                        handleTokenExpired();
                     } else {
+                        onStatus('connected');
                         alert(`Failed to save to cloud: ${e.message}`);
                     }
                     return false;
@@ -9425,11 +9728,10 @@
                     return envelope;
                 } catch (e) {
                     console.error('Error syncing from cloud:', e);
-                    onStatus('connected');
                     if (/invalid_token|Invalid Credentials/.test(e.message)) {
-                        alert('Your session has expired. Please reconnect to Google Drive.');
-                        disconnect();
+                        handleTokenExpired();
                     } else {
+                        onStatus('connected');
                         if (opts.silent !== true) alert(`Failed to sync from cloud: ${e.message}`);
                     }
                     return false;
@@ -9464,7 +9766,7 @@
                     if (cloudFileId) {
                         try {
                             const dl = await fetchBackupMediaResponse(cloudFileId);
-                            if (dl && dl.status === 401) { stopAutoSync(); return; }
+                            if (dl && dl.status === 401) { handleTokenExpired(); return; }
                             if (dl && dl.ok) {
                                 const remote = await dl.json();
                                 if (remote && remote.data) applyData(remote.data, remote);
@@ -9478,7 +9780,7 @@
                         localStorage.setItem(K_LASTSYNC, lastSyncTime.toISOString());
                         onStatus('synced');
                     } else if (resp && resp.status === 401) {
-                        stopAutoSync();
+                        handleTokenExpired();
                     }
                 } catch (e) {
                     console.log('[AutoSync] Error:', e.message);
@@ -9496,6 +9798,7 @@
                 isConnected,
                 saveToCloud,
                 syncFromCloud,
+                uploadDocument,
                 findExistingBackupFile,
                 startAutoSync,
                 stopAutoSync,
@@ -9582,11 +9885,11 @@
                 // Per-day union — a day scheduled locally wins over the cloud copy
                 scheduleData = Object.assign({}, data.scheduleData || {}, scheduleData || {});
 
-                localStorage.setItem('staffData', JSON.stringify(staffData));
+                saveStaffDataToLocalStorage();
                 saveLeaveRecordsToLocalStorage();
-                localStorage.setItem('hospitalScheduleData', JSON.stringify(scheduleData));
+                persistStore('hospitalScheduleData', scheduleData);
                 saveTimeTrackingRecordsToStorage();
-                localStorage.setItem('hospitalReminders', JSON.stringify(reminders));
+                saveReminders();
                 savePmasDocuments();
 
                 refreshAfterDataChange();
@@ -9631,6 +9934,32 @@
             updatePeriodUI();
         }
 
+        // ---- Drive status popup (token expiry / disconnect alerts) ----
+
+        let drivePopupShownFor = null;   // dedupe: which state the visible popup is about
+        let driveWasConnected = false;   // only alert about disconnects if we were connected
+
+        function showDrivePopup(title, message, showReconnect, icon) {
+            const popup = document.getElementById('drivePopup');
+            if (!popup) return;
+            document.getElementById('drivePopupIcon').textContent = icon || '⚠️';
+            document.getElementById('drivePopupTitle').textContent = title;
+            document.getElementById('drivePopupMessage').textContent = message;
+            document.getElementById('drivePopupReconnectBtn').style.display = showReconnect ? 'inline-flex' : 'none';
+            popup.style.display = 'flex';
+        }
+
+        function hideDrivePopup() {
+            const popup = document.getElementById('drivePopup');
+            if (popup) popup.style.display = 'none';
+        }
+
+        function reconnectDriveFromPopup() {
+            hideDrivePopup();
+            drivePopupShownFor = null;
+            GDriveSync.connect();
+        }
+
         // ---- Status pill / Drive page UI ----
 
         function handleDriveStatus(state) {
@@ -9646,9 +9975,114 @@
                     : 'Google Drive not connected — click to set up';
             }
             if (text) {
-                text.textContent = state === 'syncing' ? 'Syncing…' : (connected ? 'Connected' : 'Drive');
+                text.textContent = state === 'syncing' ? 'Syncing…'
+                    : state === 'token_expired' ? 'Reconnect'
+                    : (connected ? 'Connected' : 'Drive');
             }
+
+            // Popup notifications for token expiry and disconnects
+            if (state === 'token_expiring') {
+                if (drivePopupShownFor !== 'token_expiring') {
+                    drivePopupShownFor = 'token_expiring';
+                    showDrivePopup('Google Drive session ending soon',
+                        'Your Google Drive access token expires in about 5 minutes. Reconnect now to keep cloud backup running without interruption.',
+                        true, '⏳');
+                    addNotification('Google Drive access token expires in about 5 minutes — reconnect to keep cloud backup running', 'Google Drive');
+                }
+            } else if (state === 'token_expired') {
+                if (drivePopupShownFor !== 'token_expired') {
+                    drivePopupShownFor = 'token_expired';
+                    showDrivePopup('Google Drive session expired',
+                        'Your Google Drive access token has expired, so cloud backup is paused. Your work is still saved on this device — reconnect to resume syncing.',
+                        true, '🔑');
+                    addNotification('Google Drive access token expired — cloud backup paused, reconnect to resume', 'Google Drive');
+                }
+            } else if (state === 'disconnected' && driveWasConnected) {
+                if (drivePopupShownFor !== 'disconnected') {
+                    drivePopupShownFor = 'disconnected';
+                    showDrivePopup('Google Drive disconnected',
+                        'Cloud backup is off. Your work is still saved on this device and will not sync to Google Drive until you reconnect.',
+                        true, '🔌');
+                    addNotification('Google Drive disconnected — cloud backup is off until you reconnect', 'Google Drive');
+                }
+            } else if (connected) {
+                driveWasConnected = true;
+                if (drivePopupShownFor) {
+                    drivePopupShownFor = null;
+                    hideDrivePopup();
+                }
+            }
+
+            // After each successful sync (and right after connecting),
+            // push any staff documents that aren't in the Drive folder yet
+            if (state === 'synced' || state === 'connected') {
+                syncStaffDocumentsToDrive();
+            }
+
             updateDrivePageStatus(connected, state);
+        }
+
+        // ---- Per-staff document upload to the Drive folder ----
+        // Every uploaded document (leave application PDFs, PMAS documents)
+        // is also stored as its own file in the Google Drive folder,
+        // labelled with the employee's name and TRN, so the folder doubles
+        // as a browsable staff records archive.
+
+        let staffDocSyncInProgress = false;
+
+        function sanitizeDriveFilename(name) {
+            return String(name).replace(/[\\/:*?"<>|]/g, '-').replace(/\s+/g, ' ').trim();
+        }
+
+        function staffDriveLabel(staffId) {
+            const staff = staffData.find(s => s.trn === staffId);
+            return staff ? `${staff.name} (TRN ${staff.trn})` : `Unknown staff (TRN ${staffId})`;
+        }
+
+        async function syncStaffDocumentsToDrive() {
+            if (staffDocSyncInProgress || !currentUser || !GDriveSync.isConnected()) return;
+            staffDocSyncInProgress = true;
+            try {
+                let uploaded = 0;
+                let leaveDirty = false;
+                let pmasDirty = false;
+
+                for (const leave of leaveRecords) {
+                    const att = leave.attachment;
+                    if (!att || !att.data || att.driveFileId) continue;
+                    const name = sanitizeDriveFilename(
+                        `${staffDriveLabel(leave.staffId)} - Leave Application - ${getLeaveTypeName(leave.leaveType)} ${leave.startDate} to ${leave.endDate}.pdf`);
+                    const fileId = await GDriveSync.uploadDocument(name, att.data);
+                    if (!fileId) break;   // token/network problem — retry on the next sync cycle
+                    att.driveFileId = fileId;
+                    att.driveUploadedAt = new Date().toISOString();
+                    leaveDirty = true;
+                    uploaded++;
+                }
+
+                for (const doc of pmasDocuments) {
+                    if (!doc.data || doc.driveFileId) continue;
+                    const name = sanitizeDriveFilename(
+                        `${staffDriveLabel(doc.staffId)} - PMAS - ${doc.label || doc.filename || 'Document'}.pdf`);
+                    const fileId = await GDriveSync.uploadDocument(name, doc.data);
+                    if (!fileId) break;
+                    doc.driveFileId = fileId;
+                    doc.driveUploadedAt = new Date().toISOString();
+                    pmasDirty = true;
+                    uploaded++;
+                }
+
+                // Persist the driveFileId markers so other devices (via the
+                // backup merge) know these documents are already uploaded
+                if (leaveDirty) saveLeaveRecordsToLocalStorage();
+                if (pmasDirty) savePmasDocuments();
+                if (uploaded > 0) {
+                    addNotification(`${uploaded} staff document${uploaded > 1 ? 's' : ''} uploaded to the Google Drive folder`, 'Google Drive');
+                    console.log(`[DriveDocs] Uploaded ${uploaded} staff document(s) to the Drive folder`);
+                }
+            } finally {
+                staffDocSyncInProgress = false;
+            }
         }
 
         function updateDrivePageStatus(connected, state) {
@@ -9744,14 +10178,14 @@
             deletedTombstones = { staff: {}, leave: {}, timeTracking: {}, reminder: {}, pmas: {} };
             saveTombstones();
 
-            localStorage.setItem('staffData', JSON.stringify(staffData));
+            saveStaffDataToLocalStorage();
             saveLeaveRecordsToLocalStorage();
-            localStorage.setItem('hospitalScheduleData', JSON.stringify(scheduleData));
+            persistStore('hospitalScheduleData', scheduleData);
             saveTimeTrackingRecordsToStorage();
 
             if (importedData.reminders) {
                 reminders = importedData.reminders;
-                localStorage.setItem('hospitalReminders', JSON.stringify(reminders));
+                saveReminders();
             }
             if (importedData.pmasDocuments) {
                 pmasDocuments = importedData.pmasDocuments;
@@ -9788,6 +10222,7 @@
         }
 
         function exportAllData() {
+            if (!requireLogin()) return;
             const exportData = {
                 exportDate: new Date().toISOString(),
                 version: '1.0',
@@ -9845,6 +10280,7 @@
         let currentImportType = 'all';
 
         function importAllData() {
+            if (!requireLogin()) return;
             currentImportType = 'all';
             document.getElementById('importFileInput').click();
         }
@@ -9888,23 +10324,20 @@
 
         // Ensure staff data is saved to localStorage
         function saveStaffDataToLocalStorage() {
-            try {
-                markDataDirty();
-                localStorage.setItem('staffData', JSON.stringify(staffData));
-            } catch (error) {
-                console.error('Error saving staff data to localStorage:', error);
-                showAlert('⚠️ Could not save staff data to browser storage — it may be full.');
-            }
+            markDataDirty();
+            persistStore('staffData', staffData);
         }
 
         // Save all data to localStorage (manual save button)
         function saveAllData() {
+            if (!requireLogin()) return;
             try {
                 markDataDirty();
-                localStorage.setItem('staffData', JSON.stringify(staffData));
+                saveStaffDataToLocalStorage();
                 saveLeaveRecordsToLocalStorage();
-                localStorage.setItem('hospitalScheduleData', JSON.stringify(scheduleData));
+                persistStore('hospitalScheduleData', scheduleData);
                 saveTimeTrackingRecordsToStorage();
+                saveReminders();
                 savePmasDocuments();
                 showAlert('✅ All data saved successfully to browser storage!');
 
@@ -9979,17 +10412,12 @@
 
         // Load staff data from localStorage on startup
         function loadStaffDataFromLocalStorage() {
-            const stored = localStorage.getItem('staffData');
-            if (stored) {
-                try {
-                    staffData = JSON.parse(stored);
-                    renderStaff();
-                    updateMonitorStats();
-                    showAlert(`✅ Loaded ${staffData.length} staff members from local storage`);
-                } catch (e) {
-                    console.error('Error loading staff data:', e);
-                    staffData = [];
-                }
+            const stored = readStore('staffData');
+            if (Array.isArray(stored)) {
+                staffData = stored;
+                renderStaff();
+                updateMonitorStats();
+                showAlert(`✅ Loaded ${staffData.length} staff members from local storage`);
             }
         }
 
@@ -10011,20 +10439,16 @@
                 }
             }
 
-            // Fallback to localStorage
-            const stored = localStorage.getItem('timeTrackingRecords');
-            if (stored) {
-                try {
-                    timeTrackingRecords = JSON.parse(stored);
-                } catch (e) {
-                    timeTrackingRecords = [];
-                }
+            // Fallback to offline storage
+            const stored = readStore('timeTrackingRecords');
+            if (Array.isArray(stored)) {
+                timeTrackingRecords = stored;
             }
         }
 
         function saveTimeTrackingRecordsToStorage() {
             markDataDirty();
-            localStorage.setItem('timeTrackingRecords', JSON.stringify(timeTrackingRecords));
+            persistStore('timeTrackingRecords', timeTrackingRecords);
         }
 
         async function saveTimeTrackingToSheets(record) {
@@ -10504,26 +10928,16 @@
         // ============================================
 
         function loadPmasDocuments() {
-            const stored = localStorage.getItem('pmasDocuments');
-            if (stored) {
-                try {
-                    pmasDocuments = JSON.parse(stored);
-                } catch (e) {
-                    console.error('Error loading PMAS documents:', e);
-                    pmasDocuments = [];
-                }
+            const stored = readStore('pmasDocuments');
+            if (Array.isArray(stored)) {
+                pmasDocuments = stored;
             }
         }
 
         function savePmasDocuments() {
-            try {
-                markDataDirty();
-                localStorage.setItem('pmasDocuments', JSON.stringify(pmasDocuments));
-            } catch (e) {
-                console.error('Error saving PMAS documents:', e);
-                if (e.name === 'QuotaExceededError') {
-                    showAlert('Storage full. Try removing some documents before uploading more.');
-                }
+            markDataDirty();
+            if (!persistStore('pmasDocuments', pmasDocuments)) {
+                showAlert('Storage full. Try removing some documents before uploading more.');
             }
         }
 
