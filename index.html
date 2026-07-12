@@ -4591,6 +4591,128 @@
         let pmasDocuments = [];
 
         // ============================================
+        // DATA CONSISTENCY HELPERS
+        // ============================================
+
+        // Collision-safe record id — Date.now() alone can collide when two
+        // records are created in the same millisecond (or on two devices),
+        // and the Drive merge would then silently drop one of them
+        function generateRecordId() {
+            return Date.now().toString() + '-' + Math.random().toString(36).slice(2, 8);
+        }
+
+        // Deletion tombstones: the Google Drive sync merges local and cloud
+        // data as a union, so without a record of what was deleted, every
+        // deleted staff/leave/time-tracking record comes back on the next
+        // auto-sync. Each delete registers a tombstone; merges drop any
+        // record whose tombstone is newer than the record itself.
+        const TOMBSTONE_MAX_AGE_MS = 180 * 24 * 60 * 60 * 1000;
+        let deletedTombstones = loadTombstones();
+
+        function loadTombstones() {
+            let stored = {};
+            try { stored = JSON.parse(localStorage.getItem('deletedTombstones')) || {}; } catch (e) { /* ignore */ }
+            const cutoff = Date.now() - TOMBSTONE_MAX_AGE_MS;
+            const result = {};
+            ['staff', 'leave', 'timeTracking', 'reminder', 'pmas'].forEach(kind => {
+                result[kind] = {};
+                Object.entries(stored[kind] || {}).forEach(([key, deletedAt]) => {
+                    if (new Date(deletedAt).getTime() > cutoff) result[kind][key] = deletedAt;
+                });
+            });
+            return result;
+        }
+
+        function saveTombstones() {
+            try {
+                localStorage.setItem('deletedTombstones', JSON.stringify(deletedTombstones));
+            } catch (e) {
+                console.error('Error saving tombstones:', e);
+            }
+        }
+
+        function registerTombstone(kind, key) {
+            if (!deletedTombstones[kind]) deletedTombstones[kind] = {};
+            deletedTombstones[kind][String(key)] = new Date().toISOString();
+            saveTombstones();
+        }
+
+        // Merge tombstones coming from the cloud backup (newest wins per key)
+        function mergeTombstones(cloudTombstones) {
+            if (!cloudTombstones) return;
+            Object.keys(deletedTombstones).forEach(kind => {
+                Object.entries(cloudTombstones[kind] || {}).forEach(([key, deletedAt]) => {
+                    const local = deletedTombstones[kind][key];
+                    if (!local || new Date(deletedAt) > new Date(local)) {
+                        deletedTombstones[kind][key] = deletedAt;
+                    }
+                });
+            });
+            saveTombstones();
+        }
+
+        // Drop records that were deleted after their last update, so deletes
+        // propagate through sync but a record re-created (or edited) after
+        // the deletion survives
+        function filterTombstoned(kind, arr, keyFn) {
+            const tombs = deletedTombstones[kind] || {};
+            return (arr || []).filter(item => {
+                const deletedAt = tombs[String(keyFn(item))];
+                if (!deletedAt) return true;
+                const itemTime = new Date(item.updatedAt || item.timestamp || item.createdAt || 0).getTime();
+                return itemTime > new Date(deletedAt).getTime();
+            });
+        }
+
+        // Single place where a leave record touches the legacy staff absence
+        // counters (direction: +1 on add, -1 on remove). Every leave
+        // add/edit/delete path must go through this so the counters stay in
+        // step no matter which page the change was made from.
+        function adjustStaffCountersForLeave(leave, direction) {
+            if (!leave) return;
+            const staff = staffData.find(s => s.trn === leave.staffId);
+            if (!staff) return;
+            const days = calculateLeaveDays(leave.startDate, leave.endDate) * direction;
+            switch (leave.leaveType) {
+                case 'sick':
+                    staff.sickLeave = Math.max(0, (staff.sickLeave || 0) + days);
+                    break;
+                case 'vacation':
+                    staff.vacationLeave = Math.max(0, (staff.vacationLeave || 0) + days);
+                    break;
+                case 'dayoff':
+                    staff.dayOff = Math.max(0, (staff.dayOff || 0) + days);
+                    break;
+                case 'dept':
+                    staff.departmentalLeave = Math.max(0, (staff.departmentalLeave || 0) + days);
+                    break;
+            }
+        }
+
+        // Refresh everything that displays leave data, regardless of which
+        // page the change was made from: leave list/calendar, stats cards,
+        // staff monitor, analytics, notification badge and the period label.
+        function refreshLeaveDependentViews() {
+            populateLeaveFilterDropdowns();
+            if (leaveCalendarView) {
+                renderLeaveCalendar();
+                if (selectedLeaveDate) renderLeaveDayList();
+            } else {
+                renderLeaves();
+            }
+            updateLeaveStats();
+            updateMonitorStats();
+            if (currentView === 'monitor') renderStaff();
+            if (currentView === 'analytics') {
+                updateAnalyticsMetrics();
+                createCharts();
+                renderDepartments();
+            }
+            checkNotifications();
+            updatePeriodUI();
+        }
+
+        // ============================================
         // FISCAL YEAR / REPORTING PERIOD
         // Fiscal year runs April 1 – March 31.
         // Q1 = Apr-Jun, Q2 = Jul-Sep, Q3 = Oct-Dec, Q4 = Jan-Mar.
@@ -5233,7 +5355,11 @@
             const autoNotifications = [];
 
             leaveRecords.forEach(leave => {
-                const endDate = new Date(leave.endDate);
+                // parseLocalDate keeps this consistent with every other view
+                // (a plain new Date('YYYY-MM-DD') parses as UTC and shifts a
+                // day in negative-offset timezones)
+                const endDate = parseLocalDate(leave.endDate);
+                if (!endDate) return;
                 endDate.setHours(0, 0, 0, 0);
 
                 const diffTime = endDate - today;
@@ -5627,7 +5753,7 @@
             } else {
                 // Create new reminder
                 const newReminder = {
-                    id: 'reminder-' + Date.now(),
+                    id: 'reminder-' + generateRecordId(),
                     title,
                     date,
                     time,
@@ -5652,6 +5778,7 @@
             if (!confirm('Are you sure you want to delete this reminder?')) return;
 
             reminders = reminders.filter(r => r.id !== reminderId);
+            registerTombstone('reminder', reminderId);
             saveReminders();
             renderReminders();
             renderReminderCalendar();
@@ -6113,7 +6240,8 @@
                 departmentalLeave: parseInt(document.getElementById('staffDeptLeave').value) || 0,
                 overTime: parseInt(document.getElementById('staffOverTime').value) || 0,
                 late: parseInt(document.getElementById('staffLate').value) || 0,
-                vacationLeave: parseInt(document.getElementById('staffVacation').value) || 0
+                vacationLeave: parseInt(document.getElementById('staffVacation').value) || 0,
+                createdAt: new Date().toISOString()
             };
 
             try {
@@ -6180,6 +6308,7 @@
             }
 
             const updatedStaff = {
+                ...staffData[editingIndex],
                 name, trn, department, role,
                 phone: phone || '',
                 emergencyContact: emergencyContact || '',
@@ -6190,7 +6319,8 @@
                 departmentalLeave: parseInt(document.getElementById('editStaffDeptLeave').value) || 0,
                 overTime: parseInt(document.getElementById('editStaffOverTime').value) || 0,
                 late: parseInt(document.getElementById('editStaffLate').value) || 0,
-                vacationLeave: parseInt(document.getElementById('editStaffVacation').value) || 0
+                vacationLeave: parseInt(document.getElementById('editStaffVacation').value) || 0,
+                updatedAt: new Date().toISOString()
             };
 
             try {
@@ -6222,6 +6352,7 @@
                     sessionStorage.removeItem('staffDataCache');
                     sessionStorage.removeItem('staffDataCacheTime');
                 }
+                registerTombstone('staff', staffData[index].trn);
                 staffData.splice(index, 1);
                 saveStaffDataToLocalStorage();  // Save to localStorage
                 renderStaff();
@@ -6404,7 +6535,7 @@
 
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateStr = `${leaveCalendarYear}-${String(leaveCalendarMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const dateObj = new Date(dateStr);
+                const dateObj = parseLocalDate(dateStr);
                 dateObj.setHours(0, 0, 0, 0);
                 
                 const isToday = dateObj.getTime() === today.getTime();
@@ -6463,12 +6594,13 @@
         }
 
         function getLeavesForDate(dateStr, deptFilter = '', typeFilter = '') {
-            const date = new Date(dateStr);
+            const date = parseLocalDate(dateStr);
             date.setHours(0, 0, 0, 0);
-            
+
             return leaveRecords.filter(leave => {
-                const start = new Date(leave.startDate);
-                const end = new Date(leave.endDate);
+                const start = parseLocalDate(leave.startDate);
+                const end = parseLocalDate(leave.endDate);
+                if (!start || !end) return false;
                 start.setHours(0, 0, 0, 0);
                 end.setHours(0, 0, 0, 0);
                 
@@ -6564,7 +6696,7 @@
             }
             
             const newLeave = {
-                id: Date.now().toString(),
+                id: generateRecordId(),
                 staffId,
                 leaveType,
                 startDate,
@@ -6573,23 +6705,30 @@
                 createdAt: new Date().toISOString(),
                 status: getLeaveStatus(startDate, endDate)
             };
-            
+
             try {
                 if (CONFIG.SYNC_LEAVES_TO_SHEETS) {
                     showAlert('💾 Saving leave record...');
                     await saveLeaveToSheets(newLeave);
                 }
-                
+
                 leaveRecords.push(newLeave);
                 saveLeaveRecordsToLocalStorage();
-                renderLeaveCalendar();
-                renderLeaveDayList();
-                checkNotifications();
-                
+
+                // Keep the legacy staff counters in step, exactly like the
+                // list-view add form does
+                adjustStaffCountersForLeave(newLeave, +1);
+                saveStaffDataToLocalStorage();
+
+                const staff = staffData.find(s => s.trn === staffId);
+                addNotification(`New ${getLeaveTypeName(leaveType)} added for ${staff ? staff.name : staffId}`, 'Leave Management');
+
+                refreshLeaveDependentViews();
+
                 document.getElementById('leaveModalStaffSelect').value = '';
                 document.getElementById('leaveModalType').value = '';
                 document.getElementById('leaveModalReason').value = '';
-                
+
                 showAlert('✅ Leave record added successfully!');
             } catch (error) {
                 showAlert('❌ Failed to add leave record: ' + error.message);
@@ -6619,28 +6758,15 @@
                 }
 
                 // Update staff member's absence counter (decrement) before deleting
-                if (deletedLeave && staff) {
-                    const leaveDays = calculateLeaveDays(deletedLeave.startDate, deletedLeave.endDate);
-                    switch(deletedLeave.leaveType) {
-                        case 'sick':
-                            staff.sickLeave = Math.max(0, (staff.sickLeave || 0) - leaveDays);
-                            break;
-                        case 'vacation':
-                            staff.vacationLeave = Math.max(0, (staff.vacationLeave || 0) - leaveDays);
-                            break;
-                        case 'dayoff':
-                            staff.dayOff = Math.max(0, (staff.dayOff || 0) - leaveDays);
-                            break;
-                        case 'dept':
-                            staff.departmentalLeave = Math.max(0, (staff.departmentalLeave || 0) - leaveDays);
-                            break;
-                    }
+                if (deletedLeave) {
+                    adjustStaffCountersForLeave(deletedLeave, -1);
                     saveStaffDataToLocalStorage();
-                    console.log(`Decremented ${staff.name}'s ${deletedLeave.leaveType} counter by ${leaveDays} days`);
                 }
 
-                // Delete locally regardless of sync status
+                // Delete locally regardless of sync status, and leave a
+                // tombstone so the Drive merge doesn't resurrect the record
                 leaveRecords = leaveRecords.filter(l => l.id !== leaveId);
+                registerTombstone('leave', leaveId);
                 saveLeaveRecordsToLocalStorage();
 
                 // Add notification
@@ -6648,22 +6774,7 @@
                     addNotification(`${staffName}'s ${getLeaveTypeName(deletedLeave.leaveType)} was deleted`, 'Leave Management');
                 }
 
-                if (leaveCalendarView) {
-                    renderLeaveCalendar();
-                    if (selectedLeaveDate) {
-                        renderLeaveDayList();
-                    }
-                } else {
-                    renderLeaves();
-                    updateLeaveStats();
-                }
-
-                checkNotifications();
-                // Sync with dashboards
-                updateMonitorStats();
-                if (typeof updateAnalyticsMetrics === 'function') {
-                    updateAnalyticsMetrics();
-                }
+                refreshLeaveDependentViews();
 
                 // Show appropriate success message
                 if (syncError) {
@@ -6831,6 +6942,12 @@
                     }
                 }
 
+                // Move the legacy staff counters from the old leave to the
+                // edited one (staff, type or dates may all have changed)
+                adjustStaffCountersForLeave(leaveRecords[index], -1);
+                adjustStaffCountersForLeave(updatedLeave, +1);
+                saveStaffDataToLocalStorage();
+
                 leaveRecords[index] = updatedLeave;
                 saveLeaveRecordsToLocalStorage();
 
@@ -6841,22 +6958,7 @@
                 // Add notification
                 addNotification(`${staffName}'s ${getLeaveTypeName(leaveType)} was updated`, 'Leave Management');
 
-                if (leaveCalendarView) {
-                    renderLeaveCalendar();
-                    if (selectedLeaveDate) {
-                        renderLeaveDayList();
-                    }
-                } else {
-                    renderLeaves();
-                    updateLeaveStats();
-                }
-
-                checkNotifications();
-                // Sync with dashboards
-                updateMonitorStats();
-                if (typeof updateAnalyticsMetrics === 'function') {
-                    updateAnalyticsMetrics();
-                }
+                refreshLeaveDependentViews();
 
                 closeEditLeaveModal();
                 showAlert('✅ Leave record updated successfully!');
@@ -6900,11 +7002,12 @@
             sevenDaysFromNow.setDate(today.getDate() + 7);
             
             const upcoming = leaveRecords.filter(leave => {
-                const endDate = new Date(leave.endDate);
+                const endDate = parseLocalDate(leave.endDate);
+                if (!endDate) return false;
                 endDate.setHours(0, 0, 0, 0);
                 return endDate >= today && endDate <= sevenDaysFromNow;
-            }).sort((a, b) => new Date(a.endDate) - new Date(b.endDate));
-            
+            }).sort((a, b) => (parseLocalDate(a.endDate) || 0) - (parseLocalDate(b.endDate) || 0));
+
             const container = document.getElementById('upcomingLeavesListCalendar');
             
             if (upcoming.length === 0) {
@@ -6915,8 +7018,9 @@
             container.innerHTML = upcoming.map(leave => {
                 const staff = staffData.find(s => s.trn === leave.staffId);
                 if (!staff) return '';
-                
-                const endDate = new Date(leave.endDate);
+
+                const endDate = parseLocalDate(leave.endDate);
+                endDate.setHours(0, 0, 0, 0);
                 const diffTime = endDate - today;
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 
@@ -7050,7 +7154,7 @@
             }
 
             const newLeave = {
-                id: Date.now().toString(),
+                id: generateRecordId(),
                 staffId,
                 leaveType,
                 startDate,
@@ -7074,44 +7178,19 @@
                 leaveRecords.push(newLeave);
                 saveLeaveRecordsToLocalStorage();
 
+                // Update staff member's absence counter based on leave type
+                adjustStaffCountersForLeave(newLeave, +1);
+                saveStaffDataToLocalStorage();
+
                 // Get staff name for notification
                 const staff = staffData.find(s => s.trn === staffId);
-
-                // Update staff member's absence counter based on leave type
-                if (staff) {
-                    const leaveDays = calculateLeaveDays(startDate, endDate);
-                    switch(leaveType) {
-                        case 'sick':
-                            staff.sickLeave = (staff.sickLeave || 0) + leaveDays;
-                            break;
-                        case 'vacation':
-                            staff.vacationLeave = (staff.vacationLeave || 0) + leaveDays;
-                            break;
-                        case 'dayoff':
-                            staff.dayOff = (staff.dayOff || 0) + leaveDays;
-                            break;
-                        case 'dept':
-                            staff.departmentalLeave = (staff.departmentalLeave || 0) + leaveDays;
-                            break;
-                    }
-                    saveStaffDataToLocalStorage();
-                    console.log(`Updated ${staff.name}'s ${leaveType} counter by ${leaveDays} days`);
-                }
                 const staffName = staff ? staff.name : staffId;
 
                 // Add notification
                 addNotification(`New ${getLeaveTypeName(leaveType)} added for ${staffName}`, 'Leave Management');
 
-                populateLeaveFilterDropdowns();
-                renderLeaves();
-                updateLeaveStats();
                 toggleLeaveForm();
-                checkNotifications();
-                // Sync with dashboards
-                updateMonitorStats();
-                if (typeof updateAnalyticsMetrics === 'function') {
-                    updateAnalyticsMetrics();
-                }
+                refreshLeaveDependentViews();
                 showAlert('✅ Leave record added successfully!');
             } catch (error) {
                 console.error('Error adding leave:', error);
@@ -7178,7 +7257,11 @@
                 markDataDirty();
                 localStorage.setItem('hospitalLeaveRecords', JSON.stringify(leaveRecords));
             } catch (error) {
+                // Don't fail silently — an unsaved record disappears on the
+                // next reload. Attachments are the usual cause (browser
+                // storage is limited to a few MB).
                 console.error('Error saving leave records to localStorage:', error);
+                showAlert('⚠️ Could not save leave records to browser storage — it may be full. Remove some attachments or export a backup, then try again.');
             }
         }
 
@@ -7461,16 +7544,19 @@
         }
 
         function populateLeaveFilterDropdowns() {
-            // Populate Year dropdown
+            // Populate Year dropdown (preserving the current selection —
+            // this runs after every leave change, and rebuilding the options
+            // must not silently clear an active filter)
             const yearSelect = document.getElementById('leaveYearFilter');
             if (yearSelect) {
+                const previousYear = yearSelect.value;
                 const years = new Set();
                 const currentYear = new Date().getFullYear();
 
                 // Add years from leave records
                 leaveRecords.forEach(leave => {
-                    const year = new Date(leave.startDate).getFullYear();
-                    if (!isNaN(year)) years.add(year);
+                    const startDate = parseLocalDate(leave.startDate);
+                    if (startDate && !isNaN(startDate.getFullYear())) years.add(startDate.getFullYear());
                 });
 
                 // Add current year and a few years around it if not present
@@ -7484,11 +7570,14 @@
                 sortedYears.forEach(year => {
                     yearSelect.innerHTML += `<option value="${year}">${year}</option>`;
                 });
+                yearSelect.value = previousYear;
+                if (yearSelect.value !== previousYear) yearSelect.value = '';
             }
 
-            // Populate Department dropdown
+            // Populate Department dropdown (also preserving selection)
             const deptSelect = document.getElementById('leaveDepartmentFilter');
             if (deptSelect) {
+                const previousDept = deptSelect.value;
                 const departments = new Set();
 
                 // Get unique departments from staff data
@@ -7504,6 +7593,8 @@
                 sortedDepts.forEach(dept => {
                     deptSelect.innerHTML += `<option value="${dept}">${dept}</option>`;
                 });
+                deptSelect.value = previousDept;
+                if (deptSelect.value !== previousDept) deptSelect.value = '';
             }
         }
 
@@ -9439,7 +9530,8 @@
                 scheduleData: scheduleData,
                 timeTrackingRecords: timeTrackingRecords,
                 reminders: reminders,
-                pmasDocuments: pmasDocuments
+                pmasDocuments: pmasDocuments,
+                deletedTombstones: deletedTombstones
             };
         }
 
@@ -9472,11 +9564,21 @@
         function applyCloudData(data) {
             suppressDirtyFlag = true;
             try {
-                staffData = mergeById(staffData, data.staffData, s => String(s.trn));
-                leaveRecords = mergeById(leaveRecords, data.leaveRecords, l => String(l.id));
-                timeTrackingRecords = mergeById(timeTrackingRecords, data.timeTrackingRecords, r => String(r.id));
-                reminders = mergeById(reminders, data.reminders, r => String(r.id));
-                pmasDocuments = mergeById(pmasDocuments, data.pmasDocuments, d => String(d.id));
+                // Learn about deletions made on other devices first, then
+                // merge and drop anything that was deleted after its last
+                // update — otherwise every deleted record comes back on sync
+                mergeTombstones(data.deletedTombstones);
+
+                staffData = filterTombstoned('staff',
+                    mergeById(staffData, data.staffData, s => String(s.trn)), s => String(s.trn));
+                leaveRecords = filterTombstoned('leave',
+                    mergeById(leaveRecords, data.leaveRecords, l => String(l.id)), l => String(l.id));
+                timeTrackingRecords = filterTombstoned('timeTracking',
+                    mergeById(timeTrackingRecords, data.timeTrackingRecords, r => String(r.id)), r => String(r.id));
+                reminders = filterTombstoned('reminder',
+                    mergeById(reminders, data.reminders, r => String(r.id)), r => String(r.id));
+                pmasDocuments = filterTombstoned('pmas',
+                    mergeById(pmasDocuments, data.pmasDocuments, d => String(d.id)), d => String(d.id));
                 // Per-day union — a day scheduled locally wins over the cloud copy
                 scheduleData = Object.assign({}, data.scheduleData || {}, scheduleData || {});
 
@@ -9517,7 +9619,15 @@
             } else if (currentView === 'pmas') {
                 renderPmasDocuments();
                 updatePmasStats();
+            } else if (currentView === 'reminders') {
+                renderReminders();
+                renderReminderCalendar();
+                updateReminderStats();
+            } else if (currentView === 'staffreports') {
+                initStaffReportsView();
             }
+            // Leave data feeds the notification badge on every page
+            checkNotifications();
             updatePeriodUI();
         }
 
@@ -9629,6 +9739,11 @@
             scheduleData = importedData.scheduleData || {};
             timeTrackingRecords = importedData.timeTrackingRecords || [];
 
+            // A full restore is authoritative — forget past deletions so the
+            // restored records aren't filtered out by the sync merge
+            deletedTombstones = { staff: {}, leave: {}, timeTracking: {}, reminder: {}, pmas: {} };
+            saveTombstones();
+
             localStorage.setItem('staffData', JSON.stringify(staffData));
             saveLeaveRecordsToLocalStorage();
             localStorage.setItem('hospitalScheduleData', JSON.stringify(scheduleData));
@@ -9645,11 +9760,13 @@
 
             renderStaff();
             updateMonitorStats();
+            populateLeaveFilterDropdowns();
             renderLeaves();
             updateLeaveStats();
             renderCalendar();
             renderTimeTrackingRecords();
             updateTimeTrackingStats();
+            checkNotifications();
             updatePeriodUI();
         }
 
@@ -9771,8 +9888,13 @@
 
         // Ensure staff data is saved to localStorage
         function saveStaffDataToLocalStorage() {
-            markDataDirty();
-            localStorage.setItem('staffData', JSON.stringify(staffData));
+            try {
+                markDataDirty();
+                localStorage.setItem('staffData', JSON.stringify(staffData));
+            } catch (error) {
+                console.error('Error saving staff data to localStorage:', error);
+                showAlert('⚠️ Could not save staff data to browser storage — it may be full.');
+            }
         }
 
         // Save all data to localStorage (manual save button)
@@ -10126,7 +10248,7 @@
             } else {
                 // Create new record
                 const record = {
-                    id: Date.now().toString(),
+                    id: generateRecordId(),
                     type: currentTimeTrackingType,
                     staffId: staffId,
                     staffName: staff.name,
@@ -10316,7 +10438,9 @@
             }
 
             timeTrackingRecords.splice(recordIndex, 1);
+            registerTombstone('timeTracking', recordId);
             saveTimeTrackingRecordsToStorage();
+            saveStaffDataToLocalStorage();
             renderTimeTrackingRecords();
             updateTimeTrackingStats();
             showAlert('✅ Record deleted successfully');
@@ -10663,6 +10787,7 @@
         function deletePmasDocument(docId) {
             if (!confirm('Are you sure you want to delete this document?')) return;
             pmasDocuments = pmasDocuments.filter(d => d.id !== docId);
+            registerTombstone('pmas', docId);
             savePmasDocuments();
             renderPmasDocuments();
             updatePmasStats();
