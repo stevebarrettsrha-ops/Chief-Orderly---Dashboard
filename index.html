@@ -1599,6 +1599,18 @@
             border-left-color: #f59e0b;
         }
 
+        .leave-card.dept {
+            border-left-color: #0ea5e9;
+        }
+
+        .leave-card.paternity {
+            border-left-color: #10b981;
+        }
+
+        .leave-card.nonreported {
+            border-left-color: #64748b;
+        }
+
         .leave-header {
             display: flex;
             justify-content: space-between;
@@ -1638,6 +1650,16 @@
         .leave-type-badge.dept {
             background: #dbeafe;
             color: #0ea5e9;
+        }
+
+        .leave-type-badge.paternity {
+            background: #d1fae5;
+            color: #047857;
+        }
+
+        .leave-type-badge.nonreported {
+            background: #e2e8f0;
+            color: #334155;
         }
 
         .leave-dates {
@@ -1696,6 +1718,105 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 20px;
+        }
+
+        /* One card per staff member with an expandable leave dropdown */
+        .leave-staff-card {
+            background: white;
+            border-radius: 16px;
+            padding: 18px 20px;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+            border: 1px solid #eef2f7;
+            transition: box-shadow 0.25s ease, transform 0.25s ease;
+        }
+
+        .leave-staff-card:hover {
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.14);
+            transform: translateY(-2px);
+        }
+
+        .leave-staff-card.unknown {
+            border: 2px dashed #ef4444;
+        }
+
+        .leave-staff-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .leave-staff-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .leave-count-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        .leave-dropdown-chevron {
+            font-size: 12px;
+            color: #94a3b8;
+            transition: transform 0.25s ease;
+        }
+
+        .leave-summary-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .leave-summary-chip {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        .leave-dropdown-list {
+            margin-top: 14px;
+            border-top: 1px solid #eef2f7;
+            padding-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .leave-dropdown-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 10px 12px;
+            background: #f8fafc;
+            border-left: 4px solid #0ea5e9;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        .leave-dropdown-row:hover {
+            background: #eef2f7;
+            transform: translateX(3px);
+        }
+
+        .leave-dropdown-dates {
+            font-size: 13px;
+            color: #475569;
+            flex: 1;
+            min-width: 140px;
         }
 
         .leave-calendar-view {
@@ -2064,6 +2185,14 @@
 
         .leave-indicator.dept {
             background: #0ea5e9;
+        }
+
+        .leave-indicator.paternity {
+            background: #10b981;
+        }
+
+        .leave-indicator.nonreported {
+            background: #64748b;
         }
 
         .day-assignments {
@@ -3147,6 +3276,126 @@
             font-size: 14px;
         }
         .drive-popup-close:hover { color: #4a5568; }
+
+        /* ============================================
+           MODERN DESIGN REFRESH (2026)
+           Appended last so it refines the look of every page
+           without disturbing existing layout/structure.
+           ============================================ */
+
+        /* Calmer, more modern app canvas (replaces the loud green→blue) */
+        body.app-mode {
+            background: #eef2f7;
+            background-image:
+                radial-gradient(1200px 600px at 100% -10%, rgba(14, 165, 233, 0.10), transparent 60%),
+                radial-gradient(1000px 500px at -10% 110%, rgba(16, 185, 129, 0.10), transparent 60%);
+            background-attachment: fixed;
+        }
+
+        /* Softer, deeper card shadows + smoother corners across the app */
+        .staff-card,
+        .leave-calendar-view,
+        .department-card,
+        .metric-card,
+        .chart-card,
+        .drive-card,
+        .sr-controls,
+        #staffReportPreview,
+        .topbar {
+            border-radius: 16px !important;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.07) !important;
+            border: 1px solid rgba(15, 23, 42, 0.05);
+        }
+
+        .staff-card:hover,
+        .department-card:hover,
+        .metric-card:hover {
+            box-shadow: 0 14px 32px rgba(15, 23, 42, 0.14) !important;
+            transform: translateY(-3px);
+        }
+
+        /* Modern gradient buttons with a subtle lift */
+        .btn {
+            border-radius: 10px;
+            letter-spacing: 0.2px;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+            filter: brightness(1.05);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+        }
+        .btn-success:hover {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            filter: brightness(1.05);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
+        }
+        .btn-secondary {
+            background: #eef2f7;
+            color: #334155;
+        }
+        .btn-secondary:hover {
+            background: #e2e8f0;
+            transform: translateY(-1px);
+        }
+
+        /* Rounder stat cards with a gentle sheen */
+        .stat-card {
+            border-radius: 16px;
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.12);
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: -40%;
+            right: -20%;
+            width: 160px;
+            height: 160px;
+            background: rgba(255, 255, 255, 0.14);
+            border-radius: 50%;
+        }
+
+        /* Inputs & selects: consistent modern focus ring */
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #2563eb !important;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        /* Modal panels a touch more modern */
+        .modal-content {
+            border-radius: 18px;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+        }
+
+        /* Smooth view transitions */
+        .view-section.active {
+            animation: viewFadeIn 0.35s ease;
+        }
+        @keyframes viewFadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Login card refresh */
+        .login-box {
+            border-radius: 20px;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+        }
     </style>
 </head>
 <body>
@@ -3463,6 +3712,17 @@
             </div>
         </div>
 
+        <!-- Leave Detail Modal -->
+        <div id="leaveDetailModal" class="modal">
+            <div class="modal-content" style="max-width: 520px;">
+                <div class="modal-header">
+                    <h2 id="leaveDetailTitle" style="color: #1a202c;">Leave Details</h2>
+                    <button class="modal-close" onclick="closeLeaveDetailModal()">×</button>
+                </div>
+                <div id="leaveDetailContent"></div>
+            </div>
+        </div>
+
         <!-- Schedule Day Modal -->
         <div id="scheduleDayModal" class="modal">
             <div class="modal-content schedule-modal-content">
@@ -3552,6 +3812,8 @@
                             <option value="vacation">Vacation Leave</option>
                             <option value="dayoff">Day Off</option>
                             <option value="dept">Departmental Leave</option>
+                            <option value="paternity">Paternity Leave</option>
+                            <option value="nonreported">Non Reported Leave</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -3764,6 +4026,8 @@
                             <option value="vacation">Vacation</option>
                             <option value="dayoff">Day Off</option>
                             <option value="dept">Departmental</option>
+                            <option value="paternity">Paternity</option>
+                            <option value="nonreported">Non Reported</option>
                         </select>
                     </div>
                 </div>
@@ -3806,6 +4070,8 @@
                                 <option value="vacation">Vacation Leave</option>
                                 <option value="dayoff">Day Off</option>
                                 <option value="dept">Departmental Leave</option>
+                                <option value="paternity">Paternity Leave</option>
+                                <option value="nonreported">Non Reported Leave</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -3911,6 +4177,8 @@
                                 <option value="vacation">Vacation Leave</option>
                                 <option value="dayoff">Day Off</option>
                                 <option value="dept">Departmental Leave</option>
+                                <option value="paternity">Paternity Leave</option>
+                                <option value="nonreported">Non Reported Leave</option>
                             </select>
                         </div>
 
@@ -4185,8 +4453,16 @@
                     </select>
                 </div>
                 <div class="sr-field">
-                    <label for="srMonthSelect">Report Month</label>
-                    <select id="srMonthSelect"></select>
+                    <label for="srYearSelect">Year</label>
+                    <select id="srYearSelect" onchange="onSrDatePartChange()"></select>
+                </div>
+                <div class="sr-field">
+                    <label for="srMonthSelect">Month</label>
+                    <select id="srMonthSelect" onchange="onSrDatePartChange()"></select>
+                </div>
+                <div class="sr-field">
+                    <label for="srDaySelect">Day <span style="font-weight:400;color:#94a3b8;">(optional)</span></label>
+                    <select id="srDaySelect"></select>
                 </div>
                 <div class="sr-field">
                     <label for="srDeptSelect">Department</label>
@@ -4332,8 +4608,8 @@
                         <input type="date" id="timeTrackingDate" required>
                     </div>
                     <div class="form-group" id="timeTrackingClaimsHoursGroup" style="display: none;">
-                        <label>Claims Hours *</label>
-                        <div style="display: flex; gap: 10px; align-items: center;">
+                        <label>Claims Time (H : M : S) *</label>
+                        <div style="display: flex; gap: 8px; align-items: center;">
                             <div style="flex: 1;">
                                 <input type="number" id="timeTrackingClaimsHours" min="0" max="23" placeholder="Hours" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;">
                             </div>
@@ -4341,12 +4617,16 @@
                             <div style="flex: 1;">
                                 <input type="number" id="timeTrackingClaimsMinutes" min="0" max="59" placeholder="Minutes" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;">
                             </div>
+                            <span style="font-weight: bold; color: #4a5568;">:</span>
+                            <div style="flex: 1;">
+                                <input type="number" id="timeTrackingClaimsSeconds" min="0" max="59" placeholder="Seconds" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                            </div>
                         </div>
-                        <small style="color: #718096; margin-top: 4px; display: block;">Enter hours and minutes (e.g., 2 hours 30 minutes)</small>
+                        <small style="color: #718096; margin-top: 4px; display: block;">Enter hours, minutes and seconds (e.g., 2h 30m 15s)</small>
                     </div>
                     <div class="form-group" id="timeTrackingHoursGroup" style="display: none;">
-                        <label id="timeTrackingHoursLabel">Hours</label>
-                        <div style="display: flex; gap: 10px; align-items: center;">
+                        <label id="timeTrackingHoursLabel">Time (H : M : S)</label>
+                        <div style="display: flex; gap: 8px; align-items: center;">
                             <div style="flex: 1;">
                                 <input type="number" id="timeTrackingHours" min="0" max="23" placeholder="Hours" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;">
                             </div>
@@ -4354,8 +4634,12 @@
                             <div style="flex: 1;">
                                 <input type="number" id="timeTrackingMinutes" min="0" max="59" placeholder="Minutes" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;">
                             </div>
+                            <span style="font-weight: bold; color: #4a5568;">:</span>
+                            <div style="flex: 1;">
+                                <input type="number" id="timeTrackingSeconds" min="0" max="59" placeholder="Seconds" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                            </div>
                         </div>
-                        <small style="color: #718096; margin-top: 4px; display: block;">Enter hours and minutes</small>
+                        <small style="color: #718096; margin-top: 4px; display: block;">Enter hours, minutes and seconds</small>
                     </div>
                     <input type="hidden" id="timeTrackingEditId" value="">
                     <div class="form-group" style="grid-column: 1 / -1;">
@@ -4720,7 +5004,50 @@
                 }
             }));
         }
-        const offlineHydration = hydrateOfflineStore();
+        // ============================================
+        // ONE-TIME FRESH START
+        // Wipe all locally-saved dashboard data exactly once, so the app
+        // opens with a clean slate. A version flag guarantees this happens
+        // only on the first load after this build, not on every startup.
+        // ============================================
+        const FRESH_START_VERSION = '2026-07-fresh-start';
+
+        function performOneTimeFreshStart() {
+            return new Promise(resolve => {
+                let alreadyDone = false;
+                try {
+                    alreadyDone = localStorage.getItem('dashboardFreshStartVersion') === FRESH_START_VERSION;
+                } catch (e) { /* storage unavailable */ }
+
+                if (alreadyDone) { resolve(false); return; }
+
+                // Clear all locally-stored dashboard data + caches
+                const keysToClear = [];
+                OFFLINE_STORE_KEYS.forEach(k => { keysToClear.push(k, k + '__savedAt'); });
+                keysToClear.push('fiscalYearStart', 'gdriveCloudFileId', 'gdriveLastSyncTime');
+                try {
+                    keysToClear.forEach(k => localStorage.removeItem(k));
+                    localStorage.setItem('dashboardFreshStartVersion', FRESH_START_VERSION);
+                } catch (e) { /* ignore */ }
+                try {
+                    ['staffDataCache', 'staffDataCacheTime', 'credentialsCache'].forEach(k => sessionStorage.removeItem(k));
+                } catch (e) { /* ignore */ }
+
+                // Wipe the offline database, then let hydration recreate it empty
+                idbCache = {};
+                if (typeof indexedDB === 'undefined') { resolve(true); return; }
+                try {
+                    const del = indexedDB.deleteDatabase(OFFLINE_DB_NAME);
+                    del.onsuccess = del.onerror = del.onblocked = () => resolve(true);
+                    // Safety timeout in case the delete event never fires
+                    setTimeout(() => resolve(true), 1500);
+                } catch (e) {
+                    resolve(true);
+                }
+            });
+        }
+
+        const offlineHydration = performOneTimeFreshStart().then(() => hydrateOfflineStore());
 
         // Write a store to IndexedDB + localStorage. Returns true if at
         // least one of the two succeeded.
@@ -4776,6 +5103,46 @@
         // and the Drive merge would then silently drop one of them
         function generateRecordId() {
             return Date.now().toString() + '-' + Math.random().toString(36).slice(2, 8);
+        }
+
+        // Robust id comparison — a staff TRN loaded from a sheet may be a
+        // number while a leave/record staffId is a string. Comparing them
+        // strictly would silently drop the match and make reports/department
+        // views look "out of sync". Coerce both sides to string.
+        function sameId(a, b) {
+            return String(a) === String(b);
+        }
+
+        // Alphabetical staff ordering by last name, then first name.
+        // Names are stored as a single "First Last" (or "First Middle Last")
+        // string, so the final word is treated as the last name.
+        function staffNameKey(name) {
+            const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+            if (parts.length === 0) return { last: '', first: '' };
+            if (parts.length === 1) return { last: parts[0].toLowerCase(), first: '' };
+            const last = parts[parts.length - 1].toLowerCase();
+            const first = parts.slice(0, parts.length - 1).join(' ').toLowerCase();
+            return { last, first };
+        }
+
+        function compareStaffByName(a, b) {
+            const ka = staffNameKey(a && a.name);
+            const kb = staffNameKey(b && b.name);
+            return ka.last.localeCompare(kb.last) || ka.first.localeCompare(kb.first);
+        }
+
+        // "First Last" -> "Last, First" for display where surname-first is wanted
+        function formatNameLastFirst(name) {
+            const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+            if (parts.length < 2) return String(name || '');
+            const last = parts[parts.length - 1];
+            const first = parts.slice(0, parts.length - 1).join(' ');
+            return `${last}, ${first}`;
+        }
+
+        // Sorted copy of a staff array (does not mutate the original)
+        function staffSortedByName(list) {
+            return [...list].sort(compareStaffByName);
         }
 
         // Deletion tombstones: the Google Drive sync merges local and cloud
@@ -4843,7 +5210,7 @@
         // step no matter which page the change was made from.
         function adjustStaffCountersForLeave(leave, direction) {
             if (!leave) return;
-            const staff = staffData.find(s => s.trn === leave.staffId);
+            const staff = staffData.find(s => sameId(s.trn, leave.staffId));
             if (!staff) return;
             const days = calculateLeaveDays(leave.startDate, leave.endDate) * direction;
             switch (leave.leaveType) {
@@ -4858,6 +5225,12 @@
                     break;
                 case 'dept':
                     staff.departmentalLeave = Math.max(0, (staff.departmentalLeave || 0) + days);
+                    break;
+                case 'paternity':
+                    staff.paternityLeave = Math.max(0, (staff.paternityLeave || 0) + days);
+                    break;
+                case 'nonreported':
+                    staff.nonReportedLeave = Math.max(0, (staff.nonReportedLeave || 0) + days);
                     break;
             }
         }
@@ -4883,6 +5256,30 @@
             }
             checkNotifications();
             updatePeriodUI();
+        }
+
+        // Refresh everything that depends on the staff roster after a staff
+        // add / edit / delete, so department-based views and dropdowns stay
+        // in sync no matter which page is currently open (fixes department
+        // data lagging when staff move between departments).
+        function refreshStaffDependentViews() {
+            if (currentView === 'monitor') { renderStaff(); }
+            updateMonitorStats();
+            if (currentView === 'analytics') {
+                updateAnalyticsMetrics();
+                createCharts();
+                renderDepartments();
+            }
+            if (currentView === 'staffreports') {
+                populateSrStaffSelect();
+                populateSrDeptSelect();
+            }
+            if (currentView === 'schedule') { updateDepartmentSelect(); }
+            if (currentView === 'leaves') { populateLeaveFilterDropdowns(); }
+            if (currentView === 'pmas') {
+                populatePmasEmployeeDropdown();
+                populatePmasDeptFilter();
+            }
         }
 
         // ============================================
@@ -4957,16 +5354,18 @@
                     departmentalLeave: staff.departmentalLeave || 0,
                     overTime: staff.overTime || 0,
                     late: staff.late || 0,
-                    vacationLeave: staff.vacationLeave || 0
+                    vacationLeave: staff.vacationLeave || 0,
+                    paternityLeave: staff.paternityLeave || 0,
+                    nonReportedLeave: staff.nonReportedLeave || 0
                 };
-                stats.total = stats.dayOff + stats.sickLeave + stats.departmentalLeave + stats.vacationLeave;
+                stats.total = stats.dayOff + stats.sickLeave + stats.departmentalLeave + stats.vacationLeave + stats.paternityLeave;
                 return stats;
             }
 
-            const stats = { dayOff: 0, sickLeave: 0, claims: 0, departmentalLeave: 0, overTime: 0, late: 0, vacationLeave: 0 };
+            const stats = { dayOff: 0, sickLeave: 0, claims: 0, departmentalLeave: 0, overTime: 0, late: 0, vacationLeave: 0, paternityLeave: 0, nonReportedLeave: 0 };
 
             leaveRecords.forEach(leave => {
-                if (leave.staffId !== staff.trn) return;
+                if (!sameId(leave.staffId, staff.trn)) return;
                 const days = overlapDaysInRange(leave.startDate, leave.endDate, range);
                 if (days <= 0) return;
                 switch (leave.leaveType) {
@@ -4974,11 +5373,13 @@
                     case 'vacation': stats.vacationLeave += days; break;
                     case 'dayoff': stats.dayOff += days; break;
                     case 'dept': stats.departmentalLeave += days; break;
+                    case 'paternity': stats.paternityLeave += days; break;
+                    case 'nonreported': stats.nonReportedLeave += days; break;
                 }
             });
 
             timeTrackingRecords.forEach(rec => {
-                if (rec.staffId !== staff.trn || !isDateInRange(rec.date, range)) return;
+                if (!sameId(rec.staffId, staff.trn) || !isDateInRange(rec.date, range)) return;
                 switch (rec.type) {
                     case 'claims': stats.claims += 1; break;
                     case 'late': stats.late += 1; break;
@@ -4988,7 +5389,7 @@
             });
 
             stats.overTime = Math.round(stats.overTime * 10) / 10;
-            stats.total = stats.dayOff + stats.sickLeave + stats.departmentalLeave + stats.vacationLeave;
+            stats.total = stats.dayOff + stats.sickLeave + stats.departmentalLeave + stats.vacationLeave + stats.paternityLeave;
             return stats;
         }
 
@@ -6468,6 +6869,7 @@
                 saveStaffDataToLocalStorage();  // Save to localStorage
                 renderStaff();
                 updateMonitorStats();
+                refreshStaffDependentViews();
                 toggleAddForm();
                 showAlert('✅ Staff member added successfully!');
             } catch (error) {
@@ -6547,6 +6949,7 @@
                 saveStaffDataToLocalStorage();  // Save to localStorage
                 renderStaff();
                 updateMonitorStats();
+                refreshStaffDependentViews();
                 closeEditModal();
                 showAlert('✅ Updated successfully!');
             } catch (error) {
@@ -6570,6 +6973,7 @@
                 saveStaffDataToLocalStorage();  // Save to localStorage
                 renderStaff();
                 updateMonitorStats();
+                refreshStaffDependentViews();
                 showAlert('✅ Deleted successfully!');
             } catch (error) {
                 showAlert('❌ Failed to delete: ' + error.message);
@@ -6592,12 +6996,12 @@
 
         function renderStaff() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filteredData = staffData.filter(staff => 
+            const filteredData = staffData.filter(staff =>
                 staff.name.toLowerCase().includes(searchTerm) ||
                 staff.department.toLowerCase().includes(searchTerm) ||
                 staff.trn.toString().includes(searchTerm) ||
                 (staff.role || 'Staff').toLowerCase().includes(searchTerm)  // Search by role
-            );
+            ).sort(compareStaffByName);  // Alphabetical: last name, then first name
 
             const grid = document.getElementById('staffGrid');
             const emptyState = document.getElementById('emptyState');
@@ -6627,7 +7031,7 @@
                         </div>
                         <div class="card-header" onclick="toggleDetails(${actualIndex})">
                             <div class="card-info">
-                                <h3>${staff.name}</h3>
+                                <h3>${formatNameLastFirst(staff.name)}</h3>
                                 <p>TRN: ${staff.trn}</p>
                             </div>
                             <div class="total-badge ${statusClass}">${totalDays}</div>
@@ -6838,9 +7242,9 @@
             document.getElementById('leaveDayTitle').textContent = `Leaves for ${date.toLocaleDateString('en-US', options)}`;
 
             const select = document.getElementById('leaveModalStaffSelect');
-            select.innerHTML = '<option value="">Select Staff Member...</option>' + 
-                staffData.map(staff => 
-                    `<option value="${staff.trn}">${staff.name} (${staff.department})</option>`
+            select.innerHTML = '<option value="">Select Staff Member...</option>' +
+                staffSortedByName(staffData).map(staff =>
+                    `<option value="${staff.trn}">${formatNameLastFirst(staff.name)} (${staff.department})</option>`
                 ).join('');
 
             document.getElementById('leaveModalStartDate').value = dateStr;
@@ -7013,8 +7417,8 @@
             // Populate staff dropdown
             const staffSelect = document.getElementById('editLeaveStaffSelect');
             staffSelect.innerHTML = '<option value="">Select Staff Member...</option>' +
-                staffData.map(staff =>
-                    `<option value="${staff.trn}" ${staff.trn === leave.staffId ? 'selected' : ''}>${staff.name} (${staff.department})</option>`
+                staffSortedByName(staffData).map(staff =>
+                    `<option value="${staff.trn}" ${sameId(staff.trn, leave.staffId) ? 'selected' : ''}>${formatNameLastFirst(staff.name)} (${staff.department})</option>`
                 ).join('');
 
             // Populate form fields
@@ -7278,9 +7682,9 @@
             
             if (form.classList.contains('active')) {
                 const select = document.getElementById('leaveStaffSelect');
-                select.innerHTML = '<option value="">Select Staff Member...</option>' + 
-                    staffData.map(staff => 
-                        `<option value="${staff.trn}">${staff.name} (${staff.department})</option>`
+                select.innerHTML = '<option value="">Select Staff Member...</option>' +
+                    staffSortedByName(staffData).map(staff =>
+                        `<option value="${staff.trn}">${formatNameLastFirst(staff.name)} (${staff.department})</option>`
                     ).join('');
                 
                 const today = new Date().toISOString().split('T')[0];
@@ -7512,9 +7916,37 @@
                 'sick': 'Sick Leave',
                 'vacation': 'Vacation Leave',
                 'dayoff': 'Day Off',
-                'dept': 'Departmental Leave'
+                'dept': 'Departmental Leave',
+                'paternity': 'Paternity Leave',
+                'nonreported': 'Non Reported Leave'
             };
             return types[type] || type;
+        }
+
+        // Central colour map so every leave record is colour-coded the same
+        // way across cards, badges, dropdown rows, the calendar and popups.
+        function getLeaveTypeColor(type) {
+            const colors = {
+                'sick':        { solid: '#ef4444', bg: '#fee2e2', text: '#b91c1c' },
+                'vacation':    { solid: '#a855f7', bg: '#f3e8ff', text: '#7e22ce' },
+                'dayoff':      { solid: '#f59e0b', bg: '#fef3c7', text: '#b45309' },
+                'dept':        { solid: '#0ea5e9', bg: '#dbeafe', text: '#0369a1' },
+                'paternity':   { solid: '#10b981', bg: '#d1fae5', text: '#047857' },
+                'nonreported': { solid: '#64748b', bg: '#e2e8f0', text: '#334155' }
+            };
+            return colors[type] || { solid: '#0ea5e9', bg: '#dbeafe', text: '#0369a1' };
+        }
+
+        function getLeaveTypeIcon(type) {
+            const icons = {
+                'sick': '🤒',
+                'vacation': '🏖️',
+                'dayoff': '📅',
+                'dept': '🏢',
+                'paternity': '👶',
+                'nonreported': '❔'
+            };
+            return icons[type] || '📋';
         }
 
         function formatDate(dateStr) {
@@ -7621,79 +8053,145 @@
             
             grid.style.display = 'grid';
             emptyState.style.display = 'none';
-            
-            grid.innerHTML = filteredLeaves.map(leave => {
-                const staff = staffData.find(s => s.trn === leave.staffId);
-                const status = getLeaveStatus(leave.startDate, leave.endDate);
-                const typeName = getLeaveTypeName(leave.leaveType);
-                
-                // Handle case where staff member is not found
-                if (!staff) {
+
+            // Group the filtered leaves by staff member so each person gets a
+            // SINGLE card. The card carries a dropdown listing every leave that
+            // person has taken; clicking a leave opens a details popup.
+            const groups = {};
+            filteredLeaves.forEach(leave => {
+                const key = String(leave.staffId);
+                if (!groups[key]) {
+                    const staff = staffData.find(s => sameId(s.trn, leave.staffId));
+                    groups[key] = { staffId: leave.staffId, staff: staff || null, leaves: [] };
+                }
+                groups[key].leaves.push(leave);
+            });
+
+            // Order groups alphabetically by last name, then first name.
+            // Unknown-staff groups sink to the bottom.
+            const orderedGroups = Object.values(groups).sort((a, b) => {
+                if (!a.staff && !b.staff) return 0;
+                if (!a.staff) return 1;
+                if (!b.staff) return -1;
+                return compareStaffByName(a.staff, b.staff);
+            });
+
+            grid.innerHTML = orderedGroups.map((group, gi) => {
+                const ddId = `leaveDd-${gi}`;
+                const displayName = group.staff ? formatNameLastFirst(group.staff.name) : `Unknown Staff (ID: ${group.staffId})`;
+                const dept = group.staff ? group.staff.department : 'Staff member not found in system';
+                const total = group.leaves.length;
+
+                // Sort this person's leaves newest start-date first
+                const sortedLeaves = [...group.leaves].sort((a, b) => {
+                    const da = parseLocalDate(a.startDate) || 0;
+                    const db = parseLocalDate(b.startDate) || 0;
+                    return db - da;
+                });
+
+                // Colour-coded summary chips: one per leave type with a count
+                const typeCounts = {};
+                sortedLeaves.forEach(l => { typeCounts[l.leaveType] = (typeCounts[l.leaveType] || 0) + 1; });
+                const summaryChips = Object.keys(typeCounts).map(type => {
+                    const c = getLeaveTypeColor(type);
+                    return `<span class="leave-summary-chip" style="background:${c.bg};color:${c.text};">${getLeaveTypeIcon(type)} ${getLeaveTypeName(type)} · ${typeCounts[type]}</span>`;
+                }).join('');
+
+                // Dropdown rows — one clickable, colour-coded row per leave
+                const rows = sortedLeaves.map(leave => {
+                    const c = getLeaveTypeColor(leave.leaveType);
+                    const status = getLeaveStatus(leave.startDate, leave.endDate);
                     return `
-                        <div class="leave-card ${leave.leaveType}" style="border: 2px dashed #ef4444;">
-                            <div class="leave-header">
-                                <div>
-                                    <div class="leave-staff-name" style="color: #ef4444;">Unknown Staff (ID: ${leave.staffId})</div>
-                                    <div style="font-size: 13px; color: #718096; margin-top: 4px;">Staff member not found in system</div>
-                                </div>
-                                <span class="leave-type-badge ${leave.leaveType}">${typeName}</span>
-                            </div>
-                            <div class="leave-dates">
-                                <span>📅 Start: ${formatDate(leave.startDate)}</span>
-                                <span>📅 End: ${formatDate(leave.endDate)}</span>
-                            </div>
-                            ${leave.reason ? `<div class="leave-reason">💬 ${leave.reason}</div>` : ''}
-                            <div class="leave-actions" style="display: flex; justify-content: space-between; align-items: center;">
-                                <span class="leave-status ${status}">${status}</span>
-                                <div style="display: flex; gap: 8px;">
-                                    <button class="icon-btn edit" onclick="openEditLeaveModal('${leave.id}')" title="Edit Leave">✏️</button>
-                                    <button class="icon-btn delete" onclick="deleteLeaveRecord('${leave.id}')" title="Delete Leave">🗑️</button>
-                                </div>
-                            </div>
+                        <div class="leave-dropdown-row" style="border-left-color:${c.solid};" onclick="showLeaveDetails('${leave.id}')" title="Click for full details">
+                            <span class="leave-type-badge ${leave.leaveType}" style="background:${c.bg};color:${c.text};">${getLeaveTypeName(leave.leaveType)}</span>
+                            <span class="leave-dropdown-dates">📅 ${formatDate(leave.startDate)} → ${formatDate(leave.endDate)}</span>
+                            <span class="leave-status ${status}">${status}</span>
+                            ${leave.attachment ? '<span title="Has attachment">📎</span>' : ''}
                         </div>
                     `;
-                }
-                
+                }).join('');
+
+                const cardClass = group.staff ? '' : ' unknown';
                 return `
-                    <div class="leave-card ${leave.leaveType}">
-                        <div class="leave-header">
-                            <div>
-                                <div class="leave-staff-name">${staff.name}</div>
-                                <div style="font-size: 13px; color: #718096; margin-top: 4px;">${staff.department}</div>
+                    <div class="leave-staff-card${cardClass}">
+                        <div class="leave-staff-header" onclick="toggleLeaveDropdown('${ddId}', this)">
+                            <div style="min-width:0;">
+                                <div class="leave-staff-name"${group.staff ? '' : ' style="color:#ef4444;"'}>${displayName}</div>
+                                <div style="font-size: 13px; color: #718096; margin-top: 4px;">${dept}</div>
                             </div>
-                            <span class="leave-type-badge ${leave.leaveType}">${typeName}</span>
+                            <div class="leave-staff-meta">
+                                <span class="leave-count-badge">${total} leave${total === 1 ? '' : 's'}</span>
+                                <span class="leave-dropdown-chevron">▼</span>
+                            </div>
                         </div>
-                        <div class="leave-dates">
-                            <span>📅 Start: ${formatDate(leave.startDate)}</span>
-                            <span>📅 End: ${formatDate(leave.endDate)}</span>
-                        </div>
-                        ${leave.reason ? `<div class="leave-reason">💬 ${leave.reason}</div>` : ''}
-                        ${leave.attachment ? `
-                            <div style="margin: 12px 0; padding: 10px; background: #f1f5f9; border-radius: 6px; display: flex; align-items: center; justify-content: space-between;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span style="font-size: 20px;">📎</span>
-                                    <div>
-                                        <div style="font-weight: 500; color: #1e293b;">${leave.attachment.filename}</div>
-                                        <div style="font-size: 12px; color: #64748b;">${(leave.attachment.size / 1024).toFixed(1)} KB</div>
-                                    </div>
-                                </div>
-                                <button class="btn btn-primary" onclick="downloadLeaveAttachment('${leave.id}')" style="padding: 6px 12px; font-size: 13px;">
-                                    📥 Download
-                                </button>
-                            </div>
-                        ` : ''}
-                        <div class="leave-actions" style="display: flex; justify-content: space-between; align-items: center;">
-                            <span class="leave-status ${status}">${status}</span>
-                            <div style="display: flex; gap: 8px;">
-                                <button class="icon-btn edit" onclick="openEditLeaveModal('${leave.id}')" title="Edit Leave">✏️</button>
-                                <button class="icon-btn delete" onclick="deleteLeaveRecord('${leave.id}')" title="Delete Leave">🗑️</button>
-                            </div>
+                        <div class="leave-summary-chips">${summaryChips}</div>
+                        <div id="${ddId}" class="leave-dropdown-list" style="display:none;">
+                            ${rows}
                         </div>
                     </div>
                 `;
             }).join('');
-            
+
             renderUpcomingLeaves();
+        }
+
+        // Expand/collapse a staff member's leave dropdown
+        function toggleLeaveDropdown(ddId, headerEl) {
+            const list = document.getElementById(ddId);
+            if (!list) return;
+            const isOpen = list.style.display !== 'none';
+            list.style.display = isOpen ? 'none' : 'block';
+            const chevron = headerEl.querySelector('.leave-dropdown-chevron');
+            if (chevron) chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+
+        // Popup with the full details of a single leave record
+        function showLeaveDetails(leaveId) {
+            const leave = leaveRecords.find(l => l.id === leaveId);
+            if (!leave) { showAlert('⚠️ Leave record not found'); return; }
+            const staff = staffData.find(s => sameId(s.trn, leave.staffId));
+            const c = getLeaveTypeColor(leave.leaveType);
+            const status = getLeaveStatus(leave.startDate, leave.endDate);
+            const days = calculateLeaveDays(leave.startDate, leave.endDate);
+
+            document.getElementById('leaveDetailTitle').innerHTML =
+                `${getLeaveTypeIcon(leave.leaveType)} ${getLeaveTypeName(leave.leaveType)}`;
+
+            const attachmentHtml = leave.attachment ? `
+                <div style="margin-top: 16px; padding: 12px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 8px; min-width:0;">
+                        <span style="font-size: 20px;">📎</span>
+                        <div style="min-width:0;">
+                            <div style="font-weight: 500; color: #1e293b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${leave.attachment.filename}</div>
+                            <div style="font-size: 12px; color: #64748b;">${(leave.attachment.size / 1024).toFixed(1)} KB</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="downloadLeaveAttachment('${leave.id}')" style="padding: 6px 12px; font-size: 13px; white-space:nowrap;">📥 Download</button>
+                </div>` : '';
+
+            document.getElementById('leaveDetailContent').innerHTML = `
+                <div style="border-left: 6px solid ${c.solid}; background: ${c.bg}; padding: 14px 16px; border-radius: 10px; margin-bottom: 16px;">
+                    <div style="font-size: 18px; font-weight: 700; color: #1a202c;">${staff ? staff.name : 'Unknown Staff'}</div>
+                    <div style="font-size: 13px; color: #475569; margin-top: 2px;">${staff ? `TRN: ${staff.trn} • ${staff.department}${staff.role ? ' • ' + staff.role : ''}` : `ID: ${leave.staffId}`}</div>
+                </div>
+                <div class="detail-row"><span class="detail-label">Leave Type:</span><span class="detail-value"><span class="leave-type-badge ${leave.leaveType}" style="background:${c.bg};color:${c.text};">${getLeaveTypeName(leave.leaveType)}</span></span></div>
+                <div class="detail-row"><span class="detail-label">Start Date:</span><span class="detail-value">${formatDate(leave.startDate)}</span></div>
+                <div class="detail-row"><span class="detail-label">End Date:</span><span class="detail-value">${formatDate(leave.endDate)}</span></div>
+                <div class="detail-row"><span class="detail-label">Duration:</span><span class="detail-value">${days} day${days === 1 ? '' : 's'}</span></div>
+                <div class="detail-row"><span class="detail-label">Status:</span><span class="detail-value"><span class="leave-status ${status}">${status}</span></span></div>
+                <div class="detail-row"><span class="detail-label">Reason / Notes:</span><span class="detail-value" style="white-space: normal;">${leave.reason ? leave.reason : '—'}</span></div>
+                ${attachmentHtml}
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
+                    <button class="btn btn-secondary" onclick="closeLeaveDetailModal()">Close</button>
+                    <button class="btn btn-primary" onclick="closeLeaveDetailModal(); openEditLeaveModal('${leave.id}')">✏️ Edit</button>
+                    <button class="btn btn-danger" onclick="deleteLeaveRecord('${leave.id}'); closeLeaveDetailModal();">🗑️ Delete</button>
+                </div>
+            `;
+            document.getElementById('leaveDetailModal').classList.add('active');
+        }
+
+        function closeLeaveDetailModal() {
+            document.getElementById('leaveDetailModal').classList.remove('active');
         }
 
         function renderUpcomingLeaves() {
@@ -8144,7 +8642,7 @@
         }
 
         function openDepartmentModal(departmentName) {
-            const deptStaff = staffData.filter(s => s.department === departmentName);
+            const deptStaff = staffData.filter(s => s.department === departmentName).sort(compareStaffByName);
             const deptStatsList = deptStaff.map(s => getStaffPeriodStats(s));
             const totalAbsences = deptStatsList.reduce((sum, st) => sum + st.total, 0);
             const totalOvertime = Math.round(deptStatsList.reduce((sum, st) => sum + st.overTime, 0) * 10) / 10;
@@ -8187,7 +8685,7 @@
                 const totalDays = st.total;
                 content += `
                     <div class="staff-list-item">
-                        <h4>${staff.name} - TRN: ${staff.trn} <span style="background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; margin-left: 10px;">${staff.role || 'Staff'}</span></h4>
+                        <h4>${formatNameLastFirst(staff.name)} - TRN: ${staff.trn} <span style="background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; margin-left: 10px;">${staff.role || 'Staff'}</span></h4>
                         <div class="staff-detail-grid">
                             <div class="staff-detail-item"><span style="color: #718096;">Day Off:</span><span style="font-weight: 600;">${st.dayOff}</span></div>
                             <div class="staff-detail-item"><span style="color: #718096;">Sick Leave:</span><span style="font-weight: 600;">${st.sickLeave}</span></div>
@@ -8337,10 +8835,10 @@
             const select = document.getElementById('staffToAdd');
             const dept = selectedDept || '';
             const availableStaff = dept ? staffData.filter(s => s.department === dept) : staffData;
-            
-            select.innerHTML = '<option value="">Select Staff Member...</option>' + 
-                availableStaff.map(staff => 
-                    `<option value="${staff.trn}">${staff.name} (${staff.department})</option>`
+
+            select.innerHTML = '<option value="">Select Staff Member...</option>' +
+                staffSortedByName(availableStaff).map(staff =>
+                    `<option value="${staff.trn}">${formatNameLastFirst(staff.name)} (${staff.department})</option>`
                 ).join('');
         }
 
@@ -8530,9 +9028,12 @@
             }
             const modal = document.getElementById('staffSelectionModal');
             const listContainer = document.getElementById('staffSelectionList');
-            listContainer.innerHTML = staffData.map((staff, index) => `
+            listContainer.innerHTML = staffData
+                .map((staff, index) => ({ staff, index }))
+                .sort((a, b) => compareStaffByName(a.staff, b.staff))
+                .map(({ staff, index }) => `
                 <div style="padding: 12px; margin-bottom: 8px; background: #f7fafc; border-radius: 8px; cursor: pointer;" onclick="generateIndividualStaffReport(${index})">
-                    <div style="font-weight: 600;">${staff.name} <span style="background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-left: 8px;">${staff.role || 'Staff'}</span></div>
+                    <div style="font-weight: 600;">${formatNameLastFirst(staff.name)} <span style="background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-left: 8px;">${staff.role || 'Staff'}</span></div>
                     <div style="font-size: 13px; color: #718096;">TRN: ${staff.trn} • ${staff.department}</div>
                 </div>
             `).join('');
@@ -8865,7 +9366,47 @@
         function initStaffReportsView() {
             populateSrStaffSelect();
             populateSrDeptSelect();
+            populateSrYearSelect();
             populateSrMonthSelect();
+            populateSrDaySelect();
+        }
+
+        // Year selector spans every year that has data, plus a comfortable
+        // window around the current year, so any record is reachable.
+        function populateSrYearSelect() {
+            const sel = document.getElementById('srYearSelect');
+            if (!sel) return;
+            const prev = sel.value;
+            const years = new Set();
+            const now = new Date();
+            for (let y = now.getFullYear() - 3; y <= now.getFullYear() + 1; y++) years.add(y);
+            leaveRecords.forEach(l => {
+                const d = parseLocalDate(l.startDate); if (d) years.add(d.getFullYear());
+                const e = parseLocalDate(l.endDate); if (e) years.add(e.getFullYear());
+            });
+            timeTrackingRecords.forEach(r => {
+                const d = parseLocalDate(r.date); if (d) years.add(d.getFullYear());
+            });
+            const sorted = [...years].sort((a, b) => b - a);
+            sel.innerHTML = sorted.map(y => `<option value="${y}">${y}</option>`).join('');
+            if (prev && sorted.includes(parseInt(prev))) sel.value = prev;
+            else sel.value = String(now.getFullYear());
+        }
+
+        // Rebuild the day dropdown to match the selected year + month
+        // (includes an "All days" option for a whole-month report).
+        function populateSrDaySelect() {
+            const sel = document.getElementById('srDaySelect');
+            if (!sel) return;
+            const prev = sel.value;
+            const year = parseInt(document.getElementById('srYearSelect')?.value) || new Date().getFullYear();
+            const monthValue = document.getElementById('srMonthSelect')?.value || '';
+            const month = monthValue ? parseInt(monthValue.split('-')[1]) : (new Date().getMonth() + 1);
+            const daysInMonth = new Date(year, month, 0).getDate();
+            let options = '<option value="">All days (whole month)</option>';
+            for (let d = 1; d <= daysInMonth; d++) options += `<option value="${d}">${d}</option>`;
+            sel.innerHTML = options;
+            if (prev && parseInt(prev) <= daysInMonth) sel.value = prev; else sel.value = '';
         }
 
         function populateSrStaffSelect() {
@@ -8873,7 +9414,7 @@
             if (!sel) return;
             const prev = sel.value;
             sel.innerHTML = '<option value="all">👥 All Staff</option>' +
-                staffData.map(s => `<option value="${s.trn}">${s.name} — ${s.department}</option>`).join('');
+                staffSortedByName(staffData).map(s => `<option value="${s.trn}">${formatNameLastFirst(s.name)} — ${s.department}</option>`).join('');
             if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
         }
 
@@ -8887,28 +9428,30 @@
             if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
         }
 
-        // Months of the currently selected fiscal year (Apr – Mar)
+        // Calendar months Jan–Dec (value = "-MM"); the year comes from the
+        // separate Year selector, so any month of any year is reachable.
         function populateSrMonthSelect() {
             const sel = document.getElementById('srMonthSelect');
             if (!sel) return;
             const prev = sel.value;
-            const fy = currentFiscalYearStart;
             const options = [];
-            for (let i = 0; i < 12; i++) {
-                const monthIndex = (3 + i) % 12;
-                const year = monthIndex >= 3 ? fy : fy + 1;
-                const value = `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
-                const name = new Date(year, monthIndex, 1).toLocaleString('default', { month: 'long' });
-                options.push(`<option value="${value}">${name} ${year}</option>`);
+            for (let m = 1; m <= 12; m++) {
+                const name = new Date(2000, m - 1, 1).toLocaleString('default', { month: 'long' });
+                options.push(`<option value="-${String(m).padStart(2, '0')}">${name}</option>`);
             }
             sel.innerHTML = options.join('');
             const now = new Date();
-            const currentMonthValue = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            const currentMonthValue = `-${String(now.getMonth() + 1).padStart(2, '0')}`;
             if (prev && [...sel.options].some(o => o.value === prev)) {
                 sel.value = prev;
-            } else if ([...sel.options].some(o => o.value === currentMonthValue)) {
+            } else {
                 sel.value = currentMonthValue;
             }
+        }
+
+        // Keep the day list valid when the year or month changes
+        function onSrDatePartChange() {
+            populateSrDaySelect();
         }
 
         function getStaffMonthlyDetail(staff, range) {
@@ -8918,12 +9461,12 @@
                 tracking: []
             };
             leaveRecords.forEach(leave => {
-                if (leave.staffId !== staff.trn) return;
+                if (!sameId(leave.staffId, staff.trn)) return;
                 const days = overlapDaysInRange(leave.startDate, leave.endDate, range);
                 if (days > 0) detail.leaves.push({ leave, days });
             });
             timeTrackingRecords.forEach(rec => {
-                if (rec.staffId === staff.trn && isDateInRange(rec.date, range)) detail.tracking.push(rec);
+                if (sameId(rec.staffId, staff.trn) && isDateInRange(rec.date, range)) detail.tracking.push(rec);
             });
             detail.leaves.sort((a, b) => a.leave.startDate.localeCompare(b.leave.startDate));
             detail.tracking.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
@@ -8938,7 +9481,7 @@
             let html = `
                 <div style="margin-bottom: 35px; page-break-inside: avoid;">
                     <h2 style="color: #1a202c; border-bottom: 3px solid #10b981; padding-bottom: 10px; margin-bottom: 15px;">
-                        ${staff.name} <span style="font-size: 14px; color: #718096; font-weight: 400;">TRN: ${staff.trn} • ${staff.department} • ${staff.role || 'Staff'}</span>
+                        ${formatNameLastFirst(staff.name)} <span style="font-size: 14px; color: #718096; font-weight: 400;">TRN: ${staff.trn} • ${staff.department} • ${staff.role || 'Staff'}</span>
                     </h2>
                     <div class="print-summary">
                         ${metricTile('total', stats.total, 'Total Absence Days')}
@@ -8949,6 +9492,8 @@
                         ${metricTile('late', stats.late, 'Late Arrivals')}
                         ${metricTile('overTime', stats.overTime, 'Overtime Hrs')}
                         ${metricTile('claims', stats.claims, 'Claims')}
+                        ${metricTile('paternityLeave', stats.paternityLeave || 0, 'Paternity Leave')}
+                        ${metricTile('nonReportedLeave', stats.nonReportedLeave || 0, 'Non Reported')}
                     </div>
                     <p class="sr-click-hint">💡 Click any total above to see exactly which days, along with comments</p>
                     <div class="sr-breakdown" style="display: none;"></div>
@@ -8970,9 +9515,9 @@
                 html += `
                     <h3 style="color: #1a202c; margin: 20px 0 8px;">⏰ Time Tracking Records</h3>
                     <table class="print-table">
-                        <thead><tr><th>Type</th><th>Date</th><th>Hours</th><th>Notes</th></tr></thead>
+                        <thead><tr><th>Type</th><th>Date</th><th>Time (H/M/S)</th><th>Notes</th></tr></thead>
                         <tbody>
-                            ${tracking.map(rec => `<tr><td>${getTimeTrackingTypeName(rec.type)}</td><td>${formatDate(rec.date)}</td><td>${rec.hours ? (Math.round(rec.hours * 10) / 10) : '—'}</td><td>${rec.notes || '—'}</td></tr>`).join('')}
+                            ${tracking.map(rec => `<tr><td>${getTimeTrackingTypeName(rec.type)}</td><td>${formatDate(rec.date)}</td><td>${rec.hours ? formatHoursMinutes(rec.hours) : '—'}</td><td>${rec.notes || '—'}</td></tr>`).join('')}
                         </tbody>
                     </table>
                 `;
@@ -8998,15 +9543,19 @@
             departmentalLeave: 'Departmental Leave',
             late: 'Late Arrivals',
             overTime: 'Overtime',
-            claims: 'Claims'
+            claims: 'Claims',
+            paternityLeave: 'Paternity Leave',
+            nonReportedLeave: 'Non Reported Leave'
         };
 
         const SR_LEAVE_TYPES_BY_METRIC = {
-            total: ['sick', 'vacation', 'dayoff', 'dept'],
+            total: ['sick', 'vacation', 'dayoff', 'dept', 'paternity'],
             sickLeave: ['sick'],
             vacationLeave: ['vacation'],
             dayOff: ['dayoff'],
-            departmentalLeave: ['dept']
+            departmentalLeave: ['dept'],
+            paternityLeave: ['paternity'],
+            nonReportedLeave: ['nonreported']
         };
 
         const SR_TRACKING_TYPE_BY_METRIC = {
@@ -9082,7 +9631,7 @@
                     rows.push({
                         date: parseLocalDate(rec.date),
                         category: getTimeTrackingTypeName(rec.type),
-                        hours: rec.hours ? Math.round(rec.hours * 10) / 10 : '—',
+                        hours: rec.hours ? formatHoursMinutes(rec.hours) : '—',
                         comments: rec.notes || '—'
                     });
                 });
@@ -9115,25 +9664,45 @@
                 return;
             }
 
+            // Always rebuild the filter dropdowns from the latest data before
+            // reading them, so staff/departments added elsewhere are in sync.
+            populateSrStaffSelect();
+            populateSrDeptSelect();
+
             const staffValue = document.getElementById('srStaffSelect').value;
-            const monthValue = document.getElementById('srMonthSelect').value;
+            const yearValue = parseInt(document.getElementById('srYearSelect').value);
+            const monthValue = document.getElementById('srMonthSelect').value; // "-MM"
+            const dayValue = document.getElementById('srDaySelect').value;      // "" or day number
             const deptValue = document.getElementById('srDeptSelect').value;
-            if (!monthValue) {
-                showAlert('⚠️ Please select a report month');
+            if (!yearValue || !monthValue) {
+                showAlert('⚠️ Please select a year and month');
                 return;
             }
 
-            const [year, month] = monthValue.split('-').map(Number);
-            const range = {
-                start: new Date(year, month - 1, 1),
-                end: new Date(year, month, 0, 23, 59, 59, 999)
-            };
-            const monthLabel = new Date(year, month - 1, 1).toLocaleString('default', { month: 'long', year: 'numeric' });
+            const year = yearValue;
+            const month = parseInt(monthValue.replace('-', ''));
+            const day = dayValue ? parseInt(dayValue) : null;
+
+            // A specific day narrows the range to that single date; otherwise
+            // the report covers the whole month.
+            const range = day
+                ? {
+                    start: new Date(year, month - 1, day, 0, 0, 0, 0),
+                    end: new Date(year, month - 1, day, 23, 59, 59, 999)
+                }
+                : {
+                    start: new Date(year, month - 1, 1),
+                    end: new Date(year, month, 0, 23, 59, 59, 999)
+                };
+            const monthLabel = day
+                ? new Date(year, month - 1, day).toLocaleDateString('default', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+                : new Date(year, month - 1, 1).toLocaleString('default', { month: 'long', year: 'numeric' });
 
             let targets = staffValue === 'all'
                 ? staffData.slice()
-                : staffData.filter(s => String(s.trn) === staffValue);
+                : staffData.filter(s => sameId(s.trn, staffValue));
             if (deptValue) targets = targets.filter(s => s.department === deptValue);
+            targets.sort(compareStaffByName);  // Alphabetical: last name, then first name
 
             if (targets.length === 0) {
                 showAlert('⚠️ No staff match the selected filters');
@@ -9149,7 +9718,7 @@
 
             let html = `
                 <div class="print-header">
-                    <h1>🧾 ${staffValue === 'all' ? 'All Staff' : details[0].staff.name} — Monthly Report</h1>
+                    <h1>🧾 ${staffValue === 'all' ? 'All Staff' : formatNameLastFirst(details[0].staff.name)} — Monthly Report</h1>
                     <p>${monthLabel}${deptValue ? ' • ' + deptValue + ' Department' : ''} • Generated on ${new Date().toLocaleDateString()} by ${currentUser ? currentUser.displayName : 'Chief Orderly'}</p>
                 </div>
             `;
@@ -9172,7 +9741,7 @@
                     <table class="print-table">
                         <thead><tr><th>Name</th><th>Department</th><th>Sick</th><th>Vacation</th><th>Day Off</th><th>Dept. Leave</th><th>Late</th><th>OT Hrs</th><th>Claims</th><th>Total Days</th></tr></thead>
                         <tbody>
-                            ${details.map(({ staff, detail }) => `<tr><td>${staff.name}</td><td>${staff.department}</td><td>${detail.stats.sickLeave}</td><td>${detail.stats.vacationLeave}</td><td>${detail.stats.dayOff}</td><td>${detail.stats.departmentalLeave}</td><td>${detail.stats.late}</td><td>${detail.stats.overTime}</td><td>${detail.stats.claims}</td><td><strong>${detail.stats.total}</strong></td></tr>`).join('')}
+                            ${details.map(({ staff, detail }) => `<tr><td>${formatNameLastFirst(staff.name)}</td><td>${staff.department}</td><td>${detail.stats.sickLeave}</td><td>${detail.stats.vacationLeave}</td><td>${detail.stats.dayOff}</td><td>${detail.stats.departmentalLeave}</td><td>${detail.stats.late}</td><td>${detail.stats.overTime}</td><td>${detail.stats.claims}</td><td><strong>${detail.stats.total}</strong></td></tr>`).join('')}
                         </tbody>
                     </table>
                     <h3 style="color: #1a202c; margin: 30px 0 8px;">Detailed Activity (staff with records this month)</h3>
@@ -10493,10 +11062,10 @@
             // Populate staff dropdown
             const staffSelect = document.getElementById('timeTrackingStaff');
             staffSelect.innerHTML = '<option value="">Select Staff Member...</option>';
-            staffData.forEach(staff => {
+            staffSortedByName(staffData).forEach(staff => {
                 const option = document.createElement('option');
                 option.value = staff.trn;
-                option.textContent = `${staff.name} (${staff.trn})`;
+                option.textContent = `${formatNameLastFirst(staff.name)} (${staff.trn})`;
                 staffSelect.appendChild(option);
             });
 
@@ -10505,8 +11074,10 @@
             document.getElementById('timeTrackingDate').value = '';
             document.getElementById('timeTrackingClaimsHours').value = '';
             document.getElementById('timeTrackingClaimsMinutes').value = '';
+            document.getElementById('timeTrackingClaimsSeconds').value = '';
             document.getElementById('timeTrackingHours').value = '';
             document.getElementById('timeTrackingMinutes').value = '';
+            document.getElementById('timeTrackingSeconds').value = '';
             document.getElementById('timeTrackingNotes').value = '';
             document.getElementById('timeTrackingEditId').value = '';
 
@@ -10548,17 +11119,15 @@
                 document.getElementById('timeTrackingNotes').value = editRecord.notes || '';
 
                 if (type === 'claims' && editRecord.hours !== undefined) {
-                    const totalMinutes = Math.round(editRecord.hours * 60);
-                    const hours = Math.floor(totalMinutes / 60);
-                    const minutes = totalMinutes % 60;
-                    document.getElementById('timeTrackingClaimsHours').value = hours;
-                    document.getElementById('timeTrackingClaimsMinutes').value = minutes;
+                    const { h, m, s } = splitHoursToHMS(editRecord.hours);
+                    document.getElementById('timeTrackingClaimsHours').value = h;
+                    document.getElementById('timeTrackingClaimsMinutes').value = m;
+                    document.getElementById('timeTrackingClaimsSeconds').value = s;
                 } else if ((type === 'late' || type === 'overtime') && editRecord.hours !== undefined) {
-                    const totalMinutes = Math.round(editRecord.hours * 60);
-                    const hours = Math.floor(totalMinutes / 60);
-                    const minutes = totalMinutes % 60;
-                    document.getElementById('timeTrackingHours').value = hours;
-                    document.getElementById('timeTrackingMinutes').value = minutes;
+                    const { h, m, s } = splitHoursToHMS(editRecord.hours);
+                    document.getElementById('timeTrackingHours').value = h;
+                    document.getElementById('timeTrackingMinutes').value = m;
+                    document.getElementById('timeTrackingSeconds').value = s;
                 }
             }
 
@@ -10591,16 +11160,18 @@
                 return;
             }
 
-            // Calculate hours for claims (now using hours/minutes)
+            // Calculate decimal hours from Hours / Minutes / Seconds inputs
             let hours = 0;
             if (currentTimeTrackingType === 'claims') {
                 const claimsHours = parseInt(document.getElementById('timeTrackingClaimsHours').value) || 0;
                 const claimsMinutes = parseInt(document.getElementById('timeTrackingClaimsMinutes').value) || 0;
-                hours = claimsHours + (claimsMinutes / 60);
+                const claimsSeconds = parseInt(document.getElementById('timeTrackingClaimsSeconds').value) || 0;
+                hours = claimsHours + (claimsMinutes / 60) + (claimsSeconds / 3600);
             } else if (currentTimeTrackingType === 'late' || currentTimeTrackingType === 'overtime') {
                 const inputHours = parseInt(document.getElementById('timeTrackingHours').value) || 0;
                 const inputMinutes = parseInt(document.getElementById('timeTrackingMinutes').value) || 0;
-                hours = inputHours + (inputMinutes / 60);
+                const inputSeconds = parseInt(document.getElementById('timeTrackingSeconds').value) || 0;
+                hours = inputHours + (inputMinutes / 60) + (inputSeconds / 3600);
             }
 
             if (isEditing) {
@@ -10746,15 +11317,30 @@
             return icons[type] || '📝';
         }
 
+        // Split a decimal-hours value into whole hours / minutes / seconds.
+        function splitHoursToHMS(hours) {
+            let totalSeconds = Math.round((hours || 0) * 3600);
+            const h = Math.floor(totalSeconds / 3600);
+            totalSeconds -= h * 3600;
+            const m = Math.floor(totalSeconds / 60);
+            const s = totalSeconds - m * 60;
+            return { h, m, s };
+        }
+
+        // Format a decimal-hours value as Hours / Minutes / Seconds.
         function formatHoursMinutes(hours) {
             if (!hours && hours !== 0) return '-';
-            const totalMinutes = Math.round(hours * 60);
-            const h = Math.floor(totalMinutes / 60);
-            const m = totalMinutes % 60;
-            if (h === 0 && m === 0) return '-';
-            if (h === 0) return `${m}m`;
-            if (m === 0) return `${h}h`;
-            return `${h}h ${m}m`;
+            let totalSeconds = Math.round(hours * 3600);
+            const h = Math.floor(totalSeconds / 3600);
+            totalSeconds -= h * 3600;
+            const m = Math.floor(totalSeconds / 60);
+            const s = totalSeconds - m * 60;
+            if (h === 0 && m === 0 && s === 0) return '-';
+            const parts = [];
+            if (h > 0) parts.push(`${h}h`);
+            if (m > 0) parts.push(`${m}m`);
+            if (s > 0) parts.push(`${s}s`);
+            return parts.join(' ');
         }
 
         function renderTimeTrackingRecords() {
@@ -10775,13 +11361,10 @@
                 const typeIcon = getTimeTrackingTypeIcon(record.type);
                 const typeName = getTimeTrackingTypeName(record.type);
 
-                // Display hours for all types (claims now uses hours instead of amount)
+                // Display all record time as Hours / Minutes / Seconds
                 let details = '-';
                 if (record.hours !== undefined && record.hours !== null) {
                     details = formatHoursMinutes(record.hours);
-                } else if (record.amount !== undefined) {
-                    // Legacy support for old claims with amount - convert to display as hours
-                    details = `$${record.amount.toFixed(2)} (legacy)`;
                 }
 
                 // Build action buttons - Edit only for Admin
@@ -10907,15 +11490,15 @@
             const dayoff = timeTrackingRecords.filter(r => r.type === 'dayoff');
             const overtime = timeTrackingRecords.filter(r => r.type === 'overtime');
 
-            // Calculate total claims hours
+            // Calculate total claims time (shown as H / M / S)
             const totalClaimsHours = claims.reduce((sum, r) => sum + (r.hours || 0), 0);
-            document.getElementById('totalClaimsHours').textContent = totalClaimsHours.toFixed(1);
+            document.getElementById('totalClaimsHours').textContent = formatHoursMinutes(totalClaimsHours);
 
             document.getElementById('totalLateCount').textContent = late.length;
             document.getElementById('totalDayOffCount').textContent = dayoff.length;
 
             const totalOvertimeHours = overtime.reduce((sum, r) => sum + (r.hours || 0), 0);
-            document.getElementById('totalOvertimeHours').textContent = totalOvertimeHours.toFixed(1);
+            document.getElementById('totalOvertimeHours').textContent = formatHoursMinutes(totalOvertimeHours);
         }
 
         // Initialize time tracking on page load
@@ -10945,11 +11528,11 @@
             const select = document.getElementById('pmasEmployeeSelect');
             const currentVal = select.value;
             select.innerHTML = '<option value="">-- Select Employee --</option>';
-            const sorted = [...staffData].sort((a, b) => a.name.localeCompare(b.name));
+            const sorted = staffSortedByName(staffData);
             sorted.forEach(staff => {
                 const opt = document.createElement('option');
                 opt.value = staff.trn;
-                opt.textContent = staff.name + ' (' + staff.trn + ') - ' + staff.department;
+                opt.textContent = formatNameLastFirst(staff.name) + ' (' + staff.trn + ') - ' + staff.department;
                 select.appendChild(opt);
             });
             if (currentVal) select.value = currentVal;
